@@ -1,12 +1,17 @@
-import type { IIngredient } from "./IIngredient";
-import type { IRecipe } from "./IRecipe";
+import type { IKitchenItem } from "./IKitchenItem";
 
-export interface IDish {
-  dishId: number;
-  dishName: string;
-  dishImage: string | null;
-  recipe: IRecipe | null;
+export interface IDish extends IKitchenItem {
   type: string;
-  cuisine: string | null;
-  ingredients: IIngredient[];
+  cuisine: Cuisine;
 }
+
+export type Cuisine =
+  | "Asian"
+  | "Indian"
+  | "Mediterranean"
+  | "French"
+  | "Norwegian"
+  | "Mexican"
+  | "Italian"
+  | "Grill"
+  | "Other";

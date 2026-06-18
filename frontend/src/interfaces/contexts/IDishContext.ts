@@ -1,7 +1,7 @@
 import type { IDish } from "../IDish";
 
 export interface IDishContext {
-  showcases: IDish[];
+  dishes: IDish[];
   dishIsLoading: boolean;
   initError: string | null;
 }
