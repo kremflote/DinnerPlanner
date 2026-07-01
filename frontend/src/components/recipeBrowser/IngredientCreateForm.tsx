@@ -1,31 +1,128 @@
-import { useState, type FormEvent } from "react";
-import { useIngredients } from "../../contexts";
-import type { IngredientCategory, MeasurementUnit } from "../../interfaces/IIngredient";
-import { ingredientService } from "../../services";
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import IngredientThumbnail from "../IngredientThumbnail";
+import { useBrands, useIngredients, useRecipes } from "../../contexts";
+import type { IIngredient, IngredientTag, Vitamin } from "../../interfaces/IIngredient";
+import { brandService, ingredientService } from "../../services";
 import type { SiteTheme } from "../../styles/appStyles";
-import { ingredientCategories, measurementUnits } from "./formOptions";
+import { ingredientTags, vitamins } from "./formOptions";
+import CreatableSelect from "./CreatableSelect";
 import { formatLabel, recipeBrowserStyles } from "./recipeBrowserStyles";
 
 type IngredientCreateFormProps = {
+  initialIngredient?: IIngredient | null;
   theme: SiteTheme;
   onCreated: () => void;
   onCancel: () => void;
 };
 
-function IngredientCreateForm({ theme, onCreated, onCancel }: IngredientCreateFormProps) {
+type NutritionNumberFieldProps = {
+  label: string;
+  theme: SiteTheme;
+  value: string;
+  className?: string;
+  step?: string;
+  unit?: string;
+  onChange: (value: string) => void;
+};
+
+function NutritionNumberField({
+  label,
+  theme,
+  value,
+  className = "",
+  step = "0.1",
+  unit = "g",
+  onChange,
+}: NutritionNumberFieldProps) {
+  return (
+    <label className={`${recipeBrowserStyles.field} ${className}`}>
+      <span className={recipeBrowserStyles.label(theme)}>{label}</span>
+      <span className={recipeBrowserStyles.numberField}>
+        <input
+          className={recipeBrowserStyles.numberFieldInput(theme)}
+          min="0"
+          step={step}
+          type="number"
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+        />
+        <span className={recipeBrowserStyles.numberFieldSuffix(theme)}>{unit}</span>
+      </span>
+    </label>
+  );
+}
+
+function IngredientCreateForm({
+  initialIngredient = null,
+  theme,
+  onCreated,
+  onCancel,
+}: IngredientCreateFormProps) {
+  const isEditing = initialIngredient !== null;
+  const { brands, refreshBrands } = useBrands();
   const { refreshIngredients } = useIngredients();
-  const [ingredientName, setIngredientName] = useState("");
-  const [brand, setBrand] = useState("");
-  const [price, setPrice] = useState("");
-  const [amount, setAmount] = useState("");
-  const [unit, setUnit] = useState<MeasurementUnit>("Piece");
-  const [category, setCategory] = useState<IngredientCategory>("Vegetable");
-  const [calories, setCalories] = useState("");
-  const [vitamins, setVitamins] = useState("");
-  const [dietaryFiberGrams, setDietaryFiberGrams] = useState("");
-  const [color, setColor] = useState("");
+  const { refreshRecipes } = useRecipes();
+  const [ingredientName, setIngredientName] = useState(initialIngredient?.ingredientName ?? "");
+  const [brandId, setBrandId] = useState<number | null>(initialIngredient?.brandId ?? null);
+  const [price, setPrice] = useState(numberToInputValue(initialIngredient?.price));
+  const [selectedTags, setSelectedTags] = useState<IngredientTag[]>(
+    initialIngredient && initialIngredient.tags.length > 0 ? [...initialIngredient.tags] : ["Vegetable"],
+  );
+  const [calories, setCalories] = useState(numberToInputValue(initialIngredient?.nutritionPer100?.calories));
+  const [carbohydrateGrams, setCarbohydrateGrams] = useState(
+    numberToInputValue(initialIngredient?.nutritionPer100?.carbohydrateGrams),
+  );
+  const [proteinGrams, setProteinGrams] = useState(numberToInputValue(initialIngredient?.nutritionPer100?.proteinGrams));
+  const [saltGrams, setSaltGrams] = useState(numberToInputValue(initialIngredient?.nutritionPer100?.saltGrams));
+  const [dietaryFiberGrams, setDietaryFiberGrams] = useState(
+    numberToInputValue(initialIngredient?.nutritionPer100?.dietaryFiberGrams),
+  );
+  const [saturatedFatGrams, setSaturatedFatGrams] = useState(
+    numberToInputValue(initialIngredient?.nutritionPer100?.saturatedFatGrams),
+  );
+  const [unsaturatedFatGrams, setUnsaturatedFatGrams] = useState(
+    numberToInputValue(initialIngredient?.nutritionPer100?.unsaturatedFatGrams),
+  );
+  const [monounsaturatedFatGrams, setMonounsaturatedFatGrams] = useState(
+    numberToInputValue(initialIngredient?.nutritionPer100?.monounsaturatedFatGrams),
+  );
+  const [polyunsaturatedFatGrams, setPolyunsaturatedFatGrams] = useState(
+    numberToInputValue(initialIngredient?.nutritionPer100?.polyunsaturatedFatGrams),
+  );
+  const [selectedVitamins, setSelectedVitamins] = useState<Vitamin[]>(
+    initialIngredient?.nutritionPer100?.vitamins ?? [],
+  );
+  const [color, setColor] = useState(initialIngredient?.color ?? "");
+  const [colorDraft, setColorDraft] = useState("#00d83b");
+  const [showColorPicker, setShowColorPicker] = useState(false);
+  const [showNutrition, setShowNutrition] = useState(initialIngredient?.nutritionPer100 !== null);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const colorControlRef = useRef<HTMLElement | null>(null);
+  const selectedBrand = brands.find((brand) => brand.brandId === brandId) ?? null;
+
+  useEffect(() => {
+    if (!showColorPicker) {
+      return;
+    }
+
+    const handleOutsidePointerDown = (event: PointerEvent) => {
+      const target = event.target;
+      if (!(target instanceof Node)) {
+        return;
+      }
+
+      if (colorControlRef.current?.contains(target)) {
+        return;
+      }
+
+      setShowColorPicker(false);
+    };
+
+    document.addEventListener("pointerdown", handleOutsidePointerDown);
+
+    return () => document.removeEventListener("pointerdown", handleOutsidePointerDown);
+  }, [showColorPicker]);
 
   const submitIngredient = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -36,29 +133,47 @@ function IngredientCreateForm({ theme, onCreated, onCancel }: IngredientCreateFo
       return;
     }
 
+    if (selectedTags.length === 0) {
+      setError("Choose at least one ingredient tag.");
+      return;
+    }
+
     setIsSaving(true);
     setError(null);
 
     try {
-      await ingredientService.create({
+      const request = {
         ingredientName: trimmedName,
-        brand: nullableText(brand),
+        description: initialIngredient?.description ?? null,
+        brandId,
         price: nullableNumber(price),
-        amount: nullableNumber(amount),
-        unit,
-        category,
+        tags: selectedTags,
         nutritionPer100: {
           calories: nullableNumber(calories),
-          vitamins: nullableText(vitamins),
+          carbohydrateGrams: nullableNumber(carbohydrateGrams),
+          proteinGrams: nullableNumber(proteinGrams),
+          saltGrams: nullableNumber(saltGrams),
           dietaryFiberGrams: nullableNumber(dietaryFiberGrams),
+          saturatedFatGrams: nullableNumber(saturatedFatGrams),
+          unsaturatedFatGrams: nullableNumber(unsaturatedFatGrams),
+          monounsaturatedFatGrams: nullableNumber(monounsaturatedFatGrams),
+          polyunsaturatedFatGrams: nullableNumber(polyunsaturatedFatGrams),
+          vitamins: selectedVitamins,
         },
         color: nullableText(color),
-      });
+      };
+
+      if (isEditing) {
+        await ingredientService.update(initialIngredient.ingredientId, request);
+      } else {
+        await ingredientService.create(request);
+      }
 
       await refreshIngredients();
+      await refreshRecipes();
       onCreated();
     } catch (caughtError) {
-      setError(caughtError instanceof Error ? caughtError.message : "Could not create ingredient.");
+      setError(caughtError instanceof Error ? caughtError.message : "Could not save ingredient.");
     } finally {
       setIsSaving(false);
     }
@@ -70,7 +185,9 @@ function IngredientCreateForm({ theme, onCreated, onCancel }: IngredientCreateFo
 
       <div className={recipeBrowserStyles.formGrid}>
         <label className={recipeBrowserStyles.field}>
-          <span className={recipeBrowserStyles.label(theme)}>Name</span>
+          <span className={recipeBrowserStyles.label(theme)}>
+            Name<span className={recipeBrowserStyles.requiredMark(theme)}> *</span>
+          </span>
           <input
             className={recipeBrowserStyles.textField(theme)}
             maxLength={160}
@@ -81,72 +198,23 @@ function IngredientCreateForm({ theme, onCreated, onCancel }: IngredientCreateFo
           />
         </label>
 
-        <label className={recipeBrowserStyles.field}>
-          <span className={recipeBrowserStyles.label(theme)}>Category</span>
-          <select
-            className={recipeBrowserStyles.textField(theme)}
-            value={category}
-            onChange={(event) => setCategory(event.target.value as IngredientCategory)}
-          >
-            {ingredientCategories.map((value) => (
-              <option key={value} value={value}>
-                {formatLabel(value)}
-              </option>
-            ))}
-          </select>
-        </label>
+        <CreatableSelect
+          createLabel="Create New"
+          label="Brand"
+          options={brands.map((brand) => ({ id: brand.brandId, name: brand.name }))}
+          placeholder="Select brand"
+          theme={theme}
+          value={brandId}
+          onChange={setBrandId}
+          onCreate={async (name) => {
+            const brand = await brandService.create({ name });
+            await refreshBrands();
+            return { id: brand.brandId, name: brand.name };
+          }}
+        />
 
         <label className={recipeBrowserStyles.field}>
-          <span className={recipeBrowserStyles.label(theme)}>Brand</span>
-          <input
-            className={recipeBrowserStyles.textField(theme)}
-            maxLength={120}
-            type="text"
-            value={brand}
-            onChange={(event) => setBrand(event.target.value)}
-          />
-        </label>
-
-        <label className={recipeBrowserStyles.field}>
-          <span className={recipeBrowserStyles.label(theme)}>Color</span>
-          <input
-            className={recipeBrowserStyles.textField(theme)}
-            placeholder="#00d83b"
-            type="text"
-            value={color}
-            onChange={(event) => setColor(event.target.value)}
-          />
-        </label>
-
-        <label className={recipeBrowserStyles.field}>
-          <span className={recipeBrowserStyles.label(theme)}>Amount</span>
-          <input
-            className={recipeBrowserStyles.textField(theme)}
-            min="0"
-            step="0.01"
-            type="number"
-            value={amount}
-            onChange={(event) => setAmount(event.target.value)}
-          />
-        </label>
-
-        <label className={recipeBrowserStyles.field}>
-          <span className={recipeBrowserStyles.label(theme)}>Unit</span>
-          <select
-            className={recipeBrowserStyles.textField(theme)}
-            value={unit}
-            onChange={(event) => setUnit(event.target.value as MeasurementUnit)}
-          >
-            {measurementUnits.map((value) => (
-              <option key={value} value={value}>
-                {formatLabel(value)}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className={recipeBrowserStyles.field}>
-          <span className={recipeBrowserStyles.label(theme)}>Price</span>
+          <span className={recipeBrowserStyles.label(theme)}>Price per kg</span>
           <input
             className={recipeBrowserStyles.textField(theme)}
             min="0"
@@ -157,51 +225,194 @@ function IngredientCreateForm({ theme, onCreated, onCancel }: IngredientCreateFo
           />
         </label>
 
-        <label className={recipeBrowserStyles.field}>
-          <span className={recipeBrowserStyles.label(theme)}>Calories per 100</span>
-          <input
-            className={recipeBrowserStyles.textField(theme)}
-            min="0"
-            step="1"
-            type="number"
-            value={calories}
-            onChange={(event) => setCalories(event.target.value)}
-          />
-        </label>
-
-        <label className={recipeBrowserStyles.field}>
-          <span className={recipeBrowserStyles.label(theme)}>Dietary fiber grams</span>
-          <input
-            className={recipeBrowserStyles.textField(theme)}
-            min="0"
-            step="0.1"
-            type="number"
-            value={dietaryFiberGrams}
-            onChange={(event) => setDietaryFiberGrams(event.target.value)}
-          />
-        </label>
-
-        <label className={recipeBrowserStyles.field}>
-          <span className={recipeBrowserStyles.label(theme)}>Vitamins</span>
-          <input
-            className={recipeBrowserStyles.textField(theme)}
-            type="text"
-            value={vitamins}
-            onChange={(event) => setVitamins(event.target.value)}
-          />
-        </label>
+        <section className={recipeBrowserStyles.field}>
+          <span className={recipeBrowserStyles.label(theme)}>Nutrition</span>
+          <button
+            aria-expanded={showNutrition}
+            className={recipeBrowserStyles.detailsToggleFull(theme)}
+            type="button"
+            onClick={() => setShowNutrition((currentValue) => !currentValue)}
+          >
+            {showNutrition ? "Hide nutrition" : "Add nutrition"}
+          </button>
+        </section>
       </div>
 
-      <p className={recipeBrowserStyles.helperText(theme)}>
-        Nutrition fields are optional and stored per 100 units.
-      </p>
+      {showNutrition && (
+        <div className={recipeBrowserStyles.detailsPanel(theme)}>
+          <div className={recipeBrowserStyles.formGrid}>
+            <NutritionNumberField
+              label="Calories per 100g"
+              step="1"
+              theme={theme}
+              unit="kcal"
+              value={calories}
+              onChange={setCalories}
+            />
+            <NutritionNumberField
+              label="Carbs per 100g"
+              theme={theme}
+              value={carbohydrateGrams}
+              onChange={setCarbohydrateGrams}
+            />
+            <NutritionNumberField
+              label="Protein per 100g"
+              theme={theme}
+              value={proteinGrams}
+              onChange={setProteinGrams}
+            />
+            <NutritionNumberField
+              label="Salt per 100g"
+              step="0.01"
+              theme={theme}
+              value={saltGrams}
+              onChange={setSaltGrams}
+            />
+            <NutritionNumberField
+              label="Fiber per 100g"
+              theme={theme}
+              value={dietaryFiberGrams}
+              onChange={setDietaryFiberGrams}
+            />
+            <NutritionNumberField
+              className="md:col-start-1"
+              label="Saturated fats per 100g"
+              theme={theme}
+              value={saturatedFatGrams}
+              onChange={setSaturatedFatGrams}
+            />
+            <NutritionNumberField
+              label="Unsaturated fats per 100g"
+              theme={theme}
+              value={unsaturatedFatGrams}
+              onChange={setUnsaturatedFatGrams}
+            />
+            <NutritionNumberField
+              label="Monounsaturated fats per 100g"
+              theme={theme}
+              value={monounsaturatedFatGrams}
+              onChange={setMonounsaturatedFatGrams}
+            />
+            <NutritionNumberField
+              label="Polyunsaturated fats per 100g"
+              theme={theme}
+              value={polyunsaturatedFatGrams}
+              onChange={setPolyunsaturatedFatGrams}
+            />
+          </div>
+
+          <section className={recipeBrowserStyles.field}>
+            <span className={recipeBrowserStyles.label(theme)}>Vitamins</span>
+            <div className={`${recipeBrowserStyles.tagCheckboxGrid} ${recipeBrowserStyles.checkboxGridPanel(theme)}`}>
+              {vitamins.map((vitamin) => (
+                <label className={recipeBrowserStyles.checkboxLabel(theme)} key={vitamin}>
+                  <input
+                    checked={selectedVitamins.includes(vitamin)}
+                    className={recipeBrowserStyles.checkbox}
+                    type="checkbox"
+                    onChange={() => setSelectedVitamins((currentVitamins) => toggleValue(currentVitamins, vitamin))}
+                  />
+                  {formatLabel(vitamin)}
+                </label>
+              ))}
+            </div>
+          </section>
+        </div>
+      )}
+
+      <section className={recipeBrowserStyles.field}>
+        <span className={recipeBrowserStyles.label(theme)}>
+          Tags<span className={recipeBrowserStyles.requiredMark(theme)}> *</span>
+          <span className={recipeBrowserStyles.inlineHint(theme)}>Pick 1 or more</span>
+        </span>
+        <div className={`${recipeBrowserStyles.tagCheckboxGrid} ${recipeBrowserStyles.checkboxGridPanel(theme)}`}>
+          {ingredientTags.map((value) => (
+            <label className={recipeBrowserStyles.checkboxLabel(theme)} key={value}>
+              <input
+                checked={selectedTags.includes(value)}
+                className={recipeBrowserStyles.checkbox}
+                type="checkbox"
+                onChange={() => setSelectedTags((currentTags) => toggleValue(currentTags, value))}
+              />
+              {formatLabel(value)}
+            </label>
+          ))}
+        </div>
+      </section>
+
+      <div className={recipeBrowserStyles.formGrid}>
+        <section className={recipeBrowserStyles.field} ref={colorControlRef}>
+          <span className={recipeBrowserStyles.label(theme)}>Color</span>
+          <button
+            className={recipeBrowserStyles.colorFieldButton(theme)}
+            type="button"
+            onClick={() => {
+              setColorDraft(isHexColor(color) ? color : "#00d83b");
+              setShowColorPicker((currentValue) => !currentValue);
+            }}
+          >
+            <span>{color || "Select color"}</span>
+            <span
+              aria-hidden="true"
+              className={recipeBrowserStyles.colorSwatch}
+              style={{ backgroundColor: isHexColor(color) ? color : "transparent" }}
+            />
+          </button>
+          {showColorPicker && (
+            <div
+              className={recipeBrowserStyles.colorPickerPanel(theme)}
+              onPointerDown={(event) => event.stopPropagation()}
+            >
+              <input
+                aria-label="Choose ingredient color"
+                className={recipeBrowserStyles.colorPickerInput}
+                type="color"
+                value={colorDraft}
+                onChange={(event) => setColorDraft(event.target.value)}
+              />
+              <div className="flex items-center justify-end gap-3">
+                <button
+                  className={recipeBrowserStyles.secondaryButton(theme)}
+                  type="button"
+                  onClick={() => setShowColorPicker(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className={recipeBrowserStyles.primaryButton(theme)}
+                  type="button"
+                  onClick={() => {
+                    setColor(colorDraft);
+                    setShowColorPicker(false);
+                  }}
+                >
+                  OK
+                </button>
+              </div>
+            </div>
+          )}
+        </section>
+
+        <section className={recipeBrowserStyles.field}>
+          <span className={recipeBrowserStyles.label(theme)}>Ingredient preview</span>
+          <IngredientThumbnail
+            ingredient={{
+              ingredientName: ingredientName.trim() || "Ingredient",
+              brand: selectedBrand,
+              tags: selectedTags,
+              color: nullableText(color),
+            }}
+            theme={theme}
+          />
+        </section>
+      </div>
 
       <div className={recipeBrowserStyles.formActions}>
         <button className={recipeBrowserStyles.secondaryButton(theme)} disabled={isSaving} type="button" onClick={onCancel}>
           Cancel
         </button>
         <button className={recipeBrowserStyles.primaryButton(theme)} disabled={isSaving} type="submit">
-          {isSaving ? "Saving..." : "Create ingredient"}
+          {isSaving ? "Saving..." : isEditing ? "Save ingredient" : "Create ingredient"}
         </button>
       </div>
     </form>
@@ -221,6 +432,20 @@ function nullableNumber(value: string) {
 
   const parsedValue = Number(trimmedValue);
   return Number.isFinite(parsedValue) ? parsedValue : null;
+}
+
+function numberToInputValue(value: number | null | undefined) {
+  return value === null || value === undefined ? "" : value.toString();
+}
+
+function isHexColor(value: string) {
+  return /^#[0-9a-f]{6}$/i.test(value);
+}
+
+function toggleValue<TValue>(values: TValue[], value: TValue) {
+  return values.includes(value)
+    ? values.filter((currentValue) => currentValue !== value)
+    : [...values, value];
 }
 
 export default IngredientCreateForm;

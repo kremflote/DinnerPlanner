@@ -1,7 +1,15 @@
-import type { IIngredient } from "../interfaces/IIngredient";
+import type { IIngredient, IngredientTag, INutritionFacts } from "../interfaces/IIngredient";
 import { apiRequest } from "./apiClient";
 
-export type IngredientRequest = Omit<IIngredient, "ingredientId">;
+export interface IngredientRequest {
+  ingredientName: string;
+  description: string | null;
+  brandId: number | null;
+  price: number | null;
+  tags: IngredientTag[];
+  nutritionPer100: INutritionFacts | null;
+  color: string | null;
+}
 
 export const ingredientService = {
   getAll: () => apiRequest<IIngredient[]>("/api/ingredients"),

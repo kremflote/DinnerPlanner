@@ -10,17 +10,17 @@ Accept: application/json
 
 ###
 
+GET {{backend_HostAddress}}/api/brands
+Accept: application/json
+
+###
+
+GET {{backend_HostAddress}}/api/cuisines
+Accept: application/json
+
+###
+
 GET {{backend_HostAddress}}/api/recipes
-Accept: application/json
-
-###
-
-GET {{backend_HostAddress}}/api/dishes
-Accept: application/json
-
-###
-
-GET {{backend_HostAddress}}/api/desserts
 Accept: application/json
 
 ###
@@ -35,11 +35,10 @@ Content-Type: application/json
 
 {
   "ingredientName": "Chicken thigh",
-  "brand": null,
+  "description": "Dark chicken cut with more fat and stronger flavor than chicken breast.",
+  "brandId": null,
   "price": 79.90,
-  "amount": 1,
-  "unit": "Kilogram",
-  "category": "Chicken",
+  "tags": ["Chicken"],
   "nutritionPer100": null,
   "color": "#e8b48f"
 }
@@ -55,36 +54,16 @@ Content-Type: application/json
   "imageUrl": null,
   "description": "Plain boiled rice.",
   "instructions": "Rinse rice and boil until tender.",
-  "ingredientIds": [4]
-}
-
-###
-
-POST {{backend_HostAddress}}/api/dishes
-Content-Type: application/json
-
-{
-  "name": "Chicken rice bowl",
-  "imageUrl": null,
-  "description": "Simple chicken bowl with rice.",
-  "instructions": "Cook rice. Fry chicken until done.",
-  "ingredientIds": [1, 4],
-  "types": ["Bowl"],
-  "cuisine": "Asian"
-}
-
-###
-
-POST {{backend_HostAddress}}/api/desserts
-Content-Type: application/json
-
-{
-  "name": "Lemon yogurt dessert",
-  "imageUrl": null,
-  "description": "Fresh yogurt dessert with lemon.",
-  "instructions": "Mix yogurt and lemon, then chill.",
-  "ingredientIds": [3, 5],
-  "type": "Pudding"
+  "ingredients": [
+    {
+      "ingredientId": 4,
+      "amount": 250,
+      "unit": "Gram"
+    }
+  ],
+  "tags": ["Dinner"],
+  "cuisineId": null,
+  "dessertType": null
 }
 
 ###

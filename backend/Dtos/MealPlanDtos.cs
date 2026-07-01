@@ -12,9 +12,9 @@ public record MealPlanRecipeRequest(
 public record MealPlanEntryRequest(
     DateOnly Date,
     MealSlot Slot,
-    [property: StringLength(500)]
+    [StringLength(500)]
     string? Notes,
-    [property: Required]
+    [Required]
     IReadOnlyCollection<MealPlanRecipeRequest> Recipes
 );
 

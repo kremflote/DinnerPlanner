@@ -3,6 +3,7 @@ using System;
 using DinnerPlanner.Api.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,97 +11,14 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace backend.Migrations
 {
     [DbContext(typeof(DinnerPlannerContext))]
-    partial class DinnerPlannerContextModelSnapshot : ModelSnapshot
+    [Migration("20260701111519_MoveAmountUnitToRecipeIngredients")]
+    partial class MoveAmountUnitToRecipeIngredients
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
-
-            modelBuilder.Entity("DinnerPlanner.Api.Models.Brand", b =>
-                {
-                    b.Property<int>("BrandId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("BrandId");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("Brands");
-                });
-
-            modelBuilder.Entity("DinnerPlanner.Api.Models.Cuisine", b =>
-                {
-                    b.Property<int>("CuisineId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("CuisineId");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("Cuisines");
-
-                    b.HasData(
-                        new
-                        {
-                            CuisineId = 1,
-                            Name = "Asian"
-                        },
-                        new
-                        {
-                            CuisineId = 2,
-                            Name = "Indian"
-                        },
-                        new
-                        {
-                            CuisineId = 3,
-                            Name = "Mediterranean"
-                        },
-                        new
-                        {
-                            CuisineId = 4,
-                            Name = "French"
-                        },
-                        new
-                        {
-                            CuisineId = 5,
-                            Name = "Norwegian"
-                        },
-                        new
-                        {
-                            CuisineId = 6,
-                            Name = "Mexican"
-                        },
-                        new
-                        {
-                            CuisineId = 7,
-                            Name = "Italian"
-                        },
-                        new
-                        {
-                            CuisineId = 8,
-                            Name = "Grill"
-                        },
-                        new
-                        {
-                            CuisineId = 9,
-                            Name = "Other"
-                        });
-                });
 
             modelBuilder.Entity("DinnerPlanner.Api.Models.Ingredient", b =>
                 {
@@ -108,14 +26,15 @@ namespace backend.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("BrandId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Color")
+                    b.Property<string>("Brand")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Description")
-                        .HasMaxLength(600)
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Color")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("IngredientName")
@@ -129,91 +48,48 @@ namespace backend.Migrations
 
                     b.HasKey("IngredientId");
 
-                    b.HasIndex("BrandId");
-
                     b.ToTable("Ingredients");
 
                     b.HasData(
                         new
                         {
                             IngredientId = 1,
+                            Category = "Chicken",
                             Color = "#f6d4b8",
-                            Description = "Lean poultry cut with mild flavor. Useful as the main protein in bowls, salads, soups, and quick pan-fried dinners.",
                             IngredientName = "Chicken breast",
                             Price = 89.90m
                         },
                         new
                         {
                             IngredientId = 2,
+                            Category = "Vegetable",
                             Color = "#f4ead2",
-                            Description = "Aromatic vegetable used to build flavor in sauces, marinades, soups, stir fries, and roasted dishes.",
                             IngredientName = "Garlic",
                             Price = 14.90m
                         },
                         new
                         {
                             IngredientId = 3,
+                            Category = "Dairy",
                             Color = "#fff7ef",
-                            Description = "Thick cultured dairy product. Works as a base for cold sauces, dressings, marinades, and high-protein breakfasts.",
                             IngredientName = "Greek yogurt",
                             Price = 34.90m
                         },
                         new
                         {
                             IngredientId = 4,
+                            Category = "Grain",
                             Color = "#f6f0df",
-                            Description = "Neutral grain that works as a side or base for bowls, curries, stir fries, and meal prep portions.",
                             IngredientName = "Rice",
                             Price = 39.90m
                         },
                         new
                         {
                             IngredientId = 5,
+                            Category = "Fruit",
                             Color = "#f9dc5c",
-                            Description = "Bright acidic fruit used for sauces, dressings, marinades, desserts, and finishing cooked dishes.",
                             IngredientName = "Lemon",
                             Price = 8.90m
-                        });
-                });
-
-            modelBuilder.Entity("DinnerPlanner.Api.Models.IngredientTagAssignment", b =>
-                {
-                    b.Property<int>("IngredientId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Tag")
-                        .HasMaxLength(64)
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("IngredientId", "Tag");
-
-                    b.ToTable("IngredientTagAssignments");
-
-                    b.HasData(
-                        new
-                        {
-                            IngredientId = 1,
-                            Tag = "Chicken"
-                        },
-                        new
-                        {
-                            IngredientId = 2,
-                            Tag = "Vegetable"
-                        },
-                        new
-                        {
-                            IngredientId = 3,
-                            Tag = "Dairy"
-                        },
-                        new
-                        {
-                            IngredientId = 4,
-                            Tag = "Grain"
-                        },
-                        new
-                        {
-                            IngredientId = 5,
-                            Tag = "Fruit"
                         });
                 });
 
@@ -432,10 +308,10 @@ namespace backend.Migrations
                 {
                     b.HasBaseType("DinnerPlanner.Api.Models.Recipe");
 
-                    b.Property<int?>("CuisineId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasIndex("CuisineId");
+                    b.Property<string>("Cuisine")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
 
                     b.HasDiscriminator().HasValue("Dish");
 
@@ -443,11 +319,11 @@ namespace backend.Migrations
                         new
                         {
                             RecipeId = 2,
-                            Description = "Weeknight bowl with pan-fried chicken, steamed rice, and fresh garlic yogurt sauce. Good as dinner and easy to scale for meal prep.",
+                            Description = "Simple chicken bowl with rice and sauce.",
                             ImageUrl = "/images/recipes/chicken-rice-bowl.png",
-                            Instructions = "Rinse the rice and cook until tender. Slice the chicken breast, season lightly, and fry in a hot pan until cooked through. Spoon rice into bowls, add chicken, and finish with garlic yogurt sauce.",
+                            Instructions = "Cook rice. Fry chicken until done. Serve with garlic yogurt sauce.",
                             Name = "Chicken rice bowl",
-                            CuisineId = 1
+                            Cuisine = "Asian"
                         });
                 });
 
@@ -461,9 +337,9 @@ namespace backend.Migrations
                         new
                         {
                             RecipeId = 1,
-                            Description = "Cold yogurt sauce with grated garlic and lemon. Best with chicken bowls, grilled meat, roasted vegetables, and rice.",
+                            Description = "Fresh yogurt sauce with garlic and lemon.",
                             ImageUrl = "/images/recipes/garlic-yogurt-sauce.png",
-                            Instructions = "Grate the garlic finely. Stir garlic, lemon juice, and a little lemon zest into the yogurt. Season with salt and let it rest for at least 10 minutes before serving.",
+                            Instructions = "Grate the garlic, stir it into yogurt with lemon, and season to taste.",
                             Name = "Garlic yogurt sauce"
                         });
                 });
@@ -478,8 +354,8 @@ namespace backend.Migrations
                         new
                         {
                             RecipeId = 3,
-                            Description = "Plain steamed rice for bowls, curries, stir fries, and saucy dishes.",
-                            Instructions = "Rinse the rice until the water runs mostly clear. Cook with the correct amount of water, then rest covered for 5 minutes before fluffing.",
+                            Description = "",
+                            Instructions = "Rinse rice and steam until tender.",
                             Name = "Steamed rice"
                         });
                 });
@@ -493,11 +369,6 @@ namespace backend.Migrations
 
             modelBuilder.Entity("DinnerPlanner.Api.Models.Ingredient", b =>
                 {
-                    b.HasOne("DinnerPlanner.Api.Models.Brand", "Brand")
-                        .WithMany()
-                        .HasForeignKey("BrandId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.OwnsOne("DinnerPlanner.Api.Models.NutritionFacts", "NutritionPer100", b1 =>
                         {
                             b1.Property<int>("IngredientId")
@@ -506,40 +377,12 @@ namespace backend.Migrations
                             b1.Property<int?>("Calories")
                                 .HasColumnType("INTEGER");
 
-                            b1.Property<decimal?>("CarbohydrateGrams")
-                                .HasPrecision(8, 2)
-                                .HasColumnType("TEXT");
-
                             b1.Property<decimal?>("DietaryFiberGrams")
                                 .HasPrecision(8, 2)
                                 .HasColumnType("TEXT");
 
-                            b1.Property<decimal?>("MonounsaturatedFatGrams")
-                                .HasPrecision(8, 2)
-                                .HasColumnType("TEXT");
-
-                            b1.Property<decimal?>("PolyunsaturatedFatGrams")
-                                .HasPrecision(8, 2)
-                                .HasColumnType("TEXT");
-
-                            b1.Property<decimal?>("ProteinGrams")
-                                .HasPrecision(8, 2)
-                                .HasColumnType("TEXT");
-
-                            b1.Property<decimal?>("SaltGrams")
-                                .HasPrecision(8, 2)
-                                .HasColumnType("TEXT");
-
-                            b1.Property<decimal?>("SaturatedFatGrams")
-                                .HasPrecision(8, 2)
-                                .HasColumnType("TEXT");
-
-                            b1.Property<decimal?>("UnsaturatedFatGrams")
-                                .HasPrecision(8, 2)
-                                .HasColumnType("TEXT");
-
                             b1.Property<string>("Vitamins")
-                                .IsRequired()
+                                .HasMaxLength(300)
                                 .HasColumnType("TEXT");
 
                             b1.HasKey("IngredientId");
@@ -550,20 +393,7 @@ namespace backend.Migrations
                                 .HasForeignKey("IngredientId");
                         });
 
-                    b.Navigation("Brand");
-
                     b.Navigation("NutritionPer100");
-                });
-
-            modelBuilder.Entity("DinnerPlanner.Api.Models.IngredientTagAssignment", b =>
-                {
-                    b.HasOne("DinnerPlanner.Api.Models.Ingredient", "Ingredient")
-                        .WithMany("Tags")
-                        .HasForeignKey("IngredientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Ingredient");
                 });
 
             modelBuilder.Entity("DinnerPlanner.Api.Models.MealPlanRecipe", b =>
@@ -613,21 +443,6 @@ namespace backend.Migrations
                         .IsRequired();
 
                     b.Navigation("Recipe");
-                });
-
-            modelBuilder.Entity("DinnerPlanner.Api.Models.Dish", b =>
-                {
-                    b.HasOne("DinnerPlanner.Api.Models.Cuisine", "Cuisine")
-                        .WithMany()
-                        .HasForeignKey("CuisineId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("Cuisine");
-                });
-
-            modelBuilder.Entity("DinnerPlanner.Api.Models.Ingredient", b =>
-                {
-                    b.Navigation("Tags");
                 });
 
             modelBuilder.Entity("DinnerPlanner.Api.Models.MealPlanEntry", b =>

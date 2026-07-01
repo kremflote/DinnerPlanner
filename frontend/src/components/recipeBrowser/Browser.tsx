@@ -1,11 +1,16 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import IngredientThumbnail from "../IngredientThumbnail";
 import RecipeThumbnail from "../RecipeThumbnail";
-import { useIngredients, useRecipes } from "../../contexts";
-import type { IIngredient, IngredientCategory } from "../../interfaces/IIngredient";
-import type { Cuisine, RecipeTag, RecipeType } from "../../interfaces/IRecipe";
+import { useCuisines, useIngredients, useRecipes } from "../../contexts";
+import type { IIngredient, IngredientTag, INutritionFacts } from "../../interfaces/IIngredient";
+import type { ICuisine } from "../../interfaces/ILookup";
+import type { RecipeTag, RecipeType } from "../../interfaces/IRecipe";
+import { ingredientService, recipeService } from "../../services";
+import { getApiAssetUrl } from "../../services/apiClient";
 import type { SiteTheme } from "../../styles/appStyles";
 import BrowserFilterSection from "./BrowserFilterSection";
+import IngredientCreateForm from "./IngredientCreateForm";
+import RecipeCreateForm from "./RecipeCreateForm";
 import { formatLabel, recipeBrowserStyles } from "./recipeBrowserStyles";
 import type { BrowserMode, EnrichedRecipe } from "./types";
 
@@ -16,6 +21,7 @@ type BrowserProps = {
 };
 
 function Browser({ mode, theme, headerActions }: BrowserProps) {
+  const { cuisines } = useCuisines();
   const { recipes, recipeIsLoading, initError: recipeError } = useRecipes();
   const {
     ingredients,
@@ -23,11 +29,12 @@ function Browser({ mode, theme, headerActions }: BrowserProps) {
     initError: ingredientError,
   } = useIngredients();
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedIngredientCategories, setSelectedIngredientCategories] = useState<IngredientCategory[]>([]);
+  const [selectedIngredientTags, setSelectedIngredientTags] = useState<IngredientTag[]>([]);
   const [selectedRecipeTypes, setSelectedRecipeTypes] = useState<RecipeType[]>([]);
   const [selectedRecipeTags, setSelectedRecipeTags] = useState<RecipeTag[]>([]);
-  const [selectedCuisines, setSelectedCuisines] = useState<Cuisine[]>([]);
+  const [selectedCuisineIds, setSelectedCuisineIds] = useState<number[]>([]);
   const [selectedIngredientIds, setSelectedIngredientIds] = useState<number[]>([]);
+  const [selectedDetail, setSelectedDetail] = useState<BrowserDetail | null>(null);
   const [ingredientPickerSearch, setIngredientPickerSearch] = useState("");
   const [ingredientPickerPosition, setIngredientPickerPosition] = useState<{ x: number; y: number } | null>(null);
   const ingredientFilterButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -40,7 +47,7 @@ function Browser({ mode, theme, headerActions }: BrowserProps) {
         matchesSelectedIngredients(recipe, selectedIngredientIds) &&
         matchesRecipeTypes(recipe, selectedRecipeTypes) &&
         matchesRecipeTags(recipe, selectedRecipeTags) &&
-        matchesCuisines(recipe, selectedCuisines),
+        matchesCuisines(recipe, selectedCuisineIds),
       ),
     [
       recipes,
@@ -48,7 +55,7 @@ function Browser({ mode, theme, headerActions }: BrowserProps) {
       selectedIngredientIds,
       selectedRecipeTypes,
       selectedRecipeTags,
-      selectedCuisines,
+      selectedCuisineIds,
     ],
   );
 
@@ -56,9 +63,9 @@ function Browser({ mode, theme, headerActions }: BrowserProps) {
     () =>
       ingredients.filter((ingredient) =>
         matchesIngredientSearch(ingredient, searchTerm) &&
-        matchesIngredientCategories(ingredient, selectedIngredientCategories),
+        matchesIngredientTags(ingredient, selectedIngredientTags),
       ),
-    [ingredients, searchTerm, selectedIngredientCategories],
+    [ingredients, searchTerm, selectedIngredientTags],
   );
 
   const selectedIngredients = useMemo(
@@ -75,10 +82,10 @@ function Browser({ mode, theme, headerActions }: BrowserProps) {
   );
 
   const clearFilters = () => {
-    setSelectedIngredientCategories([]);
+    setSelectedIngredientTags([]);
     setSelectedRecipeTypes([]);
     setSelectedRecipeTags([]);
-    setSelectedCuisines([]);
+    setSelectedCuisineIds([]);
     setSelectedIngredientIds([]);
   };
 
@@ -154,15 +161,16 @@ function Browser({ mode, theme, headerActions }: BrowserProps) {
         </div>
         <ActiveFilterChips
           mode={mode}
-          selectedCuisines={selectedCuisines}
+          cuisines={cuisines}
+          selectedCuisineIds={selectedCuisineIds}
           selectedRecipeTags={selectedRecipeTags}
-          selectedIngredientCategories={selectedIngredientCategories}
+          selectedIngredientTags={selectedIngredientTags}
           selectedIngredients={selectedIngredients}
           selectedRecipeTypes={selectedRecipeTypes}
           theme={theme}
           onClear={clearFilters}
           onRemoveCuisine={(value) =>
-            setSelectedCuisines((currentValues) => currentValues.filter((currentValue) => currentValue !== value))
+            setSelectedCuisineIds((currentValues) => currentValues.filter((currentValue) => currentValue !== value))
           }
           onRemoveRecipeTag={(value) =>
             setSelectedRecipeTags((currentValues) => currentValues.filter((currentValue) => currentValue !== value))
@@ -172,8 +180,8 @@ function Browser({ mode, theme, headerActions }: BrowserProps) {
               currentIds.filter((currentId) => currentId !== ingredientId),
             )
           }
-          onRemoveIngredientCategory={(value) =>
-            setSelectedIngredientCategories((currentValues) =>
+          onRemoveIngredientTag={(value) =>
+            setSelectedIngredientTags((currentValues) =>
               currentValues.filter((currentValue) => currentValue !== value),
             )
           }
@@ -205,13 +213,14 @@ function Browser({ mode, theme, headerActions }: BrowserProps) {
       <section className="mt-3 grid grid-cols-12 gap-3">
         <BrowserFilterSection
           mode={mode}
-          selectedCuisines={selectedCuisines}
+          cuisines={cuisines}
+          selectedCuisineIds={selectedCuisineIds}
           selectedRecipeTags={selectedRecipeTags}
-          selectedIngredientCategories={selectedIngredientCategories}
+          selectedIngredientTags={selectedIngredientTags}
           selectedRecipeTypes={selectedRecipeTypes}
-          setSelectedCuisines={setSelectedCuisines}
+          setSelectedCuisineIds={setSelectedCuisineIds}
           setSelectedRecipeTags={setSelectedRecipeTags}
-          setSelectedIngredientCategories={setSelectedIngredientCategories}
+          setSelectedIngredientTags={setSelectedIngredientTags}
           setSelectedRecipeTypes={setSelectedRecipeTypes}
           theme={theme}
         />
@@ -231,6 +240,7 @@ function Browser({ mode, theme, headerActions }: BrowserProps) {
                     ingredient={ingredient}
                     key={ingredient.ingredientId}
                     theme={theme}
+                    onClick={() => setSelectedDetail({ kind: "ingredient", ingredient })}
                   />
                 ))}
               </div>
@@ -249,56 +259,589 @@ function Browser({ mode, theme, headerActions }: BrowserProps) {
                   key={recipe.recipeId}
                   theme={theme}
                   recipe={{
-                    ...recipe,
-                    subtitle: recipe.cuisine ?? recipe.recipeType,
+                    imageUrl: recipe.imageUrl,
+                    name: recipe.name,
+                    subtitle: recipe.cuisine?.name ?? recipe.recipeType,
                   }}
+                  onClick={() => setSelectedDetail({ kind: "recipe", recipe })}
                 />
               ))}
             </div>
           )}
         </div>
       </section>
+
+      {selectedDetail !== null && (
+        <BrowserDetailModal
+          detail={selectedDetail}
+          theme={theme}
+          onClose={() => setSelectedDetail(null)}
+        />
+      )}
     </>
   );
 }
 
+type BrowserDetail =
+  | { kind: "recipe"; recipe: EnrichedRecipe }
+  | { kind: "ingredient"; ingredient: IIngredient };
+
+type BrowserDetailModalProps = {
+  detail: BrowserDetail;
+  theme: SiteTheme;
+  onClose: () => void;
+};
+
+function BrowserDetailModal({ detail, theme, onClose }: BrowserDetailModalProps) {
+  const editRecipeImageInputId = useId();
+  const { refreshRecipes } = useRecipes();
+  const { refreshIngredients } = useIngredients();
+  const [isEditingRecipe, setIsEditingRecipe] = useState(false);
+  const [isEditingIngredient, setIsEditingIngredient] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleRemove = async () => {
+    const itemName = detail.kind === "recipe" ? detail.recipe.name : detail.ingredient.ingredientName;
+    const itemLabel = detail.kind === "recipe" ? "recipe" : "ingredient";
+    const confirmed = window.confirm(`Remove ${itemName}? This will delete the ${itemLabel}.`);
+    if (!confirmed) {
+      return;
+    }
+
+    setIsDeleting(true);
+    setDeleteError(null);
+
+    try {
+      if (detail.kind === "recipe") {
+        await recipeService.delete(detail.recipe.recipeId);
+        await refreshRecipes();
+      } else {
+        await ingredientService.delete(detail.ingredient.ingredientId);
+        await refreshIngredients();
+        await refreshRecipes();
+      }
+
+      onClose();
+    } catch (caughtError) {
+      setDeleteError(caughtError instanceof Error ? caughtError.message : `Could not remove ${itemLabel}.`);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  if (detail.kind === "recipe" && isEditingRecipe) {
+    return (
+      <div className={recipeBrowserStyles.modalBackdrop} role="presentation" onMouseDown={onClose}>
+        <section
+          aria-modal="true"
+          className={recipeBrowserStyles.modalPanel(theme)}
+          role="dialog"
+          onMouseDown={(event) => event.stopPropagation()}
+        >
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-2xl font-bold leading-tight">Edit {detail.recipe.name}</h2>
+            <button className={`${recipeBrowserStyles.modalCloseButton(theme)} ml-auto`} type="button" onClick={onClose}>
+              Close
+            </button>
+          </div>
+
+          <RecipeCreateForm
+            imageInputId={editRecipeImageInputId}
+            initialRecipe={detail.recipe}
+            showRecipeDetails
+            theme={theme}
+            onCancel={() => setIsEditingRecipe(false)}
+            onCreated={onClose}
+          />
+        </section>
+      </div>
+    );
+  }
+
+  if (detail.kind === "ingredient" && isEditingIngredient) {
+    return (
+      <div className={recipeBrowserStyles.modalBackdrop} role="presentation" onMouseDown={onClose}>
+        <section
+          aria-modal="true"
+          className={recipeBrowserStyles.modalPanel(theme)}
+          role="dialog"
+          onMouseDown={(event) => event.stopPropagation()}
+        >
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-2xl font-bold leading-tight">Edit {detail.ingredient.ingredientName}</h2>
+            <button className={`${recipeBrowserStyles.modalCloseButton(theme)} ml-auto`} type="button" onClick={onClose}>
+              Close
+            </button>
+          </div>
+
+          <IngredientCreateForm
+            initialIngredient={detail.ingredient}
+            theme={theme}
+            onCancel={() => setIsEditingIngredient(false)}
+            onCreated={onClose}
+          />
+        </section>
+      </div>
+    );
+  }
+
+  return (
+    <div className={recipeBrowserStyles.modalBackdrop} role="presentation" onMouseDown={onClose}>
+      <section
+        aria-modal="true"
+        className={recipeBrowserStyles.modalPanel(theme)}
+        role="dialog"
+        onMouseDown={(event) => event.stopPropagation()}
+      >
+        <div className="grid gap-2">
+          <div className="flex flex-wrap items-center gap-3">
+            <h2 className="min-w-0 text-2xl font-bold leading-tight">
+              {detail.kind === "recipe" ? detail.recipe.name : detail.ingredient.ingredientName}
+            </h2>
+            <button
+              className={recipeBrowserStyles.detailHeaderEditButton(theme)}
+              type="button"
+              onClick={() => {
+                if (detail.kind === "recipe") {
+                  setIsEditingRecipe(true);
+                } else {
+                  setIsEditingIngredient(true);
+                }
+              }}
+            >
+              {detail.kind === "recipe"
+                ? `Edit ${detail.recipe.recipeType === "Dish" ? "dish" : formatLabel(detail.recipe.recipeType).toLowerCase()}`
+                : "Edit ingredient"}
+            </button>
+            <button
+              className={recipeBrowserStyles.detailHeaderRemoveButton(theme)}
+              disabled={isDeleting}
+              type="button"
+              onClick={handleRemove}
+            >
+              {isDeleting ? "Removing..." : "Remove"}
+            </button>
+            <button className={`${recipeBrowserStyles.modalCloseButton(theme)} ml-auto`} type="button" onClick={onClose}>
+              Close
+            </button>
+          </div>
+          <div>
+            {detail.kind === "recipe" && (
+              <div className="flex flex-wrap gap-2">
+                {detail.recipe.tags.map((tag) => (
+                  <span className={recipeBrowserStyles.filterChip(theme)} key={tag}>
+                    {formatLabel(tag)}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {deleteError !== null && <p className={`mt-4 ${recipeBrowserStyles.statusError(theme)}`}>{deleteError}</p>}
+
+        {detail.kind === "recipe" ? (
+          <RecipeDetailContent recipe={detail.recipe} theme={theme} />
+        ) : (
+          <IngredientDetailContent ingredient={detail.ingredient} theme={theme} />
+        )}
+      </section>
+    </div>
+  );
+}
+
+type RecipeDetailContentProps = {
+  recipe: EnrichedRecipe;
+  theme: SiteTheme;
+};
+
+function RecipeDetailContent({ recipe, theme }: RecipeDetailContentProps) {
+  const imageUrl = getApiAssetUrl(recipe.imageUrl);
+  const nutrition = calculateRecipeNutrition(recipe);
+  const [ingredientMultiplier, setIngredientMultiplier] = useState("1");
+  const amountMultiplier = parseAmountMultiplier(ingredientMultiplier);
+
+  return (
+    <div className="mt-5 grid gap-5">
+      <div className="grid grid-cols-[minmax(180px,260px)_minmax(0,1fr)] gap-5 max-md:grid-cols-1">
+        <div className="aspect-square overflow-hidden rounded-md bg-neutral-800">
+          {imageUrl ? (
+            <img className="h-full w-full object-cover" src={imageUrl} alt={recipe.name} />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center px-4 text-center text-sm font-bold text-neutral-400">
+              No image
+            </div>
+          )}
+        </div>
+
+        <div className="grid content-start">
+          <DetailTextWithMeta
+            className="h-[260px] grid-rows-[auto_minmax(0,1fr)] max-md:h-auto"
+            label="Description"
+            meta={[
+              formatLabel(recipe.recipeType),
+              recipe.cuisine?.name,
+              recipe.dessertType ? formatLabel(recipe.dessertType) : null,
+            ].filter(Boolean).join(" · ")}
+            theme={theme}
+            value={recipe.description || "No description yet."}
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-5 max-md:grid-cols-1">
+        <DetailSection
+          title="Ingredients"
+          theme={theme}
+          headerAction={
+            <label className="flex items-center gap-2">
+              <span className={recipeBrowserStyles.helperText(theme)}>Scale</span>
+              <span className={`${recipeBrowserStyles.numberField} w-20`}>
+                <input
+                  aria-label="Ingredient amount multiplier"
+                  className={`${recipeBrowserStyles.compactTextField(theme)} w-full pr-6`}
+                  min="0"
+                  placeholder="1"
+                  step="0.25"
+                  type="number"
+                  value={ingredientMultiplier}
+                  onChange={(event) => setIngredientMultiplier(event.target.value)}
+                />
+                <span className={recipeBrowserStyles.numberFieldSuffix(theme)}>x</span>
+              </span>
+            </label>
+          }
+        >
+          {recipe.ingredients.length === 0 ? (
+            <p className={recipeBrowserStyles.helperText(theme)}>No ingredients added.</p>
+          ) : (
+            <div className="grid gap-2">
+              {recipe.ingredients.map((recipeIngredient) => (
+                <div
+                  className={`${detailRowClass(theme)} flex-wrap`}
+                  key={recipeIngredient.recipeIngredientId}
+                >
+                  <span className="min-w-0 font-bold">{recipeIngredient.ingredient.ingredientName}</span>
+                  <span className="shrink-0">
+                    {formatRecipeIngredientAmount(recipeIngredient.amount, recipeIngredient.unit, amountMultiplier)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </DetailSection>
+
+        <DetailText
+          label="Instructions"
+          theme={theme}
+          value={recipe.instructions || "No instructions yet."}
+        />
+      </div>
+
+      <DetailSection title="Dietary information" theme={theme}>
+        <NutritionGrid nutrition={nutrition} theme={theme} />
+      </DetailSection>
+    </div>
+  );
+}
+
+type IngredientDetailContentProps = {
+  ingredient: IIngredient;
+  theme: SiteTheme;
+};
+
+function IngredientDetailContent({ ingredient, theme }: IngredientDetailContentProps) {
+  return (
+    <div className="mt-5 grid gap-5">
+      <div className="grid gap-4">
+        <div className="grid grid-cols-2 gap-3 max-sm:grid-cols-1">
+          <MetadataRow label="Brand" theme={theme} value={ingredient.brand?.name ?? "No brand"} />
+          <MetadataRow
+            label="Price"
+            theme={theme}
+            value={ingredient.price === null ? "No price" : `${ingredient.price.toFixed(2)} per kg`}
+          />
+        </div>
+        <ChipList label="Tags" theme={theme} values={ingredient.tags.map(formatLabel)} />
+        <DetailText
+          label="Description"
+          theme={theme}
+          value={ingredient.description || "No description yet."}
+        />
+      </div>
+
+      <DetailSection title="Dietary information per 100g" theme={theme}>
+        <NutritionGrid nutrition={ingredient.nutritionPer100} theme={theme} />
+      </DetailSection>
+    </div>
+  );
+}
+
+type DetailSectionProps = {
+  title: string;
+  theme: SiteTheme;
+  children: ReactNode;
+  headerAction?: ReactNode;
+};
+
+function DetailSection({ title, theme, children, headerAction }: DetailSectionProps) {
+  return (
+    <section className={recipeBrowserStyles.detailsPanel(theme)}>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h3 className="text-sm font-bold uppercase tracking-wide">{title}</h3>
+        {headerAction}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+type DetailTextProps = {
+  label: string;
+  theme: SiteTheme;
+  value: string;
+};
+
+function DetailText({ label, theme, value }: DetailTextProps) {
+  return (
+      <DetailSection title={label} theme={theme}>
+      <p className="self-start whitespace-pre-wrap text-left text-sm font-semibold leading-[1.55]">{value}</p>
+    </DetailSection>
+  );
+}
+
+type DetailTextWithMetaProps = DetailTextProps & {
+  className?: string;
+  meta: string;
+};
+
+function DetailTextWithMeta({ className = "", label, meta, theme, value }: DetailTextWithMetaProps) {
+  return (
+    <section className={`${recipeBrowserStyles.detailsPanel(theme)} min-h-0 overflow-hidden ${className}`}>
+      <div className="flex flex-wrap items-baseline justify-between gap-3">
+        <h3 className="text-sm font-bold uppercase tracking-wide">{label}</h3>
+        <span className={recipeBrowserStyles.helperText(theme)}>{meta}</span>
+      </div>
+      <p className="min-h-0 self-start overflow-y-auto whitespace-pre-wrap pr-1 text-left text-sm font-semibold leading-[1.55]">{value}</p>
+    </section>
+  );
+}
+
+type MetadataRowProps = {
+  label: string;
+  value: string;
+  theme: SiteTheme;
+};
+
+function MetadataRow({ label, value, theme }: MetadataRowProps) {
+  return (
+    <div className={detailRowClass(theme)}>
+      <span className="font-bold">{label}</span>
+      <span>{value}</span>
+    </div>
+  );
+}
+
+type ChipListProps = {
+  label: string;
+  values: string[];
+  theme: SiteTheme;
+};
+
+function ChipList({ label, values, theme }: ChipListProps) {
+  return (
+    <section className="grid gap-2">
+      <span className={recipeBrowserStyles.label(theme)}>{label}</span>
+      <div className="flex flex-wrap gap-2">
+        {values.length === 0 ? (
+          <span className={recipeBrowserStyles.helperText(theme)}>None</span>
+        ) : (
+          values.map((value) => (
+            <span className={recipeBrowserStyles.filterChip(theme)} key={value}>
+              {value}
+            </span>
+          ))
+        )}
+      </div>
+    </section>
+  );
+}
+
+type NutritionGridProps = {
+  nutrition: INutritionFacts | null;
+  theme: SiteTheme;
+};
+
+function NutritionGrid({ nutrition, theme }: NutritionGridProps) {
+  if (nutrition === null) {
+    return <p className={recipeBrowserStyles.helperText(theme)}>No dietary information yet.</p>;
+  }
+
+  const rows = [
+    ["Calories", nutrition.calories === null ? null : `${nutrition.calories} kcal`],
+    ["Carbs", formatGrams(nutrition.carbohydrateGrams)],
+    ["Protein", formatGrams(nutrition.proteinGrams)],
+    ["Salt", formatGrams(nutrition.saltGrams)],
+    ["Fiber", formatGrams(nutrition.dietaryFiberGrams)],
+    ["Saturated fats", formatGrams(nutrition.saturatedFatGrams)],
+    ["Unsaturated fats", formatGrams(nutrition.unsaturatedFatGrams)],
+    ["Monounsaturated fats", formatGrams(nutrition.monounsaturatedFatGrams)],
+    ["Polyunsaturated fats", formatGrams(nutrition.polyunsaturatedFatGrams)],
+    ["Vitamins", nutrition.vitamins.length === 0 ? null : nutrition.vitamins.map(formatLabel).join(", ")],
+  ];
+
+  return (
+    <div className="grid grid-cols-2 gap-2 max-sm:grid-cols-1">
+      {rows.map(([label, value]) => (
+        <div className={detailRowClass(theme)} key={label}>
+          <span className="font-bold">{label}</span>
+          <span>{value ?? "Not set"}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function calculateRecipeNutrition(recipe: EnrichedRecipe): INutritionFacts | null {
+  const total = createEmptyNutrition();
+  let hasNutrition = false;
+
+  recipe.ingredients.forEach((recipeIngredient) => {
+    const nutrition = recipeIngredient.ingredient.nutritionPer100;
+    const grams = toGramAmount(recipeIngredient.amount, recipeIngredient.unit);
+
+    if (nutrition === null || grams === null) {
+      return;
+    }
+
+    hasNutrition = true;
+    const factor = grams / 100;
+    total.calories = addScaled(total.calories, nutrition.calories, factor);
+    total.carbohydrateGrams = addScaled(total.carbohydrateGrams, nutrition.carbohydrateGrams, factor);
+    total.proteinGrams = addScaled(total.proteinGrams, nutrition.proteinGrams, factor);
+    total.saltGrams = addScaled(total.saltGrams, nutrition.saltGrams, factor);
+    total.dietaryFiberGrams = addScaled(total.dietaryFiberGrams, nutrition.dietaryFiberGrams, factor);
+    total.saturatedFatGrams = addScaled(total.saturatedFatGrams, nutrition.saturatedFatGrams, factor);
+    total.unsaturatedFatGrams = addScaled(total.unsaturatedFatGrams, nutrition.unsaturatedFatGrams, factor);
+    total.monounsaturatedFatGrams = addScaled(total.monounsaturatedFatGrams, nutrition.monounsaturatedFatGrams, factor);
+    total.polyunsaturatedFatGrams = addScaled(total.polyunsaturatedFatGrams, nutrition.polyunsaturatedFatGrams, factor);
+    total.vitamins = Array.from(new Set([...total.vitamins, ...nutrition.vitamins]));
+  });
+
+  return hasNutrition ? total : null;
+}
+
+function createEmptyNutrition(): INutritionFacts {
+  return {
+    calories: null,
+    carbohydrateGrams: null,
+    proteinGrams: null,
+    saltGrams: null,
+    dietaryFiberGrams: null,
+    saturatedFatGrams: null,
+    unsaturatedFatGrams: null,
+    monounsaturatedFatGrams: null,
+    polyunsaturatedFatGrams: null,
+    vitamins: [],
+  };
+}
+
+function addScaled(currentValue: number | null, value: number | null, factor: number) {
+  if (value === null) {
+    return currentValue;
+  }
+
+  return roundNutrition((currentValue ?? 0) + value * factor);
+}
+
+function roundNutrition(value: number) {
+  return Math.round(value * 10) / 10;
+}
+
+function toGramAmount(amount: number | null, unit: string) {
+  if (amount === null) {
+    return null;
+  }
+
+  if (unit === "Gram") {
+    return amount;
+  }
+
+  if (unit === "Kilogram") {
+    return amount * 1000;
+  }
+
+  return null;
+}
+
+function parseAmountMultiplier(value: string) {
+  const multiplier = Number(value);
+  return Number.isFinite(multiplier) && multiplier >= 0 ? multiplier : 1;
+}
+
+function formatRecipeIngredientAmount(amount: number | null, unit: string, multiplier = 1) {
+  if (amount === null) {
+    return formatLabel(unit);
+  }
+
+  const scaledAmount = Math.round(amount * multiplier * 100) / 100;
+  return `${scaledAmount} ${formatLabel(unit).toLowerCase()}`;
+}
+
+function formatGrams(value: number | null) {
+  return value === null ? null : `${value} g`;
+}
+
+function detailRowClass(theme: SiteTheme) {
+  return `flex items-center justify-between gap-3 rounded-md px-3 py-2 text-sm font-semibold ${
+    theme === "dark"
+      ? "bg-white/[0.05] text-neutral-200"
+      : theme === "paletteLight"
+        ? "bg-[#E5D5BC]/45 text-[#556145]"
+        : "bg-neutral-100 text-neutral-700"
+  }`;
+}
+
 type ActiveFilterChipsProps = {
   mode: BrowserMode;
-  selectedIngredientCategories: IngredientCategory[];
+  cuisines: ICuisine[];
+  selectedIngredientTags: IngredientTag[];
   selectedRecipeTypes: RecipeType[];
   selectedRecipeTags: RecipeTag[];
-  selectedCuisines: Cuisine[];
+  selectedCuisineIds: number[];
   selectedIngredients: IIngredient[];
   theme: SiteTheme;
   onClear: () => void;
-  onRemoveIngredientCategory: (value: IngredientCategory) => void;
+  onRemoveIngredientTag: (value: IngredientTag) => void;
   onRemoveRecipeType: (value: RecipeType) => void;
   onRemoveRecipeTag: (value: RecipeTag) => void;
-  onRemoveCuisine: (value: Cuisine) => void;
+  onRemoveCuisine: (value: number) => void;
   onRemoveIngredient: (ingredientId: number) => void;
 };
 
 function ActiveFilterChips({
   mode,
-  selectedIngredientCategories,
+  cuisines,
+  selectedIngredientTags,
   selectedRecipeTypes,
   selectedRecipeTags,
-  selectedCuisines,
+  selectedCuisineIds,
   selectedIngredients,
   theme,
   onClear,
-  onRemoveIngredientCategory,
+  onRemoveIngredientTag,
   onRemoveRecipeType,
   onRemoveRecipeTag,
   onRemoveCuisine,
   onRemoveIngredient,
 }: ActiveFilterChipsProps) {
-  const hasIngredientFilters = selectedIngredientCategories.length > 0;
+  const hasIngredientFilters = selectedIngredientTags.length > 0;
   const hasRecipeFilters =
     selectedIngredients.length > 0 ||
     selectedRecipeTypes.length > 0 ||
     selectedRecipeTags.length > 0 ||
-    selectedCuisines.length > 0;
+    selectedCuisineIds.length > 0;
 
   const hasVisibleFilters = mode === "ingredients" ? hasIngredientFilters : hasRecipeFilters;
 
@@ -306,12 +849,12 @@ function ActiveFilterChips({
     <div className="mt-3 flex min-h-6 flex-wrap items-start gap-2">
       {!hasVisibleFilters && <span className="h-6" aria-hidden="true" />}
       {mode === "ingredients" &&
-        selectedIngredientCategories.map((category) => (
+        selectedIngredientTags.map((tag) => (
           <FilterChip
-            key={category}
-            label={formatLabel(category)}
+            key={tag}
+            label={formatLabel(tag)}
             theme={theme}
-            onClick={() => onRemoveIngredientCategory(category)}
+            onClick={() => onRemoveIngredientTag(tag)}
           />
         ))}
       {mode === "recipes" &&
@@ -342,12 +885,12 @@ function ActiveFilterChips({
           />
         ))}
       {mode === "recipes" &&
-        selectedCuisines.map((cuisine) => (
+        selectedCuisineIds.map((cuisineId) => (
           <FilterChip
-            key={cuisine}
-            label={formatLabel(cuisine)}
+            key={cuisineId}
+            label={cuisines.find((cuisine) => cuisine.cuisineId === cuisineId)?.name ?? "Cuisine"}
             theme={theme}
-            onClick={() => onRemoveCuisine(cuisine)}
+            onClick={() => onRemoveCuisine(cuisineId)}
           />
         ))}
       {hasVisibleFilters && (
@@ -474,9 +1017,9 @@ function matchesRecipeSearch(recipe: EnrichedRecipe, searchTerm: string) {
     recipe.description,
     recipe.instructions,
     recipe.recipeType,
-    recipe.cuisine,
+    recipe.cuisine?.name,
     ...recipe.tags,
-    ...recipe.ingredients.map((ingredient) => ingredient.ingredientName),
+    ...recipe.ingredients.map((recipeIngredient) => recipeIngredient.ingredient.ingredientName),
   ]
     .filter((value): value is string => Boolean(value))
     .join(" ")
@@ -493,9 +1036,8 @@ function matchesIngredientSearch(ingredient: IIngredient, searchTerm: string) {
 
   const searchableText = [
     ingredient.ingredientName,
-    ingredient.category,
-    ingredient.brand,
-    ingredient.unit,
+    ...ingredient.tags,
+    ingredient.brand?.name,
   ]
     .filter((value): value is string => Boolean(value))
     .join(" ")
@@ -509,7 +1051,9 @@ function matchesSelectedIngredients(recipe: EnrichedRecipe, selectedIngredientId
     return true;
   }
 
-  return recipe.ingredients.some((ingredient) => selectedIngredientIds.includes(ingredient.ingredientId));
+  return recipe.ingredients.some((recipeIngredient) =>
+    selectedIngredientIds.includes(recipeIngredient.ingredient.ingredientId),
+  );
 }
 
 function matchesRecipeTypes(recipe: EnrichedRecipe, selectedRecipeTypes: RecipeType[]) {
@@ -528,38 +1072,38 @@ function matchesRecipeTags(recipe: EnrichedRecipe, selectedRecipeTags: RecipeTag
   return recipe.tags.some((tag) => selectedRecipeTags.includes(tag));
 }
 
-function matchesCuisines(recipe: EnrichedRecipe, selectedCuisines: Cuisine[]) {
-  if (selectedCuisines.length === 0) {
+function matchesCuisines(recipe: EnrichedRecipe, selectedCuisineIds: number[]) {
+  if (selectedCuisineIds.length === 0) {
     return true;
   }
 
-  return recipe.cuisine !== undefined && recipe.cuisine !== null && selectedCuisines.includes(recipe.cuisine);
+  return recipe.cuisineId !== null && selectedCuisineIds.includes(recipe.cuisineId);
 }
 
-function matchesIngredientCategories(
+function matchesIngredientTags(
   ingredient: IIngredient,
-  selectedIngredientCategories: IngredientCategory[],
+  selectedIngredientTags: IngredientTag[],
 ) {
-  if (selectedIngredientCategories.length === 0) {
+  if (selectedIngredientTags.length === 0) {
     return true;
   }
 
-  return selectedIngredientCategories.includes(normalizeIngredientCategory(ingredient.category));
+  return ingredient.tags.some((tag) => selectedIngredientTags.includes(normalizeIngredientTag(tag)));
 }
 
-function normalizeIngredientCategory(category: IngredientCategory | number | string): IngredientCategory {
-  if (typeof category === "string" && ingredientCategoryByIndex.includes(category as IngredientCategory)) {
-    return category as IngredientCategory;
+function normalizeIngredientTag(tag: IngredientTag | number | string): IngredientTag {
+  if (typeof tag === "string" && ingredientTagByIndex.includes(tag as IngredientTag)) {
+    return tag as IngredientTag;
   }
 
-  if (typeof category === "number" && ingredientCategoryByIndex[category]) {
-    return ingredientCategoryByIndex[category];
+  if (typeof tag === "number" && ingredientTagByIndex[tag]) {
+    return ingredientTagByIndex[tag];
   }
 
   return "Other";
 }
 
-const ingredientCategoryByIndex: IngredientCategory[] = [
+const ingredientTagByIndex: IngredientTag[] = [
   "Vegetable",
   "Fruit",
   "Chicken",

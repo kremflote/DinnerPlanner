@@ -15,18 +15,27 @@ public enum RecipeType
 
 public record RecipeRequest(
     RecipeType RecipeType,
-    [property: Required]
-    [property: StringLength(160, MinimumLength = 1)]
+    [Required]
+    [StringLength(160, MinimumLength = 1)]
     string Name,
     string? ImageUrl,
-    [property: StringLength(600)]
+    [StringLength(600)]
     string? Description,
     string? Instructions,
-    [property: Required]
-    IReadOnlyCollection<int> IngredientIds,
+    [Required]
+    IReadOnlyCollection<RecipeIngredientRequest> Ingredients,
+    [Required]
+    [MinLength(1)]
     IReadOnlyCollection<RecipeTag> Tags,
-    Cuisine? Cuisine,
+    int? CuisineId,
     DessertType? DessertType
+);
+
+public record RecipeIngredientRequest(
+    int IngredientId,
+    [Range(typeof(decimal), "0", "79228162514264337593543950335")]
+    decimal? Amount,
+    MeasurementUnit Unit
 );
 
 public record RecipeDto(
@@ -36,8 +45,16 @@ public record RecipeDto(
     string? ImageUrl,
     string? Description,
     string? Instructions,
-    IReadOnlyCollection<IngredientDto> Ingredients,
+    IReadOnlyCollection<RecipeIngredientDto> Ingredients,
     IReadOnlyCollection<RecipeTag> Tags,
-    Cuisine? Cuisine,
+    int? CuisineId,
+    CuisineDto? Cuisine,
     DessertType? DessertType
+);
+
+public record RecipeIngredientDto(
+    int RecipeIngredientId,
+    IngredientDto Ingredient,
+    decimal? Amount,
+    MeasurementUnit Unit
 );

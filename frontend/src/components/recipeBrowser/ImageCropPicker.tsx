@@ -1,21 +1,27 @@
 import { useEffect, useMemo, useState } from "react";
+import { getApiAssetUrl } from "../../services/apiClient";
 import type { SiteTheme } from "../../styles/appStyles";
 import { recipeBrowserStyles } from "./recipeBrowserStyles";
 
 type ImageCropPickerProps = {
+  inputId: string;
+  initialImageUrl?: string | null;
   theme: SiteTheme;
   onCroppedFileChange: (file: File | null) => void;
 };
 
 const cropOutputSize = 800;
+const placeholderImageUrl = getApiAssetUrl("/images/placeholders/recipe-photo-placeholder.png");
 
-function ImageCropPicker({ theme, onCroppedFileChange }: ImageCropPickerProps) {
+function ImageCropPicker({ inputId, initialImageUrl = null, theme, onCroppedFileChange }: ImageCropPickerProps) {
   const [sourceFile, setSourceFile] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
   const [offsetX, setOffsetX] = useState(0);
   const [offsetY, setOffsetY] = useState(0);
+  const [cropConfirmed, setCropConfirmed] = useState(false);
+  const currentImageUrl = getApiAssetUrl(initialImageUrl);
 
   useEffect(() => {
     if (sourceFile === null) {
@@ -98,19 +104,33 @@ function ImageCropPicker({ theme, onCroppedFileChange }: ImageCropPickerProps) {
     <div className="grid gap-3">
       <input
         accept="image/jpeg,image/png,image/webp"
-        className={recipeBrowserStyles.fileInput(theme)}
+        className="sr-only"
+        id={inputId}
         type="file"
         onChange={(event) => {
           setSourceFile(event.target.files?.[0] ?? null);
           setZoom(1);
           setOffsetX(0);
           setOffsetY(0);
+          setCropConfirmed(false);
         }}
       />
 
       <div className={recipeBrowserStyles.cropPreview(theme)}>
         {previewUrl ? (
           <img className="h-full w-full object-cover" src={previewUrl} alt="Recipe image crop preview" />
+        ) : currentImageUrl ? (
+          <img
+            className="h-full w-full object-cover"
+            src={currentImageUrl}
+            alt="Current recipe"
+          />
+        ) : placeholderImageUrl ? (
+          <img
+            className="h-full w-full object-cover"
+            src={placeholderImageUrl}
+            alt="Top-down recipe photo guide"
+          />
         ) : (
           <div className="flex h-full w-full items-center justify-center px-4 text-center text-sm font-semibold opacity-60">
             Image preview
@@ -118,11 +138,18 @@ function ImageCropPicker({ theme, onCroppedFileChange }: ImageCropPickerProps) {
         )}
       </div>
 
-      {hasImage && (
+      {hasImage && !cropConfirmed && (
         <div className="grid gap-3">
           <SliderField label="Zoom" max={3} min={1} step={0.05} value={zoom} onChange={setZoom} />
           <SliderField label="Horizontal crop" max={100} min={-100} step={1} value={offsetX} onChange={setOffsetX} />
           <SliderField label="Vertical crop" max={100} min={-100} step={1} value={offsetY} onChange={setOffsetY} />
+          <button
+            className={recipeBrowserStyles.secondaryButton(theme)}
+            type="button"
+            onClick={() => setCropConfirmed(true)}
+          >
+            Confirm image
+          </button>
         </div>
       )}
     </div>

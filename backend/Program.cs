@@ -4,6 +4,10 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -52,7 +56,10 @@ app.UseExceptionHandler(exceptionApp =>
 });
 
 app.UseCors();
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 app.UseDefaultFiles();
 app.UseStaticFiles();
 app.MapControllers();

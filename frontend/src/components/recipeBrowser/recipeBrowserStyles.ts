@@ -89,7 +89,7 @@ export const recipeBrowserStyles = {
           : "bg-neutral-100 text-neutral-800 hover:bg-neutral-200"
     }`,
   modalModeSwitch: (theme: SiteTheme) =>
-    `mt-4 inline-flex h-9 overflow-hidden rounded-md border p-1 ${
+    `inline-flex h-9 overflow-hidden rounded-md border p-1 ${
       theme === "dark"
         ? "border-white/[0.08] bg-black/50"
         : theme === "paletteLight"
@@ -108,15 +108,21 @@ export const recipeBrowserStyles = {
           ? "text-neutral-400 hover:text-white"
           : theme === "paletteLight"
             ? "text-[#FAF7F2]/75 hover:text-[#FAF7F2]"
-            : "text-neutral-600 hover:text-neutral-900"
+          : "text-neutral-600 hover:text-neutral-900"
     }`,
+  modalControlsRow: "mt-4 flex flex-wrap items-center gap-3",
   form: "mt-5 grid gap-4",
   formGrid: "grid grid-cols-2 gap-4 max-md:grid-cols-1",
+  recipeCreateTopGrid: "grid grid-cols-[minmax(0,1fr)_minmax(220px,280px)] gap-4 max-md:grid-cols-1",
+  recipePrimaryFields: "grid content-start gap-4",
+  recipeImageField: "relative grid content-start",
   field: "grid gap-2",
   label: (theme: SiteTheme) =>
     `text-xs font-bold ${
       theme === "dark" ? "text-neutral-300" : theme === "paletteLight" ? "text-[#556145]" : "text-neutral-700"
     }`,
+  requiredMark: (theme: SiteTheme) =>
+    theme === "dark" ? "text-red-300" : theme === "paletteLight" ? "text-red-700" : "text-red-600",
   textField: (theme: SiteTheme) =>
     `h-10 rounded-md border px-3 text-sm font-semibold outline-none placeholder:text-neutral-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${
       theme === "dark"
@@ -124,6 +130,45 @@ export const recipeBrowserStyles = {
         : theme === "paletteLight"
           ? "border-[#C8C0B5] bg-white text-[#556145] focus-visible:outline-[#7A8864]"
           : "border-neutral-300 bg-white text-neutral-900 focus-visible:outline-neutral-800"
+    }`,
+  numberField: "relative",
+  numberFieldInput: (theme: SiteTheme) =>
+    `h-10 w-full rounded-md border px-3 pr-10 text-sm font-semibold outline-none placeholder:text-neutral-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${
+      theme === "dark"
+        ? "border-white/[0.10] bg-neutral-900 text-neutral-100 focus-visible:outline-white"
+        : theme === "paletteLight"
+          ? "border-[#C8C0B5] bg-white text-[#556145] focus-visible:outline-[#7A8864]"
+          : "border-neutral-300 bg-white text-neutral-900 focus-visible:outline-neutral-800"
+    }`,
+  numberFieldSuffix: (theme: SiteTheme) =>
+    `pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold ${
+      theme === "dark" ? "text-neutral-500" : theme === "paletteLight" ? "text-[#7A8864]" : "text-neutral-500"
+    }`,
+  colorFieldButton: (theme: SiteTheme) =>
+    `flex h-10 w-full cursor-pointer items-center justify-between gap-3 rounded-md border px-3 text-left text-sm font-semibold outline-none placeholder:text-neutral-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${
+      theme === "dark"
+        ? "border-white/[0.10] bg-neutral-900 text-neutral-100 focus-visible:outline-white"
+        : theme === "paletteLight"
+          ? "border-[#C8C0B5] bg-white text-[#556145] focus-visible:outline-[#7A8864]"
+          : "border-neutral-300 bg-white text-neutral-900 focus-visible:outline-neutral-800"
+    }`,
+  colorSwatch: "h-5 w-5 shrink-0 rounded-md border border-white/25",
+  colorPickerPanel: (theme: SiteTheme) =>
+    `grid gap-3 rounded-md border p-3 ${
+      theme === "dark"
+        ? "border-white/[0.10] bg-white/[0.04]"
+        : theme === "paletteLight"
+          ? "border-[#C8C0B5] bg-[#E5D5BC]/35"
+          : "border-neutral-200 bg-neutral-50"
+    }`,
+  colorPickerInput: "h-10 w-full cursor-pointer rounded-md border-0 bg-transparent p-0",
+  createOptionPanel: (theme: SiteTheme) =>
+    `grid gap-3 rounded-md border p-3 ${
+      theme === "dark"
+        ? "border-white/[0.10] bg-white/[0.04]"
+        : theme === "paletteLight"
+          ? "border-[#C8C0B5] bg-[#E5D5BC]/35"
+          : "border-neutral-200 bg-neutral-50"
     }`,
   textArea: (theme: SiteTheme) =>
     `min-h-28 resize-y rounded-md border px-3 py-2 text-sm font-semibold leading-[1.5] outline-none placeholder:text-neutral-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${
@@ -137,13 +182,70 @@ export const recipeBrowserStyles = {
     `text-xs font-semibold leading-[1.45] ${
       theme === "dark" ? "text-neutral-400" : theme === "paletteLight" ? "text-[#7A8864]" : "text-neutral-500"
     }`,
+  inlineHint: (theme: SiteTheme) =>
+    `ml-2 text-[10px] font-semibold ${
+      theme === "dark" ? "text-neutral-500" : theme === "paletteLight" ? "text-[#7A8864]" : "text-neutral-500"
+    }`,
   checkboxGrid: "grid max-h-44 grid-cols-2 gap-2 overflow-y-auto rounded-md p-2 max-md:grid-cols-1",
+  compactCheckboxGrid: "grid max-h-28 grid-cols-2 gap-2 overflow-y-auto rounded-md p-2 max-md:grid-cols-1",
+  tagCheckboxGrid: "grid grid-cols-3 gap-2 rounded-md p-2 max-md:grid-cols-2 max-sm:grid-cols-1",
+  recipeIngredientPickerGrid: "grid max-h-56 gap-2 overflow-y-auto rounded-md p-2",
+  recipeIngredientPickerRow: "grid grid-cols-[auto_minmax(0,1fr)_6rem_9rem] items-center gap-2 max-md:grid-cols-[auto_minmax(0,1fr)]",
+  compactTextField: (theme: SiteTheme) =>
+    `h-8 min-w-0 rounded-md border px-2 text-xs font-semibold outline-none placeholder:text-neutral-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${
+      theme === "dark"
+        ? "border-white/[0.10] bg-neutral-900 text-neutral-100 focus-visible:outline-white disabled:opacity-45"
+        : theme === "paletteLight"
+          ? "border-[#C8C0B5] bg-white text-[#556145] focus-visible:outline-[#7A8864] disabled:opacity-45"
+          : "border-neutral-300 bg-white text-neutral-900 focus-visible:outline-neutral-800 disabled:opacity-45"
+    }`,
   checkboxGridPanel: (theme: SiteTheme) =>
     theme === "dark"
       ? "bg-white/[0.04]"
       : theme === "paletteLight"
         ? "bg-[#E5D5BC]/45"
         : "bg-neutral-100",
+  detailsToggle: (theme: SiteTheme) =>
+    `inline-flex h-9 w-fit cursor-pointer items-center justify-center rounded-md border px-4 text-xs font-bold transition-colors ${
+      theme === "dark"
+        ? "border-white/[0.10] bg-white/[0.06] text-neutral-200 hover:bg-white/[0.12]"
+        : theme === "paletteLight"
+          ? "border-[#C8C0B5] bg-[#E5D5BC]/45 text-[#556145] hover:bg-[#C8C0B5]/70"
+          : "border-neutral-300 bg-neutral-100 text-neutral-800 hover:bg-neutral-200"
+    }`,
+  detailsToggleFull: (theme: SiteTheme) =>
+    `inline-flex h-10 w-full cursor-pointer items-center justify-center rounded-md border px-4 text-sm font-bold transition-colors ${
+      theme === "dark"
+        ? "border-white/[0.10] bg-white/[0.06] text-neutral-200 hover:bg-white/[0.12]"
+        : theme === "paletteLight"
+          ? "border-[#C8C0B5] bg-[#E5D5BC]/45 text-[#556145] hover:bg-[#C8C0B5]/70"
+          : "border-neutral-300 bg-neutral-100 text-neutral-800 hover:bg-neutral-200"
+    }`,
+  imageUploadButton: (theme: SiteTheme) =>
+    `ml-auto inline-flex h-9 w-fit cursor-pointer items-center justify-center gap-2 rounded-md border px-4 text-xs font-bold transition-colors ${
+      theme === "dark"
+        ? "border-white/[0.10] bg-white/[0.06] text-neutral-200 hover:bg-white/[0.12]"
+        : theme === "paletteLight"
+          ? "border-[#C8C0B5] bg-[#E5D5BC]/45 text-[#556145] hover:bg-[#C8C0B5]/70"
+          : "border-neutral-300 bg-neutral-100 text-neutral-800 hover:bg-neutral-200"
+    }`,
+  imageUploadFloatingButton: (theme: SiteTheme) =>
+    `absolute right-2 top-2 z-10 inline-flex h-9 w-fit cursor-pointer items-center justify-center gap-2 rounded-md border px-4 text-xs font-bold shadow-sm transition-colors ${
+      theme === "dark"
+        ? "border-white/[0.10] bg-neutral-950/85 text-neutral-200 hover:bg-neutral-950"
+        : theme === "paletteLight"
+          ? "border-[#C8C0B5] bg-[#FAF7F2]/90 text-[#556145] hover:bg-[#FAF7F2]"
+          : "border-neutral-300 bg-white/90 text-neutral-800 hover:bg-white"
+    }`,
+  imageUploadIcon: "h-4 w-4",
+  detailsPanel: (theme: SiteTheme) =>
+    `grid gap-4 rounded-md border p-3 ${
+      theme === "dark"
+        ? "border-white/[0.08] bg-white/[0.035]"
+        : theme === "paletteLight"
+          ? "border-[#C8C0B5] bg-[#E5D5BC]/30"
+          : "border-neutral-200 bg-neutral-50"
+    }`,
   formActions: "flex flex-wrap items-center justify-end gap-3 pt-2",
   primaryButton: (theme: SiteTheme) =>
     `inline-flex h-10 min-w-32 items-center justify-center rounded-md border px-4 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-55 ${
@@ -152,6 +254,30 @@ export const recipeBrowserStyles = {
         : theme === "paletteLight"
           ? "border-[#7A8864]/35 bg-[#7A8864] text-[#FAF7F2] hover:bg-[#6A7658]"
           : "border-neutral-900 bg-neutral-900 text-white hover:bg-neutral-700"
+    }`,
+  removeButton: (theme: SiteTheme) =>
+    `inline-flex h-10 min-w-24 items-center justify-center rounded-md border px-4 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-55 ${
+      theme === "dark"
+        ? "border-red-400/25 bg-red-500/12 text-red-200 hover:bg-red-500/20"
+        : theme === "paletteLight"
+          ? "border-red-800/25 bg-red-800/12 text-red-900 hover:bg-red-800/18"
+          : "border-red-200 bg-red-50 text-red-700 hover:bg-red-100"
+    }`,
+  detailHeaderEditButton: (theme: SiteTheme) =>
+    `inline-flex h-9 min-w-28 items-center justify-center rounded-md border px-3 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-55 ${
+      theme === "dark"
+        ? "border-white/[0.12] bg-white/[0.14] text-white hover:bg-white/[0.2]"
+        : theme === "paletteLight"
+          ? "border-[#7A8864]/35 bg-[#7A8864] text-[#FAF7F2] hover:bg-[#6A7658]"
+          : "border-neutral-900 bg-neutral-900 text-white hover:bg-neutral-700"
+    }`,
+  detailHeaderRemoveButton: (theme: SiteTheme) =>
+    `inline-flex h-9 min-w-24 items-center justify-center rounded-md border px-3 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-55 ${
+      theme === "dark"
+        ? "border-red-400/25 bg-red-500/12 text-red-200 hover:bg-red-500/20"
+        : theme === "paletteLight"
+          ? "border-red-800/25 bg-red-800/12 text-red-900 hover:bg-red-800/18"
+          : "border-red-200 bg-red-50 text-red-700 hover:bg-red-100"
     }`,
   secondaryButton: (theme: SiteTheme) =>
     `inline-flex h-10 min-w-28 items-center justify-center rounded-md border px-4 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-55 ${
@@ -236,7 +362,7 @@ export const recipeBrowserStyles = {
   checkbox: "h-4 w-4 rounded border-neutral-400 accent-neutral-500",
   resultsWithFilters: "col-span-10 max-lg:col-span-12",
   recipeGrid: "grid grid-cols-4 gap-3 max-xl:grid-cols-3 max-md:grid-cols-2 max-sm:grid-cols-1",
-  ingredientGrid: "grid grid-cols-3 gap-3 max-xl:grid-cols-2 max-md:grid-cols-1",
+  ingredientGrid: "flex flex-wrap items-start gap-3",
   recipeCard: (theme: SiteTheme) =>
     theme === "dark"
       ? "ring-1 ring-white/[0.08]"

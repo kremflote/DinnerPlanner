@@ -2,9 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DinnerPlanner.Api.Models;
 
-public class Cuisine
+public class Brand
 {
     [Key]
-    public int CuisineId { get; set; }
+    public int BrandId { get; set; }
     public string Name { get; set; } = string.Empty;
 }

@@ -10,13 +10,14 @@ public abstract class Recipe
     public string? ImageUrl { get; set; }
     public string? Description { get; set; }
     public string? Instructions { get; set; }
-    public ICollection<Ingredient> Ingredients { get; set; } = [];
+    public ICollection<RecipeIngredient> Ingredients { get; set; } = [];
     public ICollection<RecipeTagAssignment> Tags { get; set; } = [];
 }
 
 public class Dish : Recipe
 {
-    public Cuisine Cuisine { get; set; } = Cuisine.Other;
+    public int? CuisineId { get; set; }
+    public Cuisine? Cuisine { get; set; }
 }
 
 public class Dessert : Recipe

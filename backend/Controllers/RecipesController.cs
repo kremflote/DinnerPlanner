@@ -16,6 +16,12 @@ public class RecipesController(DinnerPlannerContext context) : ControllerBase
         var recipes = await context.Recipes
             .AsNoTracking()
             .Include(recipe => recipe.Ingredients)
+                .ThenInclude(recipeIngredient => recipeIngredient.Ingredient)
+                    .ThenInclude(ingredient => ingredient.Brand)
+            .Include(recipe => recipe.Ingredients)
+                .ThenInclude(recipeIngredient => recipeIngredient.Ingredient)
+                    .ThenInclude(ingredient => ingredient.Tags)
+            .Include(recipe => (recipe as Dish)!.Cuisine)
             .Include(recipe => recipe.Tags)
             .OrderBy(recipe => recipe.Name)
             .ToListAsync();
@@ -34,6 +40,12 @@ public class RecipesController(DinnerPlannerContext context) : ControllerBase
         var recipe = await context.Recipes
             .AsNoTracking()
             .Include(recipe => recipe.Ingredients)
+                .ThenInclude(recipeIngredient => recipeIngredient.Ingredient)
+                    .ThenInclude(ingredient => ingredient.Brand)
+            .Include(recipe => recipe.Ingredients)
+                .ThenInclude(recipeIngredient => recipeIngredient.Ingredient)
+                    .ThenInclude(ingredient => ingredient.Tags)
+            .Include(recipe => (recipe as Dish)!.Cuisine)
             .Include(recipe => recipe.Tags)
             .FirstOrDefaultAsync(recipe => recipe.RecipeId == id);
 
@@ -43,16 +55,27 @@ public class RecipesController(DinnerPlannerContext context) : ControllerBase
     [HttpPost]
     public async Task<ActionResult<RecipeDto>> CreateRecipe(RecipeRequest request)
     {
-        var ingredients = await GetIngredients(request.IngredientIds);
-        var missingIngredientIds = GetMissingIngredientIds(request.IngredientIds, ingredients);
+        if (!await CuisineExists(request.CuisineId))
+        {
+            return BadRequest("No cuisine found with that ID.");
+        }
+
+        var ingredients = await GetIngredients(GetRequestedIngredientIds(request.Ingredients));
+        var missingIngredientIds = GetMissingIngredientIds(GetRequestedIngredientIds(request.Ingredients), ingredients);
         if (missingIngredientIds.Count > 0)
         {
             return BadRequest($"No ingredients found for IDs: {string.Join(", ", missingIngredientIds)}.");
         }
 
+        var tags = NormalizeTags(request.Tags);
+        if (tags.Count == 0)
+        {
+            return BadRequest("Choose at least one recipe tag.");
+        }
+
         var recipe = CreateRecipeModel(request);
-        recipe.Ingredients = ingredients;
-        recipe.Tags = NormalizeTags(request.Tags)
+        recipe.Ingredients = ToRecipeIngredients(request.Ingredients);
+        recipe.Tags = tags
             .Select(tag => new RecipeTagAssignment { Tag = tag })
             .ToList();
 
@@ -68,6 +91,12 @@ public class RecipesController(DinnerPlannerContext context) : ControllerBase
     {
         var recipe = await context.Recipes
             .Include(recipe => recipe.Ingredients)
+                .ThenInclude(recipeIngredient => recipeIngredient.Ingredient)
+                    .ThenInclude(ingredient => ingredient.Brand)
+            .Include(recipe => recipe.Ingredients)
+                .ThenInclude(recipeIngredient => recipeIngredient.Ingredient)
+                    .ThenInclude(ingredient => ingredient.Tags)
+            .Include(recipe => (recipe as Dish)!.Cuisine)
             .Include(recipe => recipe.Tags)
             .FirstOrDefaultAsync(recipe => recipe.RecipeId == id);
 
@@ -81,21 +110,34 @@ public class RecipesController(DinnerPlannerContext context) : ControllerBase
             return BadRequest("Recipe type cannot be changed.");
         }
 
-        var ingredients = await GetIngredients(request.IngredientIds);
-        var missingIngredientIds = GetMissingIngredientIds(request.IngredientIds, ingredients);
+        if (!await CuisineExists(request.CuisineId))
+        {
+            return BadRequest("No cuisine found with that ID.");
+        }
+
+        var requestedIngredientIds = GetRequestedIngredientIds(request.Ingredients);
+        var ingredients = await GetIngredients(requestedIngredientIds);
+        var missingIngredientIds = GetMissingIngredientIds(requestedIngredientIds, ingredients);
         if (missingIngredientIds.Count > 0)
         {
             return BadRequest($"No ingredients found for IDs: {string.Join(", ", missingIngredientIds)}.");
+        }
+
+        var tags = NormalizeTags(request.Tags);
+        if (tags.Count == 0)
+        {
+            return BadRequest("Choose at least one recipe tag.");
         }
 
         recipe.Name = request.Name;
         recipe.ImageUrl = request.ImageUrl;
         recipe.Description = request.Description;
         recipe.Instructions = request.Instructions;
-        recipe.Ingredients = ingredients;
+        context.RecipeIngredients.RemoveRange(recipe.Ingredients);
+        recipe.Ingredients = ToRecipeIngredients(request.Ingredients, recipe.RecipeId);
         ApplySpecialRecipeFields(recipe, request);
         context.RecipeTagAssignments.RemoveRange(recipe.Tags);
-        recipe.Tags = NormalizeTags(request.Tags)
+        recipe.Tags = tags
             .Select(tag => new RecipeTagAssignment
             {
                 RecipeId = recipe.RecipeId,
@@ -124,6 +166,12 @@ public class RecipesController(DinnerPlannerContext context) : ControllerBase
     private Task<Recipe?> LoadRecipe(int id) => context.Recipes
         .AsNoTracking()
         .Include(recipe => recipe.Ingredients)
+            .ThenInclude(recipeIngredient => recipeIngredient.Ingredient)
+                .ThenInclude(ingredient => ingredient.Brand)
+        .Include(recipe => recipe.Ingredients)
+            .ThenInclude(recipeIngredient => recipeIngredient.Ingredient)
+                .ThenInclude(ingredient => ingredient.Tags)
+        .Include(recipe => (recipe as Dish)!.Cuisine)
         .Include(recipe => recipe.Tags)
         .FirstOrDefaultAsync(recipe => recipe.RecipeId == id);
 
@@ -135,6 +183,12 @@ public class RecipesController(DinnerPlannerContext context) : ControllerBase
             .Where(ingredient => ids.Contains(ingredient.IngredientId))
             .ToListAsync();
     }
+
+    private static List<int> GetRequestedIngredientIds(IReadOnlyCollection<RecipeIngredientRequest> ingredients) =>
+        ingredients
+            .Select(ingredient => ingredient.IngredientId)
+            .Distinct()
+            .ToList();
 
     private static List<int> GetMissingIngredientIds(
         IReadOnlyCollection<int> requestedIngredientIds,
@@ -170,7 +224,7 @@ public class RecipesController(DinnerPlannerContext context) : ControllerBase
     {
         if (recipe is Dish dish)
         {
-            dish.Cuisine = request.Cuisine ?? Cuisine.Other;
+            dish.CuisineId = request.CuisineId;
             return;
         }
 
@@ -189,7 +243,10 @@ public class RecipesController(DinnerPlannerContext context) : ControllerBase
         recipe.Instructions,
         recipe.Ingredients.Select(ToDto).ToList(),
         recipe.Tags.Select(recipeTag => recipeTag.Tag).OrderBy(tag => tag).ToList(),
-        recipe is Dish dish ? dish.Cuisine : null,
+        recipe is Dish dish ? dish.CuisineId : null,
+        recipe is Dish { Cuisine: not null } dishWithCuisine
+            ? new CuisineDto(dishWithCuisine.Cuisine.CuisineId, dishWithCuisine.Cuisine.Name)
+            : null,
         recipe is Dessert dessert ? dessert.Type : null
     );
 
@@ -212,14 +269,40 @@ public class RecipesController(DinnerPlannerContext context) : ControllerBase
                 .Distinct()
                 .ToList();
 
+    private static List<RecipeIngredient> ToRecipeIngredients(
+        IReadOnlyCollection<RecipeIngredientRequest> ingredients,
+        int recipeId = 0
+    ) =>
+        ingredients
+            .GroupBy(ingredient => ingredient.IngredientId)
+            .Select(group => group.First())
+            .Select(ingredient => new RecipeIngredient
+            {
+                RecipeId = recipeId,
+                IngredientId = ingredient.IngredientId,
+                Amount = ingredient.Amount,
+                Unit = ingredient.Unit
+            })
+            .ToList();
+
+    private static RecipeIngredientDto ToDto(RecipeIngredient recipeIngredient) => new(
+        recipeIngredient.RecipeIngredientId,
+        ToDto(recipeIngredient.Ingredient),
+        recipeIngredient.Amount,
+        recipeIngredient.Unit
+    );
+
+    private async Task<bool> CuisineExists(int? cuisineId) =>
+        cuisineId is null || await context.Cuisines.AnyAsync(cuisine => cuisine.CuisineId == cuisineId);
+
     private static IngredientDto ToDto(Ingredient ingredient) => new(
         ingredient.IngredientId,
         ingredient.IngredientName,
-        ingredient.Brand,
+        ingredient.Description,
+        ingredient.BrandId,
+        ingredient.Brand is null ? null : new BrandDto(ingredient.Brand.BrandId, ingredient.Brand.Name),
         ingredient.Price,
-        ingredient.Amount,
-        ingredient.Unit,
-        ingredient.Category,
+        ingredient.Tags.Select(ingredientTag => ingredientTag.Tag).OrderBy(tag => tag).ToList(),
         ingredient.NutritionPer100,
         ingredient.Color
     );

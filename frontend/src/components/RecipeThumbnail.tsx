@@ -1,25 +1,25 @@
-import type { Cuisine, IRecipe } from "../interfaces/IRecipe";
+import type { IRecipe } from "../interfaces/IRecipe";
 import { getApiAssetUrl } from "../services/apiClient";
 import { thumbnailStyles, type SiteTheme } from "../styles/appStyles";
 
 type RecipeThumbnailProps = {
   recipe: Pick<IRecipe, "name" | "imageUrl"> & {
-    cuisine?: Cuisine | string | null;
+    cuisine?: string | null;
     subtitle?: string | null;
   };
   className?: string;
   theme?: SiteTheme;
+  onClick?: () => void;
 };
 
-function RecipeThumbnail({ recipe, className = "", theme = "dark" }: RecipeThumbnailProps) {
+function RecipeThumbnail({ recipe, className = "", theme = "dark", onClick }: RecipeThumbnailProps) {
   const subtitle = recipe.subtitle ?? recipe.cuisine ?? "No cuisine";
   const imageUrl = getApiAssetUrl(recipe.imageUrl);
-
-  return (
-    <article
-      className={`relative aspect-square w-full overflow-hidden rounded-md bg-neutral-800 ${className}`}
-      aria-label={recipe.name}
-    >
+  const sharedClassName = `relative aspect-square w-full overflow-hidden rounded-md bg-neutral-800 text-left ${className} ${
+    onClick ? "cursor-pointer transition-transform hover:scale-[1.01]" : ""
+  }`;
+  const content = (
+    <>
       {imageUrl ? (
         <img
           className="h-full w-full object-cover"
@@ -31,10 +31,26 @@ function RecipeThumbnail({ recipe, className = "", theme = "dark" }: RecipeThumb
         <div className="h-full w-full bg-neutral-700" aria-hidden="true" />
       )}
 
+      <div className={thumbnailStyles.recipeImageOverlay(theme)} aria-hidden="true" />
+
       <div className={`absolute inset-x-0 bottom-0 flex h-1/4 min-h-14 flex-col justify-center px-3 ${thumbnailStyles.recipeTitleBand(theme)}`}>
         <h3 className="truncate text-base font-bold leading-tight text-white">{recipe.name}</h3>
         <p className={`mt-1 truncate text-xs font-semibold leading-tight ${thumbnailStyles.recipeSubtitle(theme)}`}>{subtitle}</p>
       </div>
+    </>
+  );
+
+  if (onClick) {
+    return (
+      <button className={sharedClassName} type="button" aria-label={`Open ${recipe.name}`} onClick={onClick}>
+        {content}
+      </button>
+    );
+  }
+
+  return (
+    <article className={sharedClassName} aria-label={recipe.name}>
+      {content}
     </article>
   );
 }

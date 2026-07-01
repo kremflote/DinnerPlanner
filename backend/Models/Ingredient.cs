@@ -7,11 +7,11 @@ public class Ingredient
     [Key]
     public int IngredientId { get; set; }
     public string IngredientName { get; set; } = string.Empty;
-    public string? Brand { get; set; }
+    public string? Description { get; set; }
+    public int? BrandId { get; set; }
+    public Brand? Brand { get; set; }
     public decimal? Price { get; set; }
-    public decimal? Amount { get; set; }
-    public MeasurementUnit Unit { get; set; }
-    public IngredientCategory Category { get; set; } = IngredientCategory.Other;
+    public ICollection<IngredientTagAssignment> Tags { get; set; } = [];
     public NutritionFacts? NutritionPer100 { get; set; }
     public string? Color { get; set; }
 }

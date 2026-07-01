@@ -4,6 +4,8 @@ export const colorPalette = {
   dustyBlue: "#A9BDD1",
   olive: "#7A8864",
   stone: "#C8C0B5",
+  ingredientIcon: "#F8F0D7",
+  ingredientIconText: "#333929",
   champagne: "#E5D5BC",
   ivory: "#FAF7F2",
 } as const;
@@ -13,6 +15,8 @@ export const colorPaletteClasses = {
     dustyBlue: "bg-[#A9BDD1]",
     olive: "bg-[#7A8864]",
     stone: "bg-[#C8C0B5]",
+    ingredientIcon: "bg-[#F8F0D7]",
+    ingredientIconText: "bg-[#333929]",
     champagne: "bg-[#E5D5BC]",
     ivory: "bg-[#FAF7F2]",
   },
@@ -20,6 +24,8 @@ export const colorPaletteClasses = {
     dustyBlue: "border-[#A9BDD1]",
     olive: "border-[#7A8864]",
     stone: "border-[#C8C0B5]",
+    ingredientIcon: "border-[#F8F0D7]",
+    ingredientIconText: "border-[#333929]",
     champagne: "border-[#E5D5BC]",
     ivory: "border-[#FAF7F2]",
   },
@@ -27,6 +33,8 @@ export const colorPaletteClasses = {
     dustyBlue: "text-[#A9BDD1]",
     olive: "text-[#7A8864]",
     stone: "text-[#C8C0B5]",
+    ingredientIcon: "text-[#F8F0D7]",
+    ingredientIconText: "text-[#333929]",
     champagne: "text-[#E5D5BC]",
     ivory: "text-[#FAF7F2]",
   },
@@ -129,6 +137,10 @@ export const radiusClasses = {
 } as const;
 
 export const thumbnailStyles = {
+  recipeImageOverlay: (theme: SiteTheme) =>
+    theme === "dark"
+      ? "pointer-events-none absolute inset-0 bg-black/20"
+      : "hidden",
   recipeTitleBand: (theme: SiteTheme) =>
     theme === "paletteLight" ? "bg-[#7A8864]/95" : "bg-neutral-700/95",
   recipeSubtitle: (theme: SiteTheme) =>

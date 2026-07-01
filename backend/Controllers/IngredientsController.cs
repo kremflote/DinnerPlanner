@@ -15,6 +15,8 @@ public class IngredientsController(DinnerPlannerContext context) : ControllerBas
     {
         var ingredients = await context.Ingredients
             .AsNoTracking()
+            .Include(ingredient => ingredient.Brand)
+            .Include(ingredient => ingredient.Tags)
             .OrderBy(ingredient => ingredient.IngredientName)
             .ToListAsync();
 
@@ -26,6 +28,8 @@ public class IngredientsController(DinnerPlannerContext context) : ControllerBas
     {
         var ingredient = await context.Ingredients
             .AsNoTracking()
+            .Include(ingredient => ingredient.Brand)
+            .Include(ingredient => ingredient.Tags)
             .FirstOrDefaultAsync(ingredient => ingredient.IngredientId == id);
 
         return ingredient is null ? NotFound() : Ok(ToDto(ingredient));
@@ -34,14 +38,20 @@ public class IngredientsController(DinnerPlannerContext context) : ControllerBas
     [HttpPost]
     public async Task<ActionResult<IngredientDto>> CreateIngredient(IngredientRequest request)
     {
+        if (!await BrandExists(request.BrandId))
+        {
+            return BadRequest("No brand found with that ID.");
+        }
+
         var ingredient = new Ingredient
         {
             IngredientName = request.IngredientName,
-            Brand = request.Brand,
+            Description = request.Description,
+            BrandId = request.BrandId,
             Price = request.Price,
-            Amount = request.Amount,
-            Unit = request.Unit,
-            Category = request.Category,
+            Tags = NormalizeTags(request.Tags)
+                .Select(tag => new IngredientTagAssignment { Tag = tag })
+                .ToList(),
             NutritionPer100 = request.NutritionPer100,
             Color = request.Color
         };
@@ -55,18 +65,31 @@ public class IngredientsController(DinnerPlannerContext context) : ControllerBas
     [HttpPut("{id:int}")]
     public async Task<IActionResult> UpdateIngredient(int id, IngredientRequest request)
     {
-        var ingredient = await context.Ingredients.FindAsync(id);
+        var ingredient = await context.Ingredients
+            .Include(ingredient => ingredient.Tags)
+            .FirstOrDefaultAsync(ingredient => ingredient.IngredientId == id);
         if (ingredient is null)
         {
             return NotFound();
         }
 
+        if (!await BrandExists(request.BrandId))
+        {
+            return BadRequest("No brand found with that ID.");
+        }
+
         ingredient.IngredientName = request.IngredientName;
-        ingredient.Brand = request.Brand;
+        ingredient.Description = request.Description;
+        ingredient.BrandId = request.BrandId;
         ingredient.Price = request.Price;
-        ingredient.Amount = request.Amount;
-        ingredient.Unit = request.Unit;
-        ingredient.Category = request.Category;
+        context.IngredientTagAssignments.RemoveRange(ingredient.Tags);
+        ingredient.Tags = NormalizeTags(request.Tags)
+            .Select(tag => new IngredientTagAssignment
+            {
+                IngredientId = ingredient.IngredientId,
+                Tag = tag
+            })
+            .ToList();
         ingredient.NutritionPer100 = request.NutritionPer100;
         ingredient.Color = request.Color;
 
@@ -88,14 +111,25 @@ public class IngredientsController(DinnerPlannerContext context) : ControllerBas
         return NoContent();
     }
 
+    private async Task<bool> BrandExists(int? brandId) =>
+        brandId is null || await context.Brands.AnyAsync(brand => brand.BrandId == brandId);
+
+    private static List<IngredientTag> NormalizeTags(IReadOnlyCollection<IngredientTag>? tags) =>
+        tags is null
+            ? []
+            : tags
+                .Where(tag => Enum.IsDefined(tag))
+                .Distinct()
+                .ToList();
+
     private static IngredientDto ToDto(Ingredient ingredient) => new(
         ingredient.IngredientId,
         ingredient.IngredientName,
-        ingredient.Brand,
+        ingredient.Description,
+        ingredient.BrandId,
+        ingredient.Brand is null ? null : new BrandDto(ingredient.Brand.BrandId, ingredient.Brand.Name),
         ingredient.Price,
-        ingredient.Amount,
-        ingredient.Unit,
-        ingredient.Category,
+        ingredient.Tags.Select(ingredientTag => ingredientTag.Tag).OrderBy(tag => tag).ToList(),
         ingredient.NutritionPer100,
         ingredient.Color
     );

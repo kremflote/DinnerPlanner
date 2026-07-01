@@ -3,6 +3,7 @@ using System;
 using DinnerPlanner.Api.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace backend.Migrations
 {
     [DbContext(typeof(DinnerPlannerContext))]
-    partial class DinnerPlannerContextModelSnapshot : ModelSnapshot
+    [Migration("20260701123208_ConvertIngredientCategoryToTags")]
+    partial class ConvertIngredientCategoryToTags
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
@@ -114,10 +117,6 @@ namespace backend.Migrations
                     b.Property<string>("Color")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Description")
-                        .HasMaxLength(600)
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("IngredientName")
                         .IsRequired()
                         .HasMaxLength(160)
@@ -138,7 +137,6 @@ namespace backend.Migrations
                         {
                             IngredientId = 1,
                             Color = "#f6d4b8",
-                            Description = "Lean poultry cut with mild flavor. Useful as the main protein in bowls, salads, soups, and quick pan-fried dinners.",
                             IngredientName = "Chicken breast",
                             Price = 89.90m
                         },
@@ -146,7 +144,6 @@ namespace backend.Migrations
                         {
                             IngredientId = 2,
                             Color = "#f4ead2",
-                            Description = "Aromatic vegetable used to build flavor in sauces, marinades, soups, stir fries, and roasted dishes.",
                             IngredientName = "Garlic",
                             Price = 14.90m
                         },
@@ -154,7 +151,6 @@ namespace backend.Migrations
                         {
                             IngredientId = 3,
                             Color = "#fff7ef",
-                            Description = "Thick cultured dairy product. Works as a base for cold sauces, dressings, marinades, and high-protein breakfasts.",
                             IngredientName = "Greek yogurt",
                             Price = 34.90m
                         },
@@ -162,7 +158,6 @@ namespace backend.Migrations
                         {
                             IngredientId = 4,
                             Color = "#f6f0df",
-                            Description = "Neutral grain that works as a side or base for bowls, curries, stir fries, and meal prep portions.",
                             IngredientName = "Rice",
                             Price = 39.90m
                         },
@@ -170,7 +165,6 @@ namespace backend.Migrations
                         {
                             IngredientId = 5,
                             Color = "#f9dc5c",
-                            Description = "Bright acidic fruit used for sauces, dressings, marinades, desserts, and finishing cooked dishes.",
                             IngredientName = "Lemon",
                             Price = 8.90m
                         });
@@ -443,9 +437,9 @@ namespace backend.Migrations
                         new
                         {
                             RecipeId = 2,
-                            Description = "Weeknight bowl with pan-fried chicken, steamed rice, and fresh garlic yogurt sauce. Good as dinner and easy to scale for meal prep.",
+                            Description = "Simple chicken bowl with rice and sauce.",
                             ImageUrl = "/images/recipes/chicken-rice-bowl.png",
-                            Instructions = "Rinse the rice and cook until tender. Slice the chicken breast, season lightly, and fry in a hot pan until cooked through. Spoon rice into bowls, add chicken, and finish with garlic yogurt sauce.",
+                            Instructions = "Cook rice. Fry chicken until done. Serve with garlic yogurt sauce.",
                             Name = "Chicken rice bowl",
                             CuisineId = 1
                         });
@@ -461,9 +455,9 @@ namespace backend.Migrations
                         new
                         {
                             RecipeId = 1,
-                            Description = "Cold yogurt sauce with grated garlic and lemon. Best with chicken bowls, grilled meat, roasted vegetables, and rice.",
+                            Description = "Fresh yogurt sauce with garlic and lemon.",
                             ImageUrl = "/images/recipes/garlic-yogurt-sauce.png",
-                            Instructions = "Grate the garlic finely. Stir garlic, lemon juice, and a little lemon zest into the yogurt. Season with salt and let it rest for at least 10 minutes before serving.",
+                            Instructions = "Grate the garlic, stir it into yogurt with lemon, and season to taste.",
                             Name = "Garlic yogurt sauce"
                         });
                 });
@@ -478,8 +472,8 @@ namespace backend.Migrations
                         new
                         {
                             RecipeId = 3,
-                            Description = "Plain steamed rice for bowls, curries, stir fries, and saucy dishes.",
-                            Instructions = "Rinse the rice until the water runs mostly clear. Cook with the correct amount of water, then rest covered for 5 minutes before fluffing.",
+                            Description = "",
+                            Instructions = "Rinse rice and steam until tender.",
                             Name = "Steamed rice"
                         });
                 });
@@ -506,40 +500,12 @@ namespace backend.Migrations
                             b1.Property<int?>("Calories")
                                 .HasColumnType("INTEGER");
 
-                            b1.Property<decimal?>("CarbohydrateGrams")
-                                .HasPrecision(8, 2)
-                                .HasColumnType("TEXT");
-
                             b1.Property<decimal?>("DietaryFiberGrams")
                                 .HasPrecision(8, 2)
                                 .HasColumnType("TEXT");
 
-                            b1.Property<decimal?>("MonounsaturatedFatGrams")
-                                .HasPrecision(8, 2)
-                                .HasColumnType("TEXT");
-
-                            b1.Property<decimal?>("PolyunsaturatedFatGrams")
-                                .HasPrecision(8, 2)
-                                .HasColumnType("TEXT");
-
-                            b1.Property<decimal?>("ProteinGrams")
-                                .HasPrecision(8, 2)
-                                .HasColumnType("TEXT");
-
-                            b1.Property<decimal?>("SaltGrams")
-                                .HasPrecision(8, 2)
-                                .HasColumnType("TEXT");
-
-                            b1.Property<decimal?>("SaturatedFatGrams")
-                                .HasPrecision(8, 2)
-                                .HasColumnType("TEXT");
-
-                            b1.Property<decimal?>("UnsaturatedFatGrams")
-                                .HasPrecision(8, 2)
-                                .HasColumnType("TEXT");
-
                             b1.Property<string>("Vitamins")
-                                .IsRequired()
+                                .HasMaxLength(300)
                                 .HasColumnType("TEXT");
 
                             b1.HasKey("IngredientId");

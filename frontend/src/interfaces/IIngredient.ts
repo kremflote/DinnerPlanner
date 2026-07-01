@@ -1,16 +1,18 @@
+import type { IBrand } from "./ILookup";
+
 export interface IIngredient {
   ingredientId: number;
   ingredientName: string;
-  brand: string | null;
+  description: string | null;
+  brandId: number | null;
+  brand: IBrand | null;
   price: number | null;
-  amount: number | null;
-  unit: MeasurementUnit | null;
-  category: IngredientCategory;
+  tags: IngredientTag[];
   nutritionPer100: INutritionFacts | null;
   color: string | null;
 }
 
-export type IngredientCategory =
+export type IngredientTag =
   | "Vegetable"
   | "Fruit"
   | "Chicken"
@@ -29,9 +31,25 @@ export type IngredientCategory =
 
 export interface INutritionFacts {
   calories: number | null;
-  vitamins: string | null;
+  carbohydrateGrams: number | null;
+  proteinGrams: number | null;
+  saltGrams: number | null;
   dietaryFiberGrams: number | null;
+  saturatedFatGrams: number | null;
+  unsaturatedFatGrams: number | null;
+  monounsaturatedFatGrams: number | null;
+  polyunsaturatedFatGrams: number | null;
+  vitamins: Vitamin[];
 }
+
+export type Vitamin =
+  | "VitaminA"
+  | "VitaminB"
+  | "VitaminB12"
+  | "VitaminC"
+  | "VitaminD"
+  | "VitaminE"
+  | "VitaminK";
 
 export type MeasurementUnit =
   | "Gram"

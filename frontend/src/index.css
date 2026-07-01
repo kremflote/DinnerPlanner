@@ -4,6 +4,17 @@ html {
   scrollbar-gutter: stable;
 }
 
+input[type="number"] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 @supports not (scrollbar-gutter: stable) {
   html {
     overflow-y: scroll;

@@ -1,6 +1,6 @@
 namespace DinnerPlanner.Api.Models;
 
-public enum IngredientCategory
+public enum IngredientTag
 {
     Vegetable,
     Fruit,

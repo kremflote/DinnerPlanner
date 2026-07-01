@@ -1,5 +1,5 @@
-import type { IngredientCategory, MeasurementUnit } from "../../interfaces/IIngredient";
-import type { Cuisine, DessertType, RecipeTag, RecipeType } from "../../interfaces/IRecipe";
+import type { IngredientTag, MeasurementUnit, Vitamin } from "../../interfaces/IIngredient";
+import type { DessertType, RecipeTag, RecipeType } from "../../interfaces/IRecipe";
 
 export const recipeTypes: RecipeType[] = [
   "Dish",
@@ -29,18 +29,6 @@ export const recipeTags: RecipeTag[] = [
   "Other",
 ];
 
-export const cuisines: Cuisine[] = [
-  "Asian",
-  "Indian",
-  "Mediterranean",
-  "French",
-  "Norwegian",
-  "Mexican",
-  "Italian",
-  "Grill",
-  "Other",
-];
-
 export const dessertTypes: DessertType[] = [
   "Cake",
   "Pastry",
@@ -54,7 +42,7 @@ export const dessertTypes: DessertType[] = [
   "Other",
 ];
 
-export const ingredientCategories: IngredientCategory[] = [
+export const ingredientTags: IngredientTag[] = [
   "Vegetable",
   "Fruit",
   "Chicken",
@@ -84,4 +72,14 @@ export const measurementUnits: MeasurementUnit[] = [
   "Clove",
   "Pinch",
   "ToTaste",
+];
+
+export const vitamins: Vitamin[] = [
+  "VitaminA",
+  "VitaminB",
+  "VitaminB12",
+  "VitaminC",
+  "VitaminD",
+  "VitaminE",
+  "VitaminK",
 ];

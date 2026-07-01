@@ -1,27 +1,11 @@
 import type { Dispatch, SetStateAction } from "react";
-import type { IngredientCategory } from "../../interfaces/IIngredient";
-import type { Cuisine, RecipeTag, RecipeType } from "../../interfaces/IRecipe";
+import type { IngredientTag } from "../../interfaces/IIngredient";
+import type { ICuisine } from "../../interfaces/ILookup";
+import type { RecipeTag, RecipeType } from "../../interfaces/IRecipe";
 import type { SiteTheme } from "../../styles/appStyles";
+import { ingredientTags } from "./formOptions";
 import { formatLabel, recipeBrowserStyles } from "./recipeBrowserStyles";
 import type { BrowserMode } from "./types";
-
-const ingredientCategoryFilters: IngredientCategory[] = [
-  "Vegetable",
-  "Fruit",
-  "Chicken",
-  "Fish",
-  "Beef",
-  "Lamb",
-  "Mince",
-  "Dairy",
-  "Grain",
-  "Spice",
-  "Herb",
-  "Sauce",
-  "Pantry",
-  "Frozen",
-  "Other",
-];
 
 const recipeTypeFilters: RecipeType[] = ["Dish", "Dessert", "Sauce", "Dip", "Side", "SpiceMix"];
 
@@ -44,52 +28,42 @@ const recipeTagFilters: RecipeTag[] = [
   "Other",
 ];
 
-const cuisineFilters: Cuisine[] = [
-  "Asian",
-  "Indian",
-  "Mediterranean",
-  "French",
-  "Norwegian",
-  "Mexican",
-  "Italian",
-  "Grill",
-  "Other",
-];
-
 type BrowserFilterSectionProps = {
   mode: BrowserMode;
-  selectedIngredientCategories: IngredientCategory[];
+  cuisines: ICuisine[];
+  selectedIngredientTags: IngredientTag[];
   selectedRecipeTypes: RecipeType[];
   selectedRecipeTags: RecipeTag[];
-  selectedCuisines: Cuisine[];
+  selectedCuisineIds: number[];
   theme: SiteTheme;
-  setSelectedIngredientCategories: Dispatch<SetStateAction<IngredientCategory[]>>;
+  setSelectedIngredientTags: Dispatch<SetStateAction<IngredientTag[]>>;
   setSelectedRecipeTypes: Dispatch<SetStateAction<RecipeType[]>>;
   setSelectedRecipeTags: Dispatch<SetStateAction<RecipeTag[]>>;
-  setSelectedCuisines: Dispatch<SetStateAction<Cuisine[]>>;
+  setSelectedCuisineIds: Dispatch<SetStateAction<number[]>>;
 };
 
 function BrowserFilterSection({
   mode,
-  selectedIngredientCategories,
+  cuisines,
+  selectedIngredientTags,
   selectedRecipeTypes,
   selectedRecipeTags,
-  selectedCuisines,
+  selectedCuisineIds,
   theme,
-  setSelectedIngredientCategories,
+  setSelectedIngredientTags,
   setSelectedRecipeTypes,
   setSelectedRecipeTags,
-  setSelectedCuisines,
+  setSelectedCuisineIds,
 }: BrowserFilterSectionProps) {
   return (
     <aside className={recipeBrowserStyles.filterRail(theme)} aria-label={`${mode} filters`}>
       {mode === "ingredients" ? (
         <FilterGroup
-          selectedValues={selectedIngredientCategories}
+          selectedValues={selectedIngredientTags}
           theme={theme}
-          title="Ingredient Category"
-          values={ingredientCategoryFilters}
-          onToggle={(value) => toggleSelection(value, setSelectedIngredientCategories)}
+          title="Ingredient Tags"
+          values={ingredientTags}
+          onToggle={(value) => toggleSelection(value, setSelectedIngredientTags)}
         />
       ) : (
         <>
@@ -107,16 +81,53 @@ function BrowserFilterSection({
             values={recipeTagFilters}
             onToggle={(value) => toggleSelection(value, setSelectedRecipeTags)}
           />
-          <FilterGroup
-            selectedValues={selectedCuisines}
+          <NumberFilterGroup
+            selectedValues={selectedCuisineIds}
             theme={theme}
             title="Cuisine"
-            values={cuisineFilters}
-            onToggle={(value) => toggleSelection(value, setSelectedCuisines)}
+            values={cuisines.map((cuisine) => ({ id: cuisine.cuisineId, label: cuisine.name }))}
+            onToggle={(value) => toggleSelection(value, setSelectedCuisineIds)}
           />
         </>
       )}
     </aside>
+  );
+}
+
+type NumberFilterGroupProps = {
+  title: string;
+  values: readonly { id: number; label: string }[];
+  selectedValues: readonly number[];
+  theme: SiteTheme;
+  onToggle: (value: number) => void;
+};
+
+function NumberFilterGroup({
+  title,
+  values,
+  selectedValues,
+  theme,
+  onToggle,
+}: NumberFilterGroupProps) {
+  return (
+    <fieldset className={recipeBrowserStyles.filterGroup(theme)}>
+      <div className="flex items-center justify-between gap-2">
+        <legend className={recipeBrowserStyles.filterLegend(theme)}>{title}</legend>
+      </div>
+      <div className="mt-2 flex flex-col gap-1">
+        {values.map((value) => (
+          <label className={recipeBrowserStyles.checkboxLabel(theme)} key={value.id}>
+            <input
+              checked={selectedValues.includes(value.id)}
+              className={recipeBrowserStyles.checkbox}
+              type="checkbox"
+              onChange={() => onToggle(value.id)}
+            />
+            {value.label}
+          </label>
+        ))}
+      </div>
+    </fieldset>
   );
 }
 
@@ -157,7 +168,7 @@ function FilterGroup<TValue extends string>({
   );
 }
 
-function toggleSelection<TValue extends string>(
+function toggleSelection<TValue extends string | number>(
   value: TValue,
   setSelectedValues: Dispatch<SetStateAction<TValue[]>>,
 ) {
