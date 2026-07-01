@@ -1,4 +1,4 @@
-import type { IRecipe, RecipeType } from "../interfaces/IRecipe";
+import type { Cuisine, DessertType, IRecipe, RecipeTag, RecipeType } from "../interfaces/IRecipe";
 import { apiRequest } from "./apiClient";
 
 export interface RecipeRequest {
@@ -8,6 +8,9 @@ export interface RecipeRequest {
   description: string | null;
   instructions: string | null;
   ingredientIds: number[];
+  tags: RecipeTag[];
+  cuisine: Cuisine | null;
+  dessertType: DessertType | null;
 }
 
 export const recipeService = {

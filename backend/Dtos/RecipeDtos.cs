@@ -23,7 +23,10 @@ public record RecipeRequest(
     string? Description,
     string? Instructions,
     [property: Required]
-    IReadOnlyCollection<int> IngredientIds
+    IReadOnlyCollection<int> IngredientIds,
+    IReadOnlyCollection<RecipeTag> Tags,
+    Cuisine? Cuisine,
+    DessertType? DessertType
 );
 
 public record RecipeDto(
@@ -33,5 +36,8 @@ public record RecipeDto(
     string? ImageUrl,
     string? Description,
     string? Instructions,
-    IReadOnlyCollection<IngredientDto> Ingredients
+    IReadOnlyCollection<IngredientDto> Ingredients,
+    IReadOnlyCollection<RecipeTag> Tags,
+    Cuisine? Cuisine,
+    DessertType? DessertType
 );

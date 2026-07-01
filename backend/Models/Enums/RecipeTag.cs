@@ -1,7 +1,10 @@
 namespace DinnerPlanner.Api.Models;
 
-public enum DishType
+public enum RecipeTag
 {
+    Breakfast,
+    Lunch,
+    Dinner,
     Bowl,
     Grill,
     Pasta,

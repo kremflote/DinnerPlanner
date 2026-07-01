@@ -19,14 +19,7 @@ public class ImageUploadsController(IWebHostEnvironment environment) : Controlle
     {
         "general",
         "ingredients",
-        "recipes",
-        "dishes",
-        "sauces",
-        "dips",
-        "sides",
-        "desserts",
-        "marinades",
-        "spice-mixes"
+        "recipes"
     };
 
     [HttpPost]

@@ -11,11 +11,11 @@ public abstract class Recipe
     public string? Description { get; set; }
     public string? Instructions { get; set; }
     public ICollection<Ingredient> Ingredients { get; set; } = [];
+    public ICollection<RecipeTagAssignment> Tags { get; set; } = [];
 }
 
 public class Dish : Recipe
 {
-    public ICollection<DishTypeAssignment> Types { get; set; } = [];
     public Cuisine Cuisine { get; set; } = Cuisine.Other;
 }
 

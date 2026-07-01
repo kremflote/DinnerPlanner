@@ -43,6 +43,18 @@ export async function apiRequest<TResponse>(
   return response.json() as Promise<TResponse>;
 }
 
+export function getApiAssetUrl(path: string | null) {
+  if (!path) {
+    return null;
+  }
+
+  if (/^https?:\/\//i.test(path) || path.startsWith("data:")) {
+    return path;
+  }
+
+  return `${API_BASE_URL}${path.startsWith("/") ? path : `/${path}`}`;
+}
+
 async function getErrorMessage(response: Response): Promise<string> {
   const contentType = response.headers.get("Content-Type") ?? "";
 

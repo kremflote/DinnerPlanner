@@ -7,7 +7,7 @@ public class DinnerPlannerContext(DbContextOptions<DinnerPlannerContext> options
 {
     public DbSet<Ingredient> Ingredients => Set<Ingredient>();
     public DbSet<Recipe> Recipes => Set<Recipe>();
-    public DbSet<DishTypeAssignment> DishTypeAssignments => Set<DishTypeAssignment>();
+    public DbSet<RecipeTagAssignment> RecipeTagAssignments => Set<RecipeTagAssignment>();
     public DbSet<Dish> Dishes => Set<Dish>();
     public DbSet<Dessert> Desserts => Set<Dessert>();
     public DbSet<Sauce> Sauces => Set<Sauce>();
@@ -76,18 +76,18 @@ public class DinnerPlannerContext(DbContextOptions<DinnerPlannerContext> options
                     });
         });
 
-        modelBuilder.Entity<DishTypeAssignment>(entity =>
+        modelBuilder.Entity<RecipeTagAssignment>(entity =>
         {
-            entity.HasKey(dishType => new
+            entity.HasKey(recipeTag => new
             {
-                dishType.DishId,
-                dishType.Type
+                recipeTag.RecipeId,
+                recipeTag.Tag
             });
 
-            entity.Property(dishType => dishType.Type).HasConversion<string>().HasMaxLength(64);
-            entity.HasOne(dishType => dishType.Dish)
-                .WithMany(dish => dish.Types)
-                .HasForeignKey(dishType => dishType.DishId)
+            entity.Property(recipeTag => recipeTag.Tag).HasConversion<string>().HasMaxLength(64);
+            entity.HasOne(recipeTag => recipeTag.Recipe)
+                .WithMany(recipe => recipe.Tags)
+                .HasForeignKey(recipeTag => recipeTag.RecipeId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
@@ -202,7 +202,7 @@ public class DinnerPlannerContext(DbContextOptions<DinnerPlannerContext> options
         {
             RecipeId = 1,
             Name = "Garlic yogurt sauce",
-            ImageUrl = (string?)null,
+            ImageUrl = "/images/recipes/garlic-yogurt-sauce.png",
             Description = "Fresh yogurt sauce with garlic and lemon.",
             Instructions = "Grate the garlic, stir it into yogurt with lemon, and season to taste."
         });
@@ -211,16 +211,16 @@ public class DinnerPlannerContext(DbContextOptions<DinnerPlannerContext> options
         {
             RecipeId = 2,
             Name = "Chicken rice bowl",
-            ImageUrl = (string?)null,
+            ImageUrl = "/images/recipes/chicken-rice-bowl.png",
             Description = "Simple chicken bowl with rice and sauce.",
             Instructions = "Cook rice. Fry chicken until done. Serve with garlic yogurt sauce.",
             Cuisine = Cuisine.Asian
         });
 
-        modelBuilder.Entity<DishTypeAssignment>().HasData(new
+        modelBuilder.Entity<RecipeTagAssignment>().HasData(new
         {
-            DishId = 2,
-            Type = DishType.Bowl
+            RecipeId = 2,
+            Tag = RecipeTag.Bowl
         });
 
         modelBuilder.Entity<Side>().HasData(new

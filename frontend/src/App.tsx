@@ -19,7 +19,7 @@ function App() {
       />
       {activePage === "settings" && <SettingsPage />}
       {activePage === "weekPlanner" && <PlannerPage theme={theme} />}
-      {activePage === "cookbook" && <CookbookPage />}
+      {activePage === "cookbook" && <CookbookPage theme={theme} />}
     </div>
   );
 }

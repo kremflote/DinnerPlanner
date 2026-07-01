@@ -78,10 +78,10 @@ export const siteColorClasses = {
   paletteLight: {
     page: "bg-[#FAF7F2] text-[#7A8864] before:bg-[#A9BDD1]/20",
     header: "border-[#7A8864]/35 bg-[#7A8864]",
-    headerForeground: "text-[#E5D5BC]",
+    headerForeground: "text-white",
     nav: "border-[#C8C0B5] bg-[#FAF7F2]/55",
-    control: "text-[#E5D5BC] hover:border-[#E5D5BC]/45 hover:bg-[#E5D5BC]/15 hover:text-[#FAF7F2]",
-    controlSelected: "border-[#E5D5BC]/55 bg-[#E5D5BC]/20 text-[#FAF7F2]",
+    control: "text-white hover:border-white/45 hover:bg-white/15 hover:text-white",
+    controlSelected: "border-white/70 bg-white text-[#7A8864]",
     plannerControl: "border-[#7A8864]/35 bg-[#FAF7F2]/35 text-[#556145] hover:bg-[#FAF7F2]/55",
     plannerDateItem: "bg-[#C8C0B5]/70",
     plannerCounter: "border-[#C8C0B5] bg-[#E5D5BC]/60 text-[#556145]",
@@ -126,6 +126,13 @@ export const sizeClasses = {
 
 export const radiusClasses = {
   figma6: "rounded-md",
+} as const;
+
+export const thumbnailStyles = {
+  recipeTitleBand: (theme: SiteTheme) =>
+    theme === "paletteLight" ? "bg-[#7A8864]/95" : "bg-neutral-700/95",
+  recipeSubtitle: (theme: SiteTheme) =>
+    theme === "paletteLight" ? "text-white/75" : "text-neutral-300",
 } as const;
 
 const focusBase =

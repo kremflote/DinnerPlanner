@@ -1,5 +1,6 @@
 using DinnerPlanner.Api.Contexts;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,7 +22,11 @@ builder.Services.AddDbContext<DinnerPlannerContext>(options =>
     options.UseSqlite(connectionString);
 });
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 builder.Services.AddOpenApi();
 
 var app = builder.Build();

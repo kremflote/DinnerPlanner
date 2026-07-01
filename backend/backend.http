@@ -121,4 +121,4 @@ Content-Type: application/json
 # POST {{backend_HostAddress}}/api/imageuploads
 # Content-Type: multipart/form-data
 # file: image file
-# folder: dishes
+# folder: recipes

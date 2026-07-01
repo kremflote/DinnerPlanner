@@ -16,6 +16,7 @@ public class RecipesController(DinnerPlannerContext context) : ControllerBase
         var recipes = await context.Recipes
             .AsNoTracking()
             .Include(recipe => recipe.Ingredients)
+            .Include(recipe => recipe.Tags)
             .OrderBy(recipe => recipe.Name)
             .ToListAsync();
 
@@ -33,6 +34,7 @@ public class RecipesController(DinnerPlannerContext context) : ControllerBase
         var recipe = await context.Recipes
             .AsNoTracking()
             .Include(recipe => recipe.Ingredients)
+            .Include(recipe => recipe.Tags)
             .FirstOrDefaultAsync(recipe => recipe.RecipeId == id);
 
         return recipe is null ? NotFound() : Ok(ToDto(recipe));
@@ -41,11 +43,6 @@ public class RecipesController(DinnerPlannerContext context) : ControllerBase
     [HttpPost]
     public async Task<ActionResult<RecipeDto>> CreateRecipe(RecipeRequest request)
     {
-        if (request.RecipeType is RecipeType.Dish or RecipeType.Dessert)
-        {
-            return BadRequest("Use the dishes or desserts endpoint for that recipe type.");
-        }
-
         var ingredients = await GetIngredients(request.IngredientIds);
         var missingIngredientIds = GetMissingIngredientIds(request.IngredientIds, ingredients);
         if (missingIngredientIds.Count > 0)
@@ -55,6 +52,9 @@ public class RecipesController(DinnerPlannerContext context) : ControllerBase
 
         var recipe = CreateRecipeModel(request);
         recipe.Ingredients = ingredients;
+        recipe.Tags = NormalizeTags(request.Tags)
+            .Select(tag => new RecipeTagAssignment { Tag = tag })
+            .ToList();
 
         context.Recipes.Add(recipe);
         await context.SaveChangesAsync();
@@ -68,16 +68,12 @@ public class RecipesController(DinnerPlannerContext context) : ControllerBase
     {
         var recipe = await context.Recipes
             .Include(recipe => recipe.Ingredients)
+            .Include(recipe => recipe.Tags)
             .FirstOrDefaultAsync(recipe => recipe.RecipeId == id);
 
         if (recipe is null)
         {
             return NotFound();
-        }
-
-        if (recipe is Dish or Dessert)
-        {
-            return BadRequest("Use the dishes or desserts endpoint for that recipe type.");
         }
 
         if (ToType(recipe) != request.RecipeType)
@@ -97,6 +93,15 @@ public class RecipesController(DinnerPlannerContext context) : ControllerBase
         recipe.Description = request.Description;
         recipe.Instructions = request.Instructions;
         recipe.Ingredients = ingredients;
+        ApplySpecialRecipeFields(recipe, request);
+        context.RecipeTagAssignments.RemoveRange(recipe.Tags);
+        recipe.Tags = NormalizeTags(request.Tags)
+            .Select(tag => new RecipeTagAssignment
+            {
+                RecipeId = recipe.RecipeId,
+                Tag = tag
+            })
+            .ToList();
 
         await context.SaveChangesAsync();
         return NoContent();
@@ -119,6 +124,7 @@ public class RecipesController(DinnerPlannerContext context) : ControllerBase
     private Task<Recipe?> LoadRecipe(int id) => context.Recipes
         .AsNoTracking()
         .Include(recipe => recipe.Ingredients)
+        .Include(recipe => recipe.Tags)
         .FirstOrDefaultAsync(recipe => recipe.RecipeId == id);
 
     private async Task<List<Ingredient>> GetIngredients(IReadOnlyCollection<int> ingredientIds)
@@ -143,6 +149,8 @@ public class RecipesController(DinnerPlannerContext context) : ControllerBase
     {
         Recipe recipe = request.RecipeType switch
         {
+            RecipeType.Dish => new Dish(),
+            RecipeType.Dessert => new Dessert(),
             RecipeType.Sauce => new Sauce(),
             RecipeType.Dip => new Dip(),
             RecipeType.Side => new Side(),
@@ -154,7 +162,22 @@ public class RecipesController(DinnerPlannerContext context) : ControllerBase
         recipe.ImageUrl = request.ImageUrl;
         recipe.Description = request.Description;
         recipe.Instructions = request.Instructions;
+        ApplySpecialRecipeFields(recipe, request);
         return recipe;
+    }
+
+    private static void ApplySpecialRecipeFields(Recipe recipe, RecipeRequest request)
+    {
+        if (recipe is Dish dish)
+        {
+            dish.Cuisine = request.Cuisine ?? Cuisine.Other;
+            return;
+        }
+
+        if (recipe is Dessert dessert)
+        {
+            dessert.Type = request.DessertType ?? DessertType.Other;
+        }
     }
 
     private static RecipeDto ToDto(Recipe recipe) => new(
@@ -164,7 +187,10 @@ public class RecipesController(DinnerPlannerContext context) : ControllerBase
         recipe.ImageUrl,
         recipe.Description,
         recipe.Instructions,
-        recipe.Ingredients.Select(ToDto).ToList()
+        recipe.Ingredients.Select(ToDto).ToList(),
+        recipe.Tags.Select(recipeTag => recipeTag.Tag).OrderBy(tag => tag).ToList(),
+        recipe is Dish dish ? dish.Cuisine : null,
+        recipe is Dessert dessert ? dessert.Type : null
     );
 
     private static RecipeType ToType(Recipe recipe) => recipe switch
@@ -177,6 +203,14 @@ public class RecipesController(DinnerPlannerContext context) : ControllerBase
         SpiceMix => RecipeType.SpiceMix,
         _ => throw new ArgumentOutOfRangeException(nameof(recipe), "Unsupported recipe type.")
     };
+
+    private static List<RecipeTag> NormalizeTags(IReadOnlyCollection<RecipeTag>? tags) =>
+        tags is null
+            ? []
+            : tags
+                .Where(tag => Enum.IsDefined(tag))
+                .Distinct()
+                .ToList();
 
     private static IngredientDto ToDto(Ingredient ingredient) => new(
         ingredient.IngredientId,

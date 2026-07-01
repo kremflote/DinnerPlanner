@@ -1,0 +1,30 @@
+import Browser from "./Browser";
+import AddButton from "./AddButton";
+import RecipeIngredientToggle from "./RecipeIngredientToggle";
+import { layoutClasses, type SiteTheme } from "../../styles/appStyles";
+import type { BrowserMode } from "./types";
+
+type RecipeBrowserProps = {
+  mode: BrowserMode;
+  theme: SiteTheme;
+  onModeChange: (value: BrowserMode) => void;
+};
+
+function RecipeBrowser({ mode, theme, onModeChange }: RecipeBrowserProps) {
+  return (
+    <main className={`${layoutClasses.contentWidth} relative py-12`}>
+      <Browser
+        mode={mode}
+        theme={theme}
+        headerActions={
+          <>
+            <AddButton target={mode === "recipes" ? "recipe" : "ingredient"} theme={theme} />
+            <RecipeIngredientToggle value={mode} theme={theme} onChange={onModeChange} />
+          </>
+        }
+      />
+    </main>
+  );
+}
+
+export default RecipeBrowser;
