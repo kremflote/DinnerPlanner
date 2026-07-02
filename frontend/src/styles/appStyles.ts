@@ -89,7 +89,7 @@ export const siteColorClasses = {
     headerForeground: "text-white",
     nav: "border-[#C8C0B5] bg-[#FAF7F2]/55",
     control: "text-white hover:border-white/45 hover:bg-white/15 hover:text-white",
-    controlSelected: "border-white/70 bg-white text-[#7A8864]",
+    controlSelected: "border-white/70 bg-[#F4EBCF] text-[#7A8864]",
     plannerControl: "border-[#7A8864]/35 bg-[#FAF7F2]/35 text-[#556145] hover:bg-[#FAF7F2]/55",
     plannerDateItem: "bg-[#C8C0B5]/70",
     plannerCounter: "border-[#C8C0B5] bg-[#E5D5BC]/60 text-[#556145]",
@@ -165,8 +165,8 @@ export const headerStyles = {
     `justify-self-start no-underline ${typographyClasses.logo} ${siteColorClasses[theme].headerForeground}`,
   nav: "flex items-center justify-center gap-2 max-md:col-span-2 max-md:row-start-2 max-md:justify-self-center",
   navButton: (theme: SiteTheme, selected: boolean) =>
-    `inline-flex h-16 min-w-20 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border bg-transparent px-3 transition-colors duration-150 ${focusBase} ${siteColorClasses[theme].focus} ${
-      selected ? siteColorClasses[theme].controlSelected : `border-transparent ${siteColorClasses[theme].control}`
+    `inline-flex h-16 min-w-20 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border px-3 transition-colors duration-150 ${focusBase} ${siteColorClasses[theme].focus} ${
+      selected ? siteColorClasses[theme].controlSelected : `border-transparent bg-transparent ${siteColorClasses[theme].control}`
     }`,
   icon: "h-8 w-8 fill-current",
   navLabel: "text-xs font-semibold leading-none",
@@ -183,7 +183,7 @@ export const headerStyles = {
 
 export const pageStyles = {
   shell: `${layoutClasses.contentWidth} relative py-16`,
-  showColumnDebugOverlay: false,
+  showColumnDebugOverlay: true,
   columnDebugOverlay:
     "pointer-events-none absolute inset-y-0 left-0 right-0 grid grid-cols-12 gap-6 opacity-100",
   columnDebugCell: "bg-red-500/10 outline outline-1 outline-red-500/30",

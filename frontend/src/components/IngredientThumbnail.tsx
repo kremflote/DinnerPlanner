@@ -11,21 +11,22 @@ type IngredientThumbnailProps = {
 };
 
 type IngredientTone = {
-  text: string;
   background: string;
+  dot: string;
+  text: string;
 };
 
 function IngredientThumbnail({
   ingredient,
-  theme: _theme = "dark",
+  theme = "dark",
   selected = false,
   disabled = false,
   className = "",
   onClick,
 }: IngredientThumbnailProps) {
   const brandName = ingredient.brand?.name ?? "";
-  const tone = getIngredientTone();
-  const sharedClassName = `inline-flex h-7 max-w-full items-center justify-center gap-2 rounded-md px-3 text-center transition ${className} ${
+  const tone = getIngredientTone(ingredient.color, theme);
+  const sharedClassName = `grid h-8 w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 rounded-md px-2 text-left transition ${className} ${
     selected ? "outline outline-2 outline-current" : ""
   } ${disabled ? "cursor-not-allowed" : onClick ? "cursor-pointer" : ""}`;
   const style = {
@@ -35,6 +36,11 @@ function IngredientThumbnail({
 
   const content = (
     <>
+      <span
+        aria-hidden="true"
+        className="h-2.5 w-2.5 rounded-full"
+        style={{ backgroundColor: tone.dot }}
+      />
       <span className="min-w-0 truncate text-sm font-semibold leading-tight">
         {ingredient.ingredientName}
       </span>
@@ -68,13 +74,20 @@ function IngredientThumbnail({
   );
 }
 
-function getIngredientTone(): IngredientTone {
+function getIngredientTone(color: string | null, theme: SiteTheme): IngredientTone {
+  const background =
+    theme === "paletteLight"
+      ? colorPalette.ivory
+      : theme === "dark"
+        ? "#171717"
+        : "#F5F5F5";
+  const dot = color ?? colorPalette.ingredientIconText;
   const text = colorPalette.ingredientIconText;
-  const background = colorPalette.ingredientIcon;
 
   return {
-    text,
     background,
+    dot,
+    text,
   };
 }
 

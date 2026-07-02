@@ -118,10 +118,17 @@ function Browser({ mode, theme, headerActions }: BrowserProps) {
   return (
     <>
       <header>
-        <h1 className={recipeBrowserStyles.title(theme)}>
-          {mode === "recipes" ? "All Recipes" : "All Ingredients"}
-        </h1>
         <div className={recipeBrowserStyles.headerControlsRow}>
+          <div className={recipeBrowserStyles.headerTitle}>
+            <h1 className={recipeBrowserStyles.title(theme)}>
+              {mode === "recipes" ? "All Recipes" : "All Ingredients"}
+            </h1>
+          </div>
+          <div className={recipeBrowserStyles.headerActions}>
+            {headerActions}
+          </div>
+        </div>
+        <div className={recipeBrowserStyles.searchFilterRow}>
           <div className={recipeBrowserStyles.searchControls}>
             <input
               aria-label={mode === "recipes" ? "Search recipes" : "Search ingredients"}
@@ -154,41 +161,37 @@ function Browser({ mode, theme, headerActions }: BrowserProps) {
               )}
             </div>
           </div>
-
-          <div className={recipeBrowserStyles.headerActions}>
-            {headerActions}
-          </div>
+          <ActiveFilterChips
+            mode={mode}
+            cuisines={cuisines}
+            selectedCuisineIds={selectedCuisineIds}
+            selectedRecipeTags={selectedRecipeTags}
+            selectedIngredientTags={selectedIngredientTags}
+            selectedIngredients={selectedIngredients}
+            selectedRecipeTypes={selectedRecipeTypes}
+            theme={theme}
+            onClear={clearFilters}
+            onRemoveCuisine={(value) =>
+              setSelectedCuisineIds((currentValues) => currentValues.filter((currentValue) => currentValue !== value))
+            }
+            onRemoveRecipeTag={(value) =>
+              setSelectedRecipeTags((currentValues) => currentValues.filter((currentValue) => currentValue !== value))
+            }
+            onRemoveIngredient={(ingredientId) =>
+              setSelectedIngredientIds((currentIds) =>
+                currentIds.filter((currentId) => currentId !== ingredientId),
+              )
+            }
+            onRemoveIngredientTag={(value) =>
+              setSelectedIngredientTags((currentValues) =>
+                currentValues.filter((currentValue) => currentValue !== value),
+              )
+            }
+            onRemoveRecipeType={(value) =>
+              setSelectedRecipeTypes((currentValues) => currentValues.filter((currentValue) => currentValue !== value))
+            }
+          />
         </div>
-        <ActiveFilterChips
-          mode={mode}
-          cuisines={cuisines}
-          selectedCuisineIds={selectedCuisineIds}
-          selectedRecipeTags={selectedRecipeTags}
-          selectedIngredientTags={selectedIngredientTags}
-          selectedIngredients={selectedIngredients}
-          selectedRecipeTypes={selectedRecipeTypes}
-          theme={theme}
-          onClear={clearFilters}
-          onRemoveCuisine={(value) =>
-            setSelectedCuisineIds((currentValues) => currentValues.filter((currentValue) => currentValue !== value))
-          }
-          onRemoveRecipeTag={(value) =>
-            setSelectedRecipeTags((currentValues) => currentValues.filter((currentValue) => currentValue !== value))
-          }
-          onRemoveIngredient={(ingredientId) =>
-            setSelectedIngredientIds((currentIds) =>
-              currentIds.filter((currentId) => currentId !== ingredientId),
-            )
-          }
-          onRemoveIngredientTag={(value) =>
-            setSelectedIngredientTags((currentValues) =>
-              currentValues.filter((currentValue) => currentValue !== value),
-            )
-          }
-          onRemoveRecipeType={(value) =>
-            setSelectedRecipeTypes((currentValues) => currentValues.filter((currentValue) => currentValue !== value))
-          }
-        />
         {mode === "recipes" && ingredientPickerPosition !== null && (
           <IngredientPickerPopover
             ingredients={ingredientPickerOptions}
@@ -210,7 +213,7 @@ function Browser({ mode, theme, headerActions }: BrowserProps) {
         )}
       </header>
 
-      <section className="mt-3 grid grid-cols-12 gap-3">
+      <section className={recipeBrowserStyles.browserBodyGrid}>
         <BrowserFilterSection
           mode={mode}
           cuisines={cuisines}
@@ -846,8 +849,8 @@ function ActiveFilterChips({
   const hasVisibleFilters = mode === "ingredients" ? hasIngredientFilters : hasRecipeFilters;
 
   return (
-    <div className="mt-3 flex min-h-6 flex-wrap items-start gap-2">
-      {!hasVisibleFilters && <span className="h-6" aria-hidden="true" />}
+    <div className={recipeBrowserStyles.activeFilterChips(mode)}>
+      {!hasVisibleFilters && <span className="h-9" aria-hidden="true" />}
       {mode === "ingredients" &&
         selectedIngredientTags.map((tag) => (
           <FilterChip

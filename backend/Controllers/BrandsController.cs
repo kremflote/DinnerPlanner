@@ -40,5 +40,19 @@ public class BrandsController(DinnerPlannerContext context) : ControllerBase
         return Ok(ToDto(brand));
     }
 
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> DeleteBrand(int id)
+    {
+        var brand = await context.Brands.FindAsync(id);
+        if (brand is null)
+        {
+            return NotFound();
+        }
+
+        context.Brands.Remove(brand);
+        await context.SaveChangesAsync();
+        return NoContent();
+    }
+
     private static BrandDto ToDto(Brand brand) => new(brand.BrandId, brand.Name);
 }

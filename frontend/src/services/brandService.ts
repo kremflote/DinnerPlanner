@@ -12,4 +12,8 @@ export const brandService = {
       method: "POST",
       body: brand,
     }),
+  delete: (id: number) =>
+    apiRequest<void>(`/api/brands/${id}`, {
+      method: "DELETE",
+    }),
 };
