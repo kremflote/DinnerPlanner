@@ -234,15 +234,17 @@ function Browser({ mode, theme, headerActions }: BrowserProps) {
             ) : filteredIngredients.length === 0 ? (
               <EmptyState theme={theme} title="No ingredients found" body="Try changing search or filters." />
             ) : (
-              <div className={recipeBrowserStyles.ingredientGrid}>
-                {filteredIngredients.map((ingredient) => (
-                  <IngredientThumbnail
-                    ingredient={ingredient}
-                    key={ingredient.ingredientId}
-                    theme={theme}
-                    onClick={() => setSelectedDetail({ kind: "ingredient", ingredient })}
-                  />
-                ))}
+              <div className={recipeBrowserStyles.ingredientGridPanel(theme)}>
+                <div className={recipeBrowserStyles.ingredientGrid}>
+                  {filteredIngredients.map((ingredient) => (
+                    <IngredientThumbnail
+                      ingredient={ingredient}
+                      key={ingredient.ingredientId}
+                      theme={theme}
+                      onClick={() => setSelectedDetail({ kind: "ingredient", ingredient })}
+                    />
+                  ))}
+                </div>
               </div>
             )
           ) : recipeIsLoading ? (

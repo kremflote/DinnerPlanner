@@ -180,9 +180,11 @@ export const thumbnailStyles = {
   recipeSubtitle: (theme: SiteTheme) =>
     theme === "paletteLight" ? "text-white/75" : "text-neutral-300",
   recipeSubtitleLayout: "mt-1 truncate text-xs font-semibold leading-tight",
-  ingredientShell: "grid h-8 w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 rounded-md px-2 text-left transition",
+  ingredientShell: "grid h-8 w-full grid-cols-[auto_minmax(0,1fr)] items-center gap-2 rounded-md px-2 text-left transition",
   ingredientDot: "h-2.5 w-2.5 rounded-full",
+  ingredientContent: "flex min-w-0 items-center gap-2",
   ingredientName: "min-w-0 truncate text-sm font-semibold leading-tight",
+  ingredientDivider: "h-px min-w-4 flex-1 bg-black",
   ingredientBrand: "shrink-0 truncate text-[11px] font-semibold leading-tight",
 } as const;
 

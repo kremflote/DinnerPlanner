@@ -326,10 +326,10 @@ export const recipeBrowserStyles = {
   detailHeaderRemoveButton: (theme: SiteTheme) =>
     `inline-flex h-9 min-w-24 items-center justify-center rounded-md border px-3 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-55 ${
       theme === "dark"
-        ? "border-red-400/25 bg-red-500/12 text-red-200 hover:bg-red-500/20"
+        ? "border-red-400/25 bg-red-400/25 text-white hover:bg-red-400/35"
         : theme === "paletteLight"
-          ? "border-red-800/25 bg-red-800/12 text-red-900 hover:bg-red-800/18"
-          : "border-red-200 bg-red-50 text-red-700 hover:bg-red-100"
+          ? "border-red-800/25 bg-red-800/25 text-[#FAF7F2] hover:bg-red-800/35"
+          : "border-red-200 bg-red-200 text-white hover:bg-red-300"
     }`,
   detailHeaderShell: "grid gap-2",
   detailHeaderRow: "flex flex-wrap items-center gap-3",
@@ -403,6 +403,14 @@ export const recipeBrowserStyles = {
   checkbox: "h-4 w-4 rounded border-neutral-400 accent-neutral-500",
   resultsWithFilters: "col-span-10 max-lg:col-span-12",
   recipeGrid: "grid grid-cols-4 gap-3 max-xl:grid-cols-3 max-md:grid-cols-2 max-sm:grid-cols-1",
+  ingredientGridPanel: (theme: SiteTheme) =>
+    `rounded-md border p-3 ${
+      theme === "dark"
+        ? "border-white/[0.10]"
+        : theme === "paletteLight"
+          ? "border-[#C8C0B5]"
+          : "border-neutral-200"
+    }`,
   ingredientGrid: "grid grid-cols-3 items-start gap-3 max-lg:grid-cols-2 max-sm:grid-cols-1",
   emptyFilterChipSlot: "h-9",
   recipeCard: (theme: SiteTheme) =>

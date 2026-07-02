@@ -11,26 +11,24 @@ type IngredientThumbnailProps = {
 };
 
 type IngredientTone = {
-  background: string;
   dot: string;
   text: string;
 };
 
 function IngredientThumbnail({
   ingredient,
-  theme = "dark",
   selected = false,
   disabled = false,
   className = "",
   onClick,
 }: IngredientThumbnailProps) {
   const brandName = ingredient.brand?.name ?? "";
-  const tone = getIngredientTone(ingredient.color, theme);
+  const displayBrand = brandName || "no brand";
+  const tone = getIngredientTone(ingredient.color);
   const sharedClassName = `${thumbnailStyles.ingredientShell} ${className} ${
     selected ? "outline outline-2 outline-current" : ""
   } ${disabled ? "cursor-not-allowed" : onClick ? "cursor-pointer" : ""}`;
   const style = {
-    backgroundColor: tone.background,
     color: tone.text,
   };
 
@@ -41,14 +39,15 @@ function IngredientThumbnail({
         className={thumbnailStyles.ingredientDot}
         style={{ backgroundColor: tone.dot }}
       />
-      <span className={thumbnailStyles.ingredientName}>
-        {ingredient.ingredientName}
-      </span>
-      {brandName && (
-        <span className={thumbnailStyles.ingredientBrand}>
-          {brandName}
+      <span className={thumbnailStyles.ingredientContent}>
+        <span className={thumbnailStyles.ingredientName}>
+          {ingredient.ingredientName}
         </span>
-      )}
+        <span aria-hidden="true" className={thumbnailStyles.ingredientDivider} />
+        <span className={thumbnailStyles.ingredientBrand}>
+          {displayBrand}
+        </span>
+      </span>
     </>
   );
 
@@ -74,18 +73,11 @@ function IngredientThumbnail({
   );
 }
 
-function getIngredientTone(color: string | null, theme: SiteTheme): IngredientTone {
-  const background =
-    theme === "paletteLight"
-      ? colorPalette.ivory
-      : theme === "dark"
-        ? colorPalette.nearBlack
-        : colorPalette.softGray;
+function getIngredientTone(color: string | null): IngredientTone {
   const dot = color ?? colorPalette.ingredientIconText;
   const text = colorPalette.ingredientIconText;
 
   return {
-    background,
     dot,
     text,
   };
