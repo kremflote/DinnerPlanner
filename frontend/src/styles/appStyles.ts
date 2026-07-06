@@ -172,6 +172,7 @@ export const layoutClasses = {
 export const sizeClasses = {
   mealCalendarHeaderHeight: "h-14",
   mealCalendarCellHeight: "h-36",
+  mealSlotContentInset: "h-[calc(100%_-_16px)] w-[calc(100%_-_16px)]",
   modalFormBodyMaxHeight: "max-h-[68vh]",
   plannerPickerBrowserHeight: "h-[44vh]",
   plannerControlHeight: "h-9",
@@ -496,7 +497,7 @@ export const mealCalendarStyles = {
           : "border-neutral-300"
     }`,
   mealSlotContent:
-    "grid h-full w-full grid-cols-2 self-stretch overflow-hidden",
+    `grid ${sizeClasses.mealSlotContentInset} grid-cols-2 overflow-hidden ${radiusClasses.figma6}`,
   mealSlotImageFrame: (theme: SiteTheme) =>
     `h-full w-full overflow-hidden rounded-l-md ${
       theme === "dark"
