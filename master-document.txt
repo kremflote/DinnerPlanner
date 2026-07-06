@@ -357,6 +357,21 @@ Planner remove meal
 
 Confirmation dialogs should support Escape-to-close, focus the cancel action first, and use the centralized overlay shadow.
 
+### Language support
+
+Use a frontend localization layer for interface text. The active language is provided by `LanguageContext`, persisted in local storage, and selected from the Settings page.
+
+Current supported interface languages:
+
+```
+English
+Norwegian Bokmål
+```
+
+Backend enum values and frontend union keys should remain stable English identifiers. User-facing labels for recipe types, recipe tags, ingredient tags, meal slots, planner view modes, and measurement units should come from `frontend/src/i18n/index.ts`.
+
+User-created content such as recipe names, ingredient names, cuisine names, instructions, and descriptions is not translated automatically.
+
 ---
 
 ## 10. Icons
@@ -408,6 +423,7 @@ Icons should align visually with text and buttons.
 	- Overview of all recipes and ingredients
 	- Browser filters, ingredient popover, active filter chips, and checkbox filter groups are shared patterns used by Planner as well
 - Settings page
+	- Choose interface language
 	- Configure amount of meals one can plan each day
 	- other settings
 

@@ -1,8 +1,9 @@
+import { useLanguage } from "../../contexts";
 import type { IIngredient, IngredientTag } from "../../interfaces/IIngredient";
 import type { ICuisine } from "../../interfaces/ILookup";
 import type { RecipeTag, RecipeType } from "../../interfaces/IRecipe";
 import type { SiteTheme } from "../../styles/appStyles";
-import { formatLabel, recipeBrowserStyles } from "./recipeBrowserStyles";
+import { recipeBrowserStyles } from "./recipeBrowserStyles";
 import type { BrowserMode } from "./types";
 import FilterChip from "./FilterChip";
 
@@ -39,6 +40,7 @@ function ActiveFilterChips({
   onRemoveCuisine,
   onRemoveIngredient,
 }: ActiveFilterChipsProps) {
+  const { t } = useLanguage();
   const hasIngredientFilters = selectedIngredientTags.length > 0;
   const hasRecipeFilters =
     selectedIngredients.length > 0 ||
@@ -55,7 +57,7 @@ function ActiveFilterChips({
         selectedIngredientTags.map((tag) => (
           <FilterChip
             key={tag}
-            label={formatLabel(tag)}
+            label={t.enums.ingredientTags[tag]}
             theme={theme}
             onClick={() => onRemoveIngredientTag(tag)}
           />
@@ -64,7 +66,7 @@ function ActiveFilterChips({
         selectedIngredients.map((ingredient) => (
           <FilterChip
             key={`ingredient-${ingredient.ingredientId}`}
-            label={`includes: ${ingredient.ingredientName}`}
+            label={`${t.filters.includes}: ${ingredient.ingredientName}`}
             theme={theme}
             onClick={() => onRemoveIngredient(ingredient.ingredientId)}
           />
@@ -73,7 +75,7 @@ function ActiveFilterChips({
         selectedRecipeTypes.map((type) => (
           <FilterChip
             key={type}
-            label={formatLabel(type)}
+            label={t.enums.recipeTypes[type]}
             theme={theme}
             onClick={() => onRemoveRecipeType(type)}
           />
@@ -82,7 +84,7 @@ function ActiveFilterChips({
         selectedRecipeTags.map((tag) => (
           <FilterChip
             key={tag}
-            label={formatLabel(tag)}
+            label={t.enums.recipeTags[tag]}
             theme={theme}
             onClick={() => onRemoveRecipeTag(tag)}
           />
@@ -91,14 +93,14 @@ function ActiveFilterChips({
         selectedCuisineIds.map((cuisineId) => (
           <FilterChip
             key={cuisineId}
-            label={cuisines.find((cuisine) => cuisine.cuisineId === cuisineId)?.name ?? "Cuisine"}
+            label={cuisines.find((cuisine) => cuisine.cuisineId === cuisineId)?.name ?? t.filters.cuisine}
             theme={theme}
             onClick={() => onRemoveCuisine(cuisineId)}
           />
         ))}
       {hasVisibleFilters && (
         <button className={recipeBrowserStyles.clearFilterChip(theme)} type="button" onClick={onClear}>
-          Clear filters
+          {t.common.clearFilters}
         </button>
       )}
     </div>

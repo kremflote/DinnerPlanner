@@ -332,6 +332,40 @@ export const pageStyles = {
   columnDebugCell: "bg-red-500/10 outline outline-1 outline-red-500/30",
 };
 
+export const settingsStyles = {
+  shell: "grid max-w-2xl gap-5",
+  title: (theme: SiteTheme) =>
+    `text-3xl font-bold leading-tight ${theme === "paletteLight" ? "text-[#556145]" : siteColorClasses[theme].plannerCounterAccent}`,
+  panel: (theme: SiteTheme) =>
+    `grid gap-4 rounded-md border p-5 ${shadowClasses.subtle} ${surfaceClasses.panel(theme)}`,
+  panelTitle: "text-xl font-bold leading-tight",
+  panelBody: (theme: SiteTheme) =>
+    `text-sm font-semibold leading-[1.5] ${
+      theme === "dark"
+        ? "text-neutral-300"
+        : theme === "paletteLight"
+          ? "text-[#7A8864]"
+          : "text-neutral-600"
+    }`,
+  languageOptions: "grid grid-cols-2 gap-3 max-sm:grid-cols-1",
+  languageButton: (theme: SiteTheme, selected: boolean) =>
+    `grid min-h-20 gap-1 rounded-md border px-4 py-3 text-left transition-colors ${focusBase} ${siteColorClasses[theme].focus} ${
+      selected
+        ? theme === "dark"
+          ? "border-white/[0.18] bg-white/[0.12] text-white"
+          : theme === "paletteLight"
+            ? "border-[#7A8864]/45 bg-[#FAF7F2] text-[#556145]"
+            : "border-neutral-900 bg-neutral-900 text-white"
+        : theme === "dark"
+          ? "border-white/[0.10] bg-white/[0.04] text-neutral-200 hover:bg-white/[0.08]"
+          : theme === "paletteLight"
+            ? "border-[#C8C0B5] bg-[#E5D5BC]/35 text-[#556145] hover:bg-[#E5D5BC]/55"
+            : "border-neutral-200 bg-neutral-50 text-neutral-800 hover:bg-neutral-100"
+    }`,
+  languageName: "text-base font-bold leading-tight",
+  languageCode: "text-xs font-bold uppercase leading-none opacity-60",
+} as const;
+
 export const plannerControlsStyles = {
   shell: `mb-12 mt-3 grid w-full grid-cols-12 ${layoutClasses.gridGap}`,
   datePrimaryRow: `flex w-full items-center justify-center ${layoutClasses.controlGap}`,

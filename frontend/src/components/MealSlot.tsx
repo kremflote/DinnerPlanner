@@ -1,3 +1,4 @@
+import { useLanguage } from "../contexts";
 import type { IMealPlanEntry } from "../interfaces/IMeal";
 import type { IRecipe } from "../interfaces/IRecipe";
 import { mealCalendarStyles, type SiteTheme } from "../styles/appStyles";
@@ -11,6 +12,7 @@ type MealSlotProps = {
 };
 
 function MealSlot({ entry, onClick, recipesById, theme = "dark" }: MealSlotProps) {
+  const { t } = useLanguage();
   const plannedRecipes =
     entry?.recipes
       .slice()
@@ -24,7 +26,7 @@ function MealSlot({ entry, onClick, recipesById, theme = "dark" }: MealSlotProps
 
   return (
     <button
-      aria-label="Open meal slot"
+      aria-label={t.planner.openMealSlot}
       className={`${mealCalendarStyles.mealSlot(theme)} ${mealCalendarStyles.mealSlotButton}`}
       type="button"
       onClick={onClick}
@@ -53,9 +55,9 @@ function MealSlot({ entry, onClick, recipesById, theme = "dark" }: MealSlotProps
                     <div
                       className={mealCalendarStyles.mealSlotRecipe(theme)}
                       key={`${plannedRecipe.mealPlanRecipeId}-${plannedRecipe.recipeId}`}
-                      title={plannedRecipe.recipe?.name ?? `Recipe ${plannedRecipe.recipeId}`}
+                      title={plannedRecipe.recipe?.name ?? t.planner.recipeFallback(plannedRecipe.recipeId)}
                     >
-                      {plannedRecipe.recipe?.name ?? `Recipe ${plannedRecipe.recipeId}`}
+                      {plannedRecipe.recipe?.name ?? t.planner.recipeFallback(plannedRecipe.recipeId)}
                     </div>
                   ))}
                 </div>

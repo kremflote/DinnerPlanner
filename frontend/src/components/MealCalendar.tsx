@@ -1,3 +1,4 @@
+import { useLanguage } from "../contexts";
 import { mealCalendarStyles, type SiteTheme } from "../styles/appStyles";
 import type { IMealPlanEntry, MealSlot as MealSlotId, PlannerViewMode } from "../interfaces/IMeal";
 import type { IRecipe } from "../interfaces/IRecipe";
@@ -16,8 +17,6 @@ type MealCalendarProps = {
   viewMode: PlannerViewMode;
 };
 
-const weekDayLabels = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"] as const;
-
 function MealCalendar({
   anchorDate,
   dates,
@@ -30,9 +29,12 @@ function MealCalendar({
   theme = "dark",
   viewMode,
 }: MealCalendarProps) {
+  const { locale, t } = useLanguage();
+  const weekDayLabels = t.calendar.weekdaysShort;
+
   if (viewMode === "month") {
     return (
-      <section className={mealCalendarStyles.shell} aria-busy={isLoading} aria-label="Meal calendar">
+      <section className={mealCalendarStyles.shell} aria-busy={isLoading} aria-label={t.planner.mealCalendar}>
         <div className={mealCalendarStyles.monthGrid}>
           {weekDayLabels.map((day) => (
             <div className={mealCalendarStyles.monthHeaderCell(theme)} key={day}>
@@ -59,6 +61,7 @@ function MealCalendar({
                       recipesById={recipesById}
                       slot={slot}
                       theme={theme}
+                      t={t}
                     />
                   ))}
                 </div>
@@ -74,7 +77,7 @@ function MealCalendar({
   }
 
   return (
-    <section className={mealCalendarStyles.shell} aria-busy={isLoading} aria-label="Meal calendar">
+    <section className={mealCalendarStyles.shell} aria-busy={isLoading} aria-label={t.planner.mealCalendar}>
       {/* Meal labels are hidden for now.
       <div className={mealCalendarStyles.grid}>
         {mealSlots.map((meal) => (
@@ -96,7 +99,7 @@ function MealCalendar({
             <div className={mealCalendarStyles.row} key={dateKey}>
               <div className={mealCalendarStyles.dayCell(theme)}>
                 <span className={mealCalendarStyles.dayLabel}>{weekDayLabels[index] ?? ""}</span>
-                <span className={mealCalendarStyles.dayDate(theme)}>{formatDayMonth(date)}</span>
+                <span className={mealCalendarStyles.dayDate(theme)}>{formatDayMonth(date, locale)}</span>
               </div>
               <div className={mealCalendarStyles.grid}>
                 {mealSlots.map((meal) => (
@@ -126,9 +129,10 @@ type MonthMealSummaryProps = {
   recipesById: Map<number, IRecipe>;
   slot: MealSlotId;
   theme: SiteTheme;
+  t: ReturnType<typeof useLanguage>["t"];
 };
 
-function MonthMealSummary({ entry, onClick, recipesById, slot, theme }: MonthMealSummaryProps) {
+function MonthMealSummary({ entry, onClick, recipesById, slot, theme, t }: MonthMealSummaryProps) {
   const plannedRecipes = entry?.recipes ?? [];
   const firstRecipe = plannedRecipes
     .slice()
@@ -136,9 +140,10 @@ function MonthMealSummary({ entry, onClick, recipesById, slot, theme }: MonthMea
   const recipe = firstRecipe ? recipesById.get(firstRecipe.recipeId) : undefined;
   const extraCount = Math.max(plannedRecipes.length - 1, 0);
   const empty = entry === undefined;
-  const label = recipe?.name ?? (firstRecipe ? `Recipe ${firstRecipe.recipeId}` : `Add ${slot.toLowerCase()}`);
-  const title = entry === undefined ? `Add ${slot}` : `Edit ${slot}: ${label}`;
-  const buttonLabel = empty ? `Add ${slot.toLowerCase()}` : label;
+  const slotLabel = t.enums.mealSlots[slot];
+  const label = recipe?.name ?? (firstRecipe ? t.planner.recipeFallback(firstRecipe.recipeId) : t.planner.addMealLower(slotLabel));
+  const title = entry === undefined ? t.planner.addMeal(slotLabel) : t.planner.editMeal(slotLabel, label);
+  const buttonLabel = empty ? t.planner.addMealLower(slotLabel) : label;
 
   return (
     <button
@@ -162,9 +167,9 @@ function toDateInputValue(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
-function formatDayMonth(date: Date) {
+function formatDayMonth(date: Date, locale: string) {
   const day = String(date.getDate()).padStart(2, "0");
-  const month = new Intl.DateTimeFormat(undefined, { month: "short" }).format(date);
+  const month = new Intl.DateTimeFormat(locale, { month: "short" }).format(date);
 
   return `${day}. ${month}`;
 }

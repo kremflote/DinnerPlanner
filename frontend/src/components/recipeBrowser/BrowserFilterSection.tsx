@@ -1,4 +1,5 @@
 import type { Dispatch, SetStateAction } from "react";
+import { useLanguage } from "../../contexts";
 import type { IngredientTag } from "../../interfaces/IIngredient";
 import type { ICuisine } from "../../interfaces/ILookup";
 import type { RecipeTag, RecipeType } from "../../interfaces/IRecipe";
@@ -35,36 +36,41 @@ function BrowserFilterSection({
   setSelectedRecipeTags,
   setSelectedCuisineIds,
 }: BrowserFilterSectionProps) {
+  const { t } = useLanguage();
+
   return (
-    <aside className={recipeBrowserStyles.filterRail(theme)} aria-label={`${mode} filters`}>
+    <aside className={recipeBrowserStyles.filterRail(theme)} aria-label={t.filters.recipeFilters}>
       {mode === "ingredients" ? (
         <FilterGroup
+          formatValue={(value) => t.enums.ingredientTags[value]}
           selectedValues={selectedIngredientTags}
           theme={theme}
-          title="Ingredient Tags"
+          title={t.filters.ingredientTags}
           values={ingredientTags}
           onToggle={(value) => toggleSelection(value, setSelectedIngredientTags)}
         />
       ) : (
         <>
           <FilterGroup
+            formatValue={(value) => t.enums.recipeTypes[value]}
             selectedValues={selectedRecipeTypes}
             theme={theme}
-            title="Recipe Type"
+            title={t.filters.recipeType}
             values={recipeTypes}
             onToggle={(value) => toggleSelection(value, setSelectedRecipeTypes)}
           />
           <FilterGroup
+            formatValue={(value) => t.enums.recipeTags[value]}
             selectedValues={selectedRecipeTags}
             theme={theme}
-            title="Tags"
+            title={t.filters.tags}
             values={recipeTags}
             onToggle={(value) => toggleSelection(value, setSelectedRecipeTags)}
           />
           <NumberFilterGroup
             selectedValues={selectedCuisineIds}
             theme={theme}
-            title="Cuisine"
+            title={t.filters.cuisine}
             values={cuisines.map((cuisine) => ({ id: cuisine.cuisineId, label: cuisine.name }))}
             onToggle={(value) => toggleSelection(value, setSelectedCuisineIds)}
           />

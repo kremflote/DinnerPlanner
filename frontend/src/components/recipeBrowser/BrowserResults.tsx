@@ -1,3 +1,4 @@
+import { useLanguage } from "../../contexts";
 import IngredientThumbnail from "../IngredientThumbnail";
 import RecipeThumbnail from "../RecipeThumbnail";
 import type { IIngredient } from "../../interfaces/IIngredient";
@@ -28,17 +29,19 @@ function BrowserResults({
   theme,
   onSelectDetail,
 }: BrowserResultsProps) {
+  const { t } = useLanguage();
+
   if (mode === "ingredients") {
     if (ingredientIsLoading) {
-      return <EmptyState theme={theme} title="Loading ingredients" body="Fetching the pantry." />;
+      return <EmptyState theme={theme} title={t.cookbook.loadingIngredients} body={t.cookbook.fetchingPantry} />;
     }
 
     if (ingredientError !== null) {
-      return <EmptyState theme={theme} title="Could not load ingredients" body={ingredientError} />;
+      return <EmptyState theme={theme} title={t.cookbook.couldNotLoadIngredients} body={ingredientError} />;
     }
 
     if (filteredIngredients.length === 0) {
-      return <EmptyState theme={theme} title="No ingredients found" body="Try changing search or filters." />;
+      return <EmptyState theme={theme} title={t.cookbook.noIngredientsFound} body={t.cookbook.tryChangingSearch} />;
     }
 
     return (
@@ -58,15 +61,15 @@ function BrowserResults({
   }
 
   if (recipeIsLoading) {
-    return <EmptyState theme={theme} title="Loading recipes" body="Fetching the cookbook." />;
+    return <EmptyState theme={theme} title={t.cookbook.loadingRecipes} body={t.cookbook.fetchingCookbook} />;
   }
 
   if (recipeError !== null) {
-    return <EmptyState theme={theme} title="Could not load recipes" body={recipeError} />;
+    return <EmptyState theme={theme} title={t.cookbook.couldNotLoadRecipes} body={recipeError} />;
   }
 
   if (filteredRecipes.length === 0) {
-    return <EmptyState theme={theme} title="No recipes found" body="Try changing search or filters." />;
+    return <EmptyState theme={theme} title={t.cookbook.noRecipesFound} body={t.cookbook.tryChangingSearch} />;
   }
 
   return (
@@ -79,7 +82,7 @@ function BrowserResults({
           recipe={{
             imageUrl: recipe.imageUrl,
             name: recipe.name,
-            subtitle: recipe.cuisine?.name ?? recipe.recipeType,
+            subtitle: recipe.cuisine?.name ?? t.enums.recipeTypes[recipe.recipeType],
           }}
           onClick={() => onSelectDetail({ kind: "recipe", recipe })}
         />

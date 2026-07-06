@@ -1,3 +1,4 @@
+import { useLanguage } from "../../contexts";
 import type { IRecipe } from "../../interfaces/IRecipe";
 import type { SiteTheme } from "../../styles/appStyles";
 import { plannerPickerStyles } from "../../styles/appStyles";
@@ -16,6 +17,8 @@ function PlannerRecipePickerSelection({
   theme,
   onToggleSupplementaryRecipe,
 }: PlannerRecipePickerSelectionProps) {
+  const { t } = useLanguage();
+
   if (mainRecipe === null && supplementaryRecipes.length === 0) {
     return null;
   }
@@ -29,7 +32,7 @@ function PlannerRecipePickerSelection({
             recipe={{
               imageUrl: mainRecipe.imageUrl,
               name: mainRecipe.name,
-              subtitle: mainRecipe.cuisine?.name ?? mainRecipe.recipeType,
+              subtitle: mainRecipe.cuisine?.name ?? t.enums.recipeTypes[mainRecipe.recipeType],
             }}
             theme={theme}
           />

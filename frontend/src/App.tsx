@@ -17,7 +17,7 @@ function App() {
         theme={theme}
         onThemeChange={setTheme}
       />
-      {activePage === "settings" && <SettingsPage />}
+      {activePage === "settings" && <SettingsPage theme={theme} />}
       {activePage === "weekPlanner" && <PlannerPage theme={theme} />}
       {activePage === "cookbook" && <CookbookPage theme={theme} />}
     </div>

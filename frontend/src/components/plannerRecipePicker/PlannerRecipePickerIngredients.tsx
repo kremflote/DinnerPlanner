@@ -1,3 +1,4 @@
+import { useLanguage } from "../../contexts";
 import type { IIngredient } from "../../interfaces/IIngredient";
 import type { SiteTheme } from "../../styles/appStyles";
 import { plannerPickerStyles } from "../../styles/appStyles";
@@ -18,6 +19,8 @@ export function IngredientFilterChips({
   onClear,
   onRemoveIngredient,
 }: IngredientFilterChipsProps) {
+  const { t } = useLanguage();
+
   if (selectedIngredients.length === 0) {
     return <span className={plannerPickerStyles.emptyIngredientChipSlot} aria-hidden="true" />;
   }
@@ -27,13 +30,13 @@ export function IngredientFilterChips({
       {selectedIngredients.map((ingredient) => (
         <FilterChip
           key={ingredient.ingredientId}
-          label={`includes: ${ingredient.ingredientName}`}
+          label={`${t.filters.includes}: ${ingredient.ingredientName}`}
           theme={theme}
           onClick={() => onRemoveIngredient(ingredient.ingredientId)}
         />
       ))}
       <button className={recipeBrowserStyles.clearFilterChip(theme)} type="button" onClick={onClear}>
-        Clear filters
+        {t.common.clearFilters}
       </button>
     </div>
   );

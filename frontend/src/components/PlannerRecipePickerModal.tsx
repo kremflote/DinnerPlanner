@@ -1,5 +1,5 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
-import { useCuisines, useIngredients } from "../contexts";
+import { useCuisines, useIngredients, useLanguage } from "../contexts";
 import type { IngredientTag } from "../interfaces/IIngredient";
 import type { IMealPlanEntry, MealSlot } from "../interfaces/IMeal";
 import type { IRecipe, RecipeTag } from "../interfaces/IRecipe";
@@ -61,6 +61,7 @@ function PlannerRecipePickerModal({
   onDelete,
   onSave,
 }: PlannerRecipePickerModalProps) {
+  const { t } = useLanguage();
   const titleId = useId();
   const { cuisines } = useCuisines();
   const { ingredients } = useIngredients();
@@ -91,6 +92,7 @@ function PlannerRecipePickerModal({
   const [isRemoving, setIsRemoving] = useState(false);
   const [isConfirmingRemove, setIsConfirmingRemove] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const modalPanelRef = useRef<HTMLElement | null>(null);
   const ingredientFilterButtonRef = useRef<HTMLButtonElement | null>(null);
   const ingredientPickerRef = useRef<HTMLDivElement | null>(null);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
@@ -214,7 +216,14 @@ function PlannerRecipePickerModal({
     .filter((recipe): recipe is IRecipe => recipe !== undefined);
 
   useEffect(() => {
+    const previouslyFocusedElement =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
+
     searchInputRef.current?.focus();
+
+    return () => {
+      previouslyFocusedElement?.focus();
+    };
   }, []);
 
   useEffect(() => {
@@ -252,6 +261,11 @@ function PlannerRecipePickerModal({
       if (event.key === "Escape") {
         event.preventDefault();
         onClose();
+        return;
+      }
+
+      if (event.key === "Tab") {
+        trapFocus(event, modalPanelRef.current);
       }
     };
 
@@ -309,7 +323,7 @@ function PlannerRecipePickerModal({
       await onDelete(entry.mealPlanEntryId);
       onClose();
     } catch {
-      setSaveError("Could not remove this meal. Please try again.");
+      setSaveError(t.planner.couldNotRemoveMeal);
     } finally {
       setIsRemoving(false);
       setIsConfirmingRemove(false);
@@ -344,7 +358,7 @@ function PlannerRecipePickerModal({
       });
       onClose();
     } catch {
-      setSaveError("Could not save this meal. Please try again.");
+      setSaveError(t.planner.couldNotSaveMeal);
     } finally {
       setIsSaving(false);
     }
@@ -356,37 +370,38 @@ function PlannerRecipePickerModal({
         aria-labelledby={titleId}
         aria-modal="true"
         className={plannerPickerStyles.modalPanel(theme)}
+        ref={modalPanelRef}
         role="dialog"
         onMouseDown={(event) => event.stopPropagation()}
       >
         <div className={plannerPickerStyles.header}>
           <div>
             <h2 className={plannerPickerStyles.title} id={titleId}>
-              {phase === "main" ? "Choose main dish" : "Choose supplements"}
+              {phase === "main" ? t.planner.chooseMainDish : t.planner.chooseSupplements}
             </h2>
             <p className={plannerPickerStyles.subtitle(theme)}>
               {phase === "main"
-                ? "Select one dish for this meal slot."
-                : "Add up to six sides, sauces, dips, spice mixes, or salads."}
+                ? t.planner.selectMainDescription
+                : t.planner.addSupplementsDescription}
             </p>
           </div>
-          <button className={plannerPickerStyles.closeButton(theme)} type="button" onClick={onClose}>
+          <button aria-label={t.common.close} className={plannerPickerStyles.closeButton(theme)} type="button" onClick={onClose}>
             x
           </button>
         </div>
 
         <div className={plannerPickerStyles.controls}>
           <input
-            aria-label="Search recipes"
+            aria-label={t.browser.searchRecipes}
             className={plannerPickerStyles.searchInput(theme)}
-            placeholder="search recipes..."
+            placeholder={t.planner.mealPickerSearchPlaceholder}
             ref={searchInputRef}
             type="search"
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
           />
           <button
-            aria-label="Open ingredient filter"
+            aria-label={t.browser.openIngredientFilter}
             className={recipeBrowserStyles.filterButton(theme)}
             ref={ingredientFilterButtonRef}
             type="button"
@@ -415,8 +430,8 @@ function PlannerRecipePickerModal({
           />
           <span className={plannerPickerStyles.phaseBadge(theme)}>
             {phase === "main"
-              ? "Dish"
-              : `${supplementaryRecipeIds.length}/${maxSupplementaryRecipes} selected`}
+              ? t.planner.dish
+              : t.planner.selectedCount(supplementaryRecipeIds.length, maxSupplementaryRecipes)}
           </span>
         </div>
         {ingredientPickerPosition !== null && (
@@ -440,7 +455,7 @@ function PlannerRecipePickerModal({
         )}
 
         <div className={plannerPickerStyles.bodyGrid}>
-          <aside className={plannerPickerStyles.filterRail(theme)} aria-label="Recipe filters">
+          <aside className={plannerPickerStyles.filterRail(theme)} aria-label={t.filters.recipeFilters}>
             {phase === "main" ? (
               <>
                 <FilterGroup
@@ -449,8 +464,9 @@ function PlannerRecipePickerModal({
                   )}
                   selectedValues={selectedMainProteinTags}
                   theme={theme}
-                  title="Protein"
+                  title={t.filters.protein}
                   values={mainProteinFilters}
+                  formatValue={(value) => t.enums.ingredientTags[value]}
                   onToggle={(value) => toggleSelection(value, setSelectedMainProteinTags)}
                 />
                 <FilterGroup
@@ -459,8 +475,9 @@ function PlannerRecipePickerModal({
                   )}
                   selectedValues={selectedMainRecipeTags}
                   theme={theme}
-                  title="Tags"
+                  title={t.filters.tags}
                   values={recipeTags}
+                  formatValue={(value) => t.enums.recipeTags[value]}
                   onToggle={(value) => toggleSelection(value, setSelectedMainRecipeTags)}
                 />
               </>
@@ -471,8 +488,13 @@ function PlannerRecipePickerModal({
                 )}
                 selectedValues={selectedSupplementaryFilters}
                 theme={theme}
-                title="Type"
+                title={t.filters.type}
                 values={supplementaryFilters}
+                formatValue={(value) =>
+                  value in t.enums.recipeTypes
+                    ? t.enums.recipeTypes[value as keyof typeof t.enums.recipeTypes]
+                    : t.enums.recipeTags[value as keyof typeof t.enums.recipeTags]
+                }
                 onToggle={(value) => toggleSelection(value, setSelectedSupplementaryFilters)}
               />
             )}
@@ -480,7 +502,7 @@ function PlannerRecipePickerModal({
               <NumberFilterGroup
                 selectedValues={selectedCuisineIds}
                 theme={theme}
-                title="Cuisine"
+                title={t.filters.cuisine}
                 values={cuisineOptions}
                 onToggle={(value) => toggleSelection(value, setSelectedCuisineIds)}
               />
@@ -516,7 +538,7 @@ function PlannerRecipePickerModal({
             type="button"
             onClick={onClose}
           >
-            Cancel
+            {t.common.cancel}
           </button>
           {phase === "main" ? (
             <button
@@ -525,7 +547,7 @@ function PlannerRecipePickerModal({
               type="button"
               onClick={confirmHighlightedMainRecipe}
             >
-              Choose sides
+              {t.planner.chooseSides}
             </button>
           ) : (
             <button
@@ -537,7 +559,7 @@ function PlannerRecipePickerModal({
                 setPhase("main");
               }}
             >
-              Back
+              {t.planner.backToMain}
             </button>
           )}
           {entry !== undefined && (
@@ -547,7 +569,7 @@ function PlannerRecipePickerModal({
               type="button"
               onClick={() => setIsConfirmingRemove(true)}
             >
-              {isRemoving ? "Removing..." : "Remove meal"}
+              {isRemoving ? t.planner.removing : t.planner.removeMeal}
             </button>
           )}
           <button
@@ -556,16 +578,16 @@ function PlannerRecipePickerModal({
             type="button"
             onClick={saveMealSlot}
           >
-            {isSaving ? "Saving..." : "Save meal"}
+            {isSaving ? t.common.saving : t.planner.saveMeal}
           </button>
         </div>
         {isConfirmingRemove && (
           <ConfirmationDialog
-            body="This will clear the meal slot."
-            confirmLabel="Remove"
+            body={t.planner.removeMealBody}
+            confirmLabel={t.common.remove}
             isBusy={isRemoving}
             theme={theme}
-            title="Remove this meal?"
+            title={t.planner.removeMealTitle}
             onCancel={() => setIsConfirmingRemove(false)}
             onConfirm={() => void removeMealSlot()}
           />
@@ -573,6 +595,44 @@ function PlannerRecipePickerModal({
       </section>
     </div>
   );
+}
+
+const focusableSelector = [
+  "a[href]",
+  "button:not([disabled])",
+  "input:not([disabled])",
+  "select:not([disabled])",
+  "textarea:not([disabled])",
+  "[tabindex]:not([tabindex='-1'])",
+].join(",");
+
+function trapFocus(event: KeyboardEvent, container: HTMLElement | null) {
+  if (container === null) {
+    return;
+  }
+
+  const focusableElements = Array.from(
+    container.querySelectorAll<HTMLElement>(focusableSelector),
+  ).filter((element) => element.offsetParent !== null || element === document.activeElement);
+
+  if (focusableElements.length === 0) {
+    event.preventDefault();
+    return;
+  }
+
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  if (event.shiftKey && document.activeElement === firstElement) {
+    event.preventDefault();
+    lastElement.focus();
+    return;
+  }
+
+  if (!event.shiftKey && document.activeElement === lastElement) {
+    event.preventDefault();
+    firstElement.focus();
+  }
 }
 
 export default PlannerRecipePickerModal;

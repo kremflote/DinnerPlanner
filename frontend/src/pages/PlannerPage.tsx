@@ -3,7 +3,7 @@ import MealCalendar from "../components/MealCalendar";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 import PlannerControls from "../components/PlannerControls";
 import PlannerRecipePickerModal from "../components/PlannerRecipePickerModal";
-import { useMealPlan, useRecipes } from "../contexts";
+import { useLanguage, useMealPlan, useRecipes } from "../contexts";
 import type { MealRecipeRole, MealSlot, PlannerViewMode } from "../interfaces/IMeal";
 import type { IRecipe } from "../interfaces/IRecipe";
 import { pageStyles, plannerControlsStyles, type SiteTheme } from "../styles/appStyles";
@@ -20,6 +20,7 @@ type SelectedPlannerSlot = {
 };
 
 const PlannerPage = ({ theme }: PlannerPageProps) => {
+  const { locale, t } = useLanguage();
   const [viewMode, setViewMode] = useState<PlannerViewMode>("week");
   const [anchorDate, setAnchorDate] = useState(() => stripTime(new Date()));
   const [selectedSlot, setSelectedSlot] = useState<SelectedPlannerSlot | null>(null);
@@ -95,7 +96,7 @@ const PlannerPage = ({ theme }: PlannerPageProps) => {
 
   const clearCurrentRange = async () => {
     const clearRange = getClearRange(anchorDate, viewMode);
-    const rangeLabel = viewMode === "week" ? "week" : "month";
+    const rangeLabel = t.planner.rangeNames[viewMode];
 
     setPlannerAction("clear");
     setPendingPlannerAction(null);
@@ -104,7 +105,7 @@ const PlannerPage = ({ theme }: PlannerPageProps) => {
     try {
       await clearMealPlanRange(clearRange.from, clearRange.to);
     } catch (error) {
-      setPlannerActionError(getPlannerActionError(error, `Could not clear this ${rangeLabel}.`));
+      setPlannerActionError(getPlannerActionError(error, t.planner.couldNotClear(rangeLabel)));
     } finally {
       setPlannerAction(null);
     }
@@ -120,14 +121,14 @@ const PlannerPage = ({ theme }: PlannerPageProps) => {
 
   const generateCurrentRange = async () => {
     const generationDates = getGenerationDates(anchorDate, viewMode);
-    const rangeLabel = viewMode === "week" ? "week" : "month";
+    const rangeLabel = t.planner.rangeNames[viewMode];
 
     const mainRecipes = recipes.filter((recipe) => recipe.recipeType === "Dish");
     const sideRecipes = recipes.filter(isGeneratedSideRecipe);
 
     if (mainRecipes.length === 0) {
       setPendingPlannerAction(null);
-      setPlannerActionError("No main dish recipes found.");
+      setPlannerActionError(t.planner.noMainDishRecipesFound);
       return;
     }
 
@@ -171,7 +172,7 @@ const PlannerPage = ({ theme }: PlannerPageProps) => {
         }
       }
     } catch (error) {
-      setPlannerActionError(getPlannerActionError(error, `Could not generate meals for this ${rangeLabel}.`));
+      setPlannerActionError(getPlannerActionError(error, t.planner.couldNotGenerate(rangeLabel)));
     } finally {
       setPlannerAction(null);
     }
@@ -187,8 +188,8 @@ const PlannerPage = ({ theme }: PlannerPageProps) => {
         </div>
       )}
       <PlannerControls
-        anchorLabel={getAnchorLabel(anchorDate, viewMode)}
-        anchorYear={getAnchorYear(anchorDate)}
+        anchorLabel={getAnchorLabel(anchorDate, viewMode, locale, t.planner.weekLabel)}
+        anchorYear={getAnchorYear(anchorDate, locale)}
         isClearRangeRunning={plannerAction === "clear"}
         isGenerateRangeRunning={plannerAction === "generate"}
         isRangeBusy={mealPlanIsLoading}
@@ -208,7 +209,7 @@ const PlannerPage = ({ theme }: PlannerPageProps) => {
         dates={visibleDates}
         getEntryForSlot={getEntryForSlot}
         isLoading={mealPlanIsLoading}
-        loadError={initError}
+        loadError={initError === null ? null : t.planner.couldNotLoadMealPlan}
         mealSlots={visibleMealSlots}
         onSlotClick={(date, slot) => setSelectedSlot({ date, slot })}
         recipesById={recipesById}
@@ -231,13 +232,17 @@ const PlannerPage = ({ theme }: PlannerPageProps) => {
         <ConfirmationDialog
           body={
             pendingPlannerAction === "clear"
-              ? `This will clear the current ${viewMode}.`
-              : `This will generate meals for empty slots in the current ${viewMode}. Existing meals will stay unchanged.`
+              ? t.planner.clearRangeBody(t.planner.rangeNames[viewMode])
+              : t.planner.generateRangeBody(t.planner.rangeNames[viewMode])
           }
-          confirmLabel={pendingPlannerAction === "clear" ? "Clear" : "Generate"}
+          confirmLabel={pendingPlannerAction === "clear" ? t.common.clear : t.planner.generateMealPlan}
           isBusy={plannerAction !== null}
           theme={theme}
-          title={pendingPlannerAction === "clear" ? `Clear this ${viewMode}?` : `Generate this ${viewMode}?`}
+          title={
+            pendingPlannerAction === "clear"
+              ? t.planner.clearRange(t.planner.rangeNames[viewMode])
+              : t.planner.generateCurrent(t.planner.rangeNames[viewMode])
+          }
           tone={pendingPlannerAction === "clear" ? "danger" : "default"}
           onCancel={() => setPendingPlannerAction(null)}
           onConfirm={() => {
@@ -312,20 +317,29 @@ function getGenerationDates(anchorDate: Date, viewMode: PlannerViewMode) {
   return getDatesInRange(getWeekStart(anchorDate), getWeekEnd(anchorDate));
 }
 
-function getAnchorLabel(anchorDate: Date, viewMode: PlannerViewMode) {
+function getAnchorLabel(
+  anchorDate: Date,
+  viewMode: PlannerViewMode,
+  locale: string,
+  formatWeekLabel: (week: number) => string,
+) {
   if (viewMode === "month") {
-    return new Intl.DateTimeFormat(undefined, {
+    return capitalizeFirstLetter(new Intl.DateTimeFormat(locale, {
       month: "long",
-    }).format(anchorDate);
+    }).format(anchorDate));
   }
 
-  return `Week ${getIsoWeek(anchorDate)}`;
+  return formatWeekLabel(getIsoWeek(anchorDate));
 }
 
-function getAnchorYear(anchorDate: Date) {
-  return new Intl.DateTimeFormat(undefined, {
+function getAnchorYear(anchorDate: Date, locale: string) {
+  return new Intl.DateTimeFormat(locale, {
     year: "numeric",
   }).format(anchorDate);
+}
+
+function capitalizeFirstLetter(value: string) {
+  return value.length === 0 ? value : value.charAt(0).toLocaleUpperCase() + value.slice(1);
 }
 
 function getDatesInRange(fromDate: Date, toDate: Date) {
@@ -401,10 +415,8 @@ function pickRandomItem<TItem>(items: TItem[]) {
   return items[Math.floor(Math.random() * items.length)];
 }
 
-function getPlannerActionError(error: unknown, fallbackMessage: string) {
-  return error instanceof Error && error.message.trim().length > 0
-    ? error.message
-    : fallbackMessage;
+function getPlannerActionError(_error: unknown, fallbackMessage: string) {
+  return fallbackMessage;
 }
 
 export default PlannerPage;

@@ -1,3 +1,4 @@
+import { useLanguage } from "../contexts";
 import type { PlannerViewMode } from "../interfaces/IMeal";
 import { plannerControlsStyles, type SiteTheme } from "../styles/appStyles";
 
@@ -30,13 +31,16 @@ function PlannerControls({
   onGenerateRange,
   onViewModeChange,
 }: PlannerControlsProps) {
+  const { t } = useLanguage();
+  const rangeLabel = t.planner.rangeNames[viewMode];
+
   return (
-    <section className={plannerControlsStyles.shell} aria-label="Planner controls">
+    <section className={plannerControlsStyles.shell} aria-label={t.planner.plannerControls}>
       <div className={plannerControlsStyles.leftCell}>
         <div className={plannerControlsStyles.counterActions}>
           <div className={plannerControlsStyles.actionSlotLeft}>
             <button
-              aria-label={viewMode === "week" ? "Clear week" : "Clear month"}
+              aria-label={t.planner.clearCurrent(rangeLabel)}
               className={plannerControlsStyles.iconOnlyButton(theme)}
               disabled={isRangeBusy || isGenerateRangeRunning || isClearRangeRunning}
               type="button"
@@ -44,13 +48,13 @@ function PlannerControls({
             >
               <ClearIcon />
               <span className={plannerControlsStyles.tooltip(theme)}>
-                {isClearRangeRunning ? "Clearing..." : viewMode === "week" ? "Clear week" : "Clear month"}
+                {isClearRangeRunning ? t.planner.clearing : t.planner.clearCurrent(rangeLabel)}
               </span>
             </button>
           </div>
           <div className={plannerControlsStyles.actionSlotCenter}>
             <button
-              aria-label="Generate meal plan"
+              aria-label={t.planner.generateMealPlan}
               className={plannerControlsStyles.iconOnlyButton(theme)}
               disabled={isRangeBusy || isGenerateRangeRunning || isClearRangeRunning}
               type="button"
@@ -58,26 +62,26 @@ function PlannerControls({
             >
               <GenerateIcon />
               <span className={plannerControlsStyles.tooltip(theme)}>
-                {isGenerateRangeRunning ? "Generating..." : "Generate meal plan"}
+                {isGenerateRangeRunning ? t.planner.generating : t.planner.generateMealPlan}
               </span>
             </button>
           </div>
           <div className={plannerControlsStyles.actionSlotRight}>
             <button
-              aria-label="Export grocery list"
+              aria-label={t.planner.exportGroceryList}
               className={plannerControlsStyles.iconOnlyButton(theme)}
               disabled={isRangeBusy || isGenerateRangeRunning || isClearRangeRunning}
               type="button"
             >
               <ExportIcon />
-              <span className={plannerControlsStyles.tooltip(theme)}>Export grocery list</span>
+              <span className={plannerControlsStyles.tooltip(theme)}>{t.planner.exportGroceryList}</span>
             </button>
           </div>
         </div>
       </div>
       <div className={plannerControlsStyles.centerCell}>
         <time
-          aria-label={`Year ${anchorYear}`}
+          aria-label={t.planner.yearLabel(anchorYear)}
           className={plannerControlsStyles.dateYearRow(theme)}
           dateTime={anchorYear}
         >
@@ -85,7 +89,7 @@ function PlannerControls({
         </time>
         <div className={plannerControlsStyles.datePrimaryRow}>
           <button
-            aria-label={viewMode === "week" ? "Previous week" : "Previous month"}
+            aria-label={t.planner.previousRange(rangeLabel)}
             className={plannerControlsStyles.iconButton(theme)}
             disabled={isClearRangeRunning || isGenerateRangeRunning}
             type="button"
@@ -95,7 +99,7 @@ function PlannerControls({
           </button>
           <div className={plannerControlsStyles.datePrimary(theme)}>{anchorLabel}</div>
           <button
-            aria-label={viewMode === "week" ? "Next week" : "Next month"}
+            aria-label={t.planner.nextRange(rangeLabel)}
             className={plannerControlsStyles.iconButton(theme)}
             disabled={isClearRangeRunning || isGenerateRangeRunning}
             type="button"
@@ -106,7 +110,7 @@ function PlannerControls({
         </div>
       </div>
       <div className={plannerControlsStyles.rightCell}>
-        <div className={plannerControlsStyles.viewToggle(theme)} role="group" aria-label="Planner view">
+        <div className={plannerControlsStyles.viewToggle(theme)} role="group" aria-label={t.planner.plannerView}>
           <button
             aria-pressed={viewMode === "week"}
             className={plannerControlsStyles.viewToggleOption(theme, viewMode === "week")}
@@ -114,7 +118,7 @@ function PlannerControls({
             type="button"
             onClick={() => onViewModeChange("week")}
           >
-            Week
+            {t.enums.viewModes.week}
           </button>
           <button
             aria-pressed={viewMode === "month"}
@@ -123,7 +127,7 @@ function PlannerControls({
             type="button"
             onClick={() => onViewModeChange("month")}
           >
-            Month
+            {t.enums.viewModes.month}
           </button>
         </div>
       </div>

@@ -57,6 +57,7 @@ export function NumberFilterGroup({
 type FilterGroupProps<TValue extends string> = {
   title: string;
   disabledValues?: readonly TValue[];
+  formatValue?: (value: TValue) => string;
   values: readonly TValue[];
   selectedValues: readonly TValue[];
   theme: SiteTheme;
@@ -66,6 +67,7 @@ type FilterGroupProps<TValue extends string> = {
 export function FilterGroup<TValue extends string>({
   title,
   disabledValues = [],
+  formatValue = formatLabel,
   values,
   selectedValues,
   theme,
@@ -94,7 +96,7 @@ export function FilterGroup<TValue extends string>({
                 type="checkbox"
                 onChange={() => onToggle(value)}
               />
-              {formatLabel(value)}
+              {formatValue(value)}
             </label>
           );
         })}

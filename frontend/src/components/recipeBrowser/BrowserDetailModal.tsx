@@ -1,13 +1,13 @@
 import { useEffect, useId, useState } from "react";
 import ConfirmationDialog from "../ConfirmationDialog";
-import { useIngredients, useRecipes } from "../../contexts";
+import { useIngredients, useLanguage, useRecipes } from "../../contexts";
 import { ingredientService, recipeService } from "../../services";
 import type { SiteTheme } from "../../styles/appStyles";
 import IngredientCreateForm from "./IngredientCreateForm";
 import IngredientDetailContent from "./IngredientDetailContent";
 import RecipeCreateForm from "./RecipeCreateForm";
 import RecipeDetailContent from "./RecipeDetailContent";
-import { formatLabel, recipeBrowserStyles } from "./recipeBrowserStyles";
+import { recipeBrowserStyles } from "./recipeBrowserStyles";
 import type { BrowserDetail } from "./types";
 
 type BrowserDetailModalProps = {
@@ -18,6 +18,7 @@ type BrowserDetailModalProps = {
 };
 
 function BrowserDetailModal({ detail, theme, onClose, onSelectDetail }: BrowserDetailModalProps) {
+  const { t } = useLanguage();
   const editRecipeImageInputId = useId();
   const editTitleId = useId();
   const detailTitleId = useId();
@@ -82,9 +83,9 @@ function BrowserDetailModal({ detail, theme, onClose, onSelectDetail }: BrowserD
           onMouseDown={(event) => event.stopPropagation()}
         >
           <div className={recipeBrowserStyles.modalHeader}>
-            <h2 className={recipeBrowserStyles.modalTitle} id={editTitleId}>Edit {detail.recipe.name}</h2>
-            <button className={recipeBrowserStyles.modalCloseAligned(theme)} type="button" onClick={onClose}>
-              Close
+            <h2 className={recipeBrowserStyles.modalTitle} id={editTitleId}>{t.common.edit} {detail.recipe.name}</h2>
+            <button aria-label={t.common.close} className={recipeBrowserStyles.modalCloseAligned(theme)} type="button" onClick={onClose}>
+              x
             </button>
           </div>
 
@@ -112,9 +113,9 @@ function BrowserDetailModal({ detail, theme, onClose, onSelectDetail }: BrowserD
           onMouseDown={(event) => event.stopPropagation()}
         >
           <div className={recipeBrowserStyles.modalHeader}>
-            <h2 className={recipeBrowserStyles.modalTitle} id={editTitleId}>Edit {detail.ingredient.ingredientName}</h2>
-            <button className={recipeBrowserStyles.modalCloseAligned(theme)} type="button" onClick={onClose}>
-              Close
+            <h2 className={recipeBrowserStyles.modalTitle} id={editTitleId}>{t.common.edit} {detail.ingredient.ingredientName}</h2>
+            <button aria-label={t.common.close} className={recipeBrowserStyles.modalCloseAligned(theme)} type="button" onClick={onClose}>
+              x
             </button>
           </div>
 
@@ -147,7 +148,7 @@ function BrowserDetailModal({ detail, theme, onClose, onSelectDetail }: BrowserD
               <div className={recipeBrowserStyles.detailHeaderTagList}>
                 {detail.recipe.tags.map((tag) => (
                   <span className={recipeBrowserStyles.filterChip(theme)} key={tag}>
-                    {formatLabel(tag)}
+                    {t.enums.recipeTags[tag]}
                   </span>
                 ))}
               </div>
@@ -156,13 +157,13 @@ function BrowserDetailModal({ detail, theme, onClose, onSelectDetail }: BrowserD
               <div className={recipeBrowserStyles.detailHeaderTagList}>
                 {detail.ingredient.tags.map((tag) => (
                   <span className={recipeBrowserStyles.filterChip(theme)} key={tag}>
-                    {formatLabel(tag)}
+                    {t.enums.ingredientTags[tag]}
                   </span>
                 ))}
               </div>
             )}
-            <button className={recipeBrowserStyles.modalCloseAligned(theme)} type="button" onClick={onClose}>
-              Close
+            <button aria-label={t.common.close} className={recipeBrowserStyles.modalCloseAligned(theme)} type="button" onClick={onClose}>
+              x
             </button>
           </div>
           <div className={recipeBrowserStyles.detailHeaderActionRow}>
@@ -177,7 +178,7 @@ function BrowserDetailModal({ detail, theme, onClose, onSelectDetail }: BrowserD
                 }
               }}
             >
-              Edit
+              {t.common.edit}
             </button>
             <button
               className={recipeBrowserStyles.detailHeaderRemoveButton(theme)}
@@ -185,7 +186,7 @@ function BrowserDetailModal({ detail, theme, onClose, onSelectDetail }: BrowserD
               type="button"
               onClick={() => setIsConfirmingDelete(true)}
             >
-              {isDeleting ? "Removing..." : "Remove"}
+              {isDeleting ? t.common.removing : t.common.remove}
             </button>
           </div>
         </div>
@@ -204,7 +205,7 @@ function BrowserDetailModal({ detail, theme, onClose, onSelectDetail }: BrowserD
         {isConfirmingDelete && (
           <ConfirmationDialog
             body={`This will delete ${detail.kind === "recipe" ? "the recipe" : "the ingredient"}.`}
-            confirmLabel="Remove"
+            confirmLabel={t.common.remove}
             isBusy={isDeleting}
             theme={theme}
             title={`Remove ${detail.kind === "recipe" ? detail.recipe.name : detail.ingredient.ingredientName}?`}

@@ -1,4 +1,5 @@
 import { useEffect, useId, useState } from "react";
+import { useLanguage } from "../../contexts";
 import type { SiteTheme } from "../../styles/appStyles";
 import IngredientCreateForm from "./IngredientCreateForm";
 import { recipeBrowserStyles } from "./recipeBrowserStyles";
@@ -11,6 +12,7 @@ type AddButtonProps = {
 };
 
 function AddButton({ target, theme }: AddButtonProps) {
+  const { t } = useLanguage();
   const recipeImageInputId = useId();
   const modalTitleId = useId();
   const [isOpen, setIsOpen] = useState(false);
@@ -49,7 +51,7 @@ function AddButton({ target, theme }: AddButtonProps) {
         type="button"
         onClick={openModal}
       >
-        + Add
+        + {t.common.add}
       </button>
       {isOpen && (
         <div className={recipeBrowserStyles.modalBackdrop} role="presentation" onMouseDown={closeModal}>
@@ -62,13 +64,13 @@ function AddButton({ target, theme }: AddButtonProps) {
           >
             <div className={recipeBrowserStyles.modalHeaderIntro}>
               <div>
-                <h2 className={recipeBrowserStyles.modalTitle} id={modalTitleId}>Create</h2>
+                <h2 className={recipeBrowserStyles.modalTitle} id={modalTitleId}>{t.cookbook.create}</h2>
                 <p className={recipeBrowserStyles.modalIntroText}>
-                  Add recipes, desserts, sauces, ingredients, and the rest of the kitchen library.
+                  {t.cookbook.createIntro}
                 </p>
               </div>
               <button
-                aria-label="Close"
+                aria-label={t.common.close}
                 className={recipeBrowserStyles.modalCloseButton(theme)}
                 type="button"
                 onClick={closeModal}
@@ -78,20 +80,20 @@ function AddButton({ target, theme }: AddButtonProps) {
             </div>
 
             <div className={recipeBrowserStyles.modalControlsRow}>
-              <div className={recipeBrowserStyles.modalModeSwitch(theme)} aria-label="Choose what to create">
+              <div className={recipeBrowserStyles.modalModeSwitch(theme)} aria-label={t.cookbook.create}>
                 <button
                   className={recipeBrowserStyles.modalModeOption(theme, activeTarget === "recipe")}
                   type="button"
                   onClick={() => setActiveTarget("recipe")}
                 >
-                  Recipe
+                  {t.cookbook.recipeSingular}
                 </button>
                 <button
                   className={recipeBrowserStyles.modalModeOption(theme, activeTarget === "ingredient")}
                   type="button"
                   onClick={() => setActiveTarget("ingredient")}
                 >
-                  Ingredient
+                  {t.cookbook.ingredientSingular}
                 </button>
               </div>
 
@@ -102,7 +104,7 @@ function AddButton({ target, theme }: AddButtonProps) {
                   type="button"
                   onClick={() => setShowRecipeDetails((currentValue) => !currentValue)}
                 >
-                  {showRecipeDetails ? "Hide recipe details" : "Add recipe details"}
+                  {showRecipeDetails ? t.cookbook.hideRecipeDetails : t.cookbook.addRecipeDetails}
                 </button>
               )}
             </div>

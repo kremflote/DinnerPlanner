@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, type ReactNode } from "react";
+import { useLanguage } from "../contexts";
 import { confirmationDialogStyles, type SiteTheme } from "../styles/appStyles";
 
 type ConfirmationDialogProps = {
@@ -14,7 +15,7 @@ type ConfirmationDialogProps = {
 
 function ConfirmationDialog({
   body,
-  confirmLabel = "Confirm",
+  confirmLabel,
   isBusy = false,
   theme,
   title,
@@ -22,6 +23,7 @@ function ConfirmationDialog({
   onCancel,
   onConfirm,
 }: ConfirmationDialogProps) {
+  const { t } = useLanguage();
   const titleId = useId();
   const bodyId = useId();
   const cancelButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -59,17 +61,17 @@ function ConfirmationDialog({
             disabled={isBusy}
             ref={cancelButtonRef}
             type="button"
-            onClick={onCancel}
-          >
-            Cancel
+          onClick={onCancel}
+        >
+            {t.common.cancel}
           </button>
           <button
             className={confirmationDialogStyles.confirmButton(theme, tone)}
             disabled={isBusy}
             type="button"
             onClick={onConfirm}
-          >
-            {isBusy ? "Working..." : confirmLabel}
+        >
+            {isBusy ? t.common.working : confirmLabel ?? t.common.confirm}
           </button>
         </div>
       </section>

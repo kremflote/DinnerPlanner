@@ -1,15 +1,16 @@
+import { useLanguage } from "../contexts";
 import { headerStyles, type SiteTheme } from "../styles/appStyles";
 
 export type PageId = "settings" | "weekPlanner" | "cookbook";
 
 const navItems: Array<{
   id: PageId;
-  label: string;
+  labelKey: "settings" | "planner" | "cookbook";
   icon: "settings" | "calendar" | "book";
 }> = [
-  { id: "settings", label: "Settings", icon: "settings" },
-  { id: "weekPlanner", label: "Planner", icon: "calendar" },
-  { id: "cookbook", label: "Cookbook", icon: "book" },
+  { id: "settings", labelKey: "settings", icon: "settings" },
+  { id: "weekPlanner", labelKey: "planner", icon: "calendar" },
+  { id: "cookbook", labelKey: "cookbook", icon: "book" },
 ];
 
 type HeaderProps = {
@@ -25,11 +26,14 @@ function Header({
   theme,
   onThemeChange,
 }: HeaderProps) {
+  const { t } = useLanguage();
+
   function toggleTheme() {
     onThemeChange(theme === "dark" ? "paletteLight" : "dark");
   }
 
   const isLightSide = theme !== "dark";
+  const themeLabel = theme === "dark" ? t.theme.switchToLight : t.theme.switchToDark;
 
   return (
     <header className={headerStyles.shell(theme)}>
@@ -37,35 +41,39 @@ function Header({
         <button
           className={headerStyles.logo(theme)}
           type="button"
-          aria-label="Fløte home"
+          aria-label={t.nav.home}
           onClick={() => onPageChange("weekPlanner")}
         >
           Matfløte
         </button>
 
-        <nav className={headerStyles.nav} aria-label="Primary">
-          {navItems.map((item) => (
-            <button
-              aria-current={activePage === item.id ? "page" : undefined}
-              aria-label={item.label}
-              className={headerStyles.navButton(theme, activePage === item.id)}
-              key={item.id}
-              onClick={() => onPageChange(item.id)}
-              title={item.label}
-              type="button"
-            >
-              <HeaderIcon icon={item.icon} />
-              <span className={headerStyles.navLabel}>{item.label}</span>
-            </button>
-          ))}
+        <nav className={headerStyles.nav} aria-label={t.nav.primary}>
+          {navItems.map((item) => {
+            const label = t.nav[item.labelKey];
+
+            return (
+              <button
+                aria-current={activePage === item.id ? "page" : undefined}
+                aria-label={label}
+                className={headerStyles.navButton(theme, activePage === item.id)}
+                key={item.id}
+                onClick={() => onPageChange(item.id)}
+                title={label}
+                type="button"
+              >
+                <HeaderIcon icon={item.icon} />
+                <span className={headerStyles.navLabel}>{label}</span>
+              </button>
+            );
+          })}
         </nav>
 
         <button
-          aria-label={`Switch to ${theme === "dark" ? "palette light" : "dark"} mode`}
+          aria-label={themeLabel}
           aria-pressed={isLightSide}
           className={headerStyles.themeButton(theme)}
           onClick={toggleTheme}
-          title={`Switch to ${theme === "dark" ? "palette light" : "dark"} mode`}
+          title={themeLabel}
           type="button"
         >
           <span className={headerStyles.themeTrack(theme)}>

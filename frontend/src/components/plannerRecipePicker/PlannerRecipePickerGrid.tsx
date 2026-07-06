@@ -1,3 +1,4 @@
+import { useLanguage } from "../../contexts";
 import type { IRecipe } from "../../interfaces/IRecipe";
 import type { SiteTheme } from "../../styles/appStyles";
 import { plannerPickerStyles } from "../../styles/appStyles";
@@ -23,9 +24,13 @@ function PlannerRecipePickerGrid({
   onSelectMainRecipe,
   onToggleSupplementaryRecipe,
 }: PlannerRecipePickerGridProps) {
+  const { t } = useLanguage();
+
   if (recipes.length === 0) {
     return (
-      <div className={plannerPickerStyles.emptyState(theme)}>No matching recipes found.</div>
+      <div className={plannerPickerStyles.emptyState(theme)}>
+        {t.planner.noMatchingRecipesFound}
+      </div>
     );
   }
 
@@ -45,7 +50,7 @@ function PlannerRecipePickerGrid({
             recipe={{
               imageUrl: recipe.imageUrl,
               name: recipe.name,
-              subtitle: recipe.cuisine?.name ?? recipe.recipeType,
+              subtitle: recipe.cuisine?.name ?? t.enums.recipeTypes[recipe.recipeType],
             }}
             interactiveEffect={false}
             theme={theme}

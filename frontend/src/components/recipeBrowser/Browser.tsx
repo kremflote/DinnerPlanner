@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { useCuisines, useIngredients, useRecipes } from "../../contexts";
+import { useCuisines, useIngredients, useLanguage, useRecipes } from "../../contexts";
 import type { IngredientTag } from "../../interfaces/IIngredient";
 import type { RecipeTag, RecipeType } from "../../interfaces/IRecipe";
 import type { SiteTheme } from "../../styles/appStyles";
@@ -31,6 +31,7 @@ type BrowserProps = {
 };
 
 function Browser({ mode, theme, headerActions }: BrowserProps) {
+  const { t } = useLanguage();
   const { cuisines } = useCuisines();
   const { recipes, recipeIsLoading, initError: recipeError } = useRecipes();
   const {
@@ -158,7 +159,7 @@ function Browser({ mode, theme, headerActions }: BrowserProps) {
         <div className={recipeBrowserStyles.headerControlsRow}>
           <div className={recipeBrowserStyles.headerTitle}>
             <h1 className={recipeBrowserStyles.title(theme)}>
-              {mode === "recipes" ? "All Recipes" : "All Ingredients"}
+              {mode === "recipes" ? t.cookbook.allRecipes : t.cookbook.allIngredients}
             </h1>
           </div>
           <div className={recipeBrowserStyles.headerActions}>
@@ -168,9 +169,9 @@ function Browser({ mode, theme, headerActions }: BrowserProps) {
         <div className={recipeBrowserStyles.searchFilterRow}>
           <div className={recipeBrowserStyles.searchControls}>
             <input
-              aria-label={mode === "recipes" ? "Search recipes" : "Search ingredients"}
+              aria-label={mode === "recipes" ? t.browser.searchRecipes : t.browser.searchIngredients}
               className={recipeBrowserStyles.searchInput(theme)}
-              placeholder="search..."
+              placeholder={t.common.search}
               type="search"
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.target.value)}
@@ -178,7 +179,7 @@ function Browser({ mode, theme, headerActions }: BrowserProps) {
             <div className={recipeBrowserStyles.filterButtonSlot}>
               {mode === "recipes" && (
               <button
-                aria-label="Open ingredient filter"
+                aria-label={t.browser.openIngredientFilter}
                 className={recipeBrowserStyles.filterButton(theme)}
                 ref={ingredientFilterButtonRef}
                 type="button"

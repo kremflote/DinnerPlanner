@@ -1,4 +1,5 @@
 import type { RefObject } from "react";
+import { useLanguage } from "../../contexts";
 import IngredientThumbnail from "../IngredientThumbnail";
 import type { IIngredient } from "../../interfaces/IIngredient";
 import type { SiteTheme } from "../../styles/appStyles";
@@ -31,6 +32,7 @@ function IngredientFilterPopover({
   onSearchChange,
   onToggleIngredient,
 }: IngredientFilterPopoverProps) {
+  const { t } = useLanguage();
   const position = getClampedPopoverPosition(x, y);
 
   return (
@@ -43,16 +45,16 @@ function IngredientFilterPopover({
       }}
     >
       <input
-        aria-label="Search ingredients to include"
+        aria-label={t.browser.searchIngredientsToInclude}
         className={recipeBrowserStyles.ingredientPickerSearch(theme)}
-        placeholder="search ingredient..."
+        placeholder={t.browser.ingredientSearchPlaceholder}
         type="search"
         value={searchTerm}
         onChange={(event) => onSearchChange(event.target.value)}
       />
       <div className={recipeBrowserStyles.ingredientPickerList}>
         {ingredients.length === 0 ? (
-          <p className={recipeBrowserStyles.ingredientPickerEmpty(theme)}>No ingredients found</p>
+          <p className={recipeBrowserStyles.ingredientPickerEmpty(theme)}>{t.browser.noIngredientsFound}</p>
         ) : (
           ingredients.map((ingredient) => (
             <IngredientThumbnail
