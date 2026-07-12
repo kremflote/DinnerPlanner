@@ -243,7 +243,7 @@ export const thumbnailStyles = {
   ingredientShell: (theme: SiteTheme) =>
     `grid h-7 w-full grid-cols-[auto_minmax(0,1fr)] items-center gap-2 rounded-md border px-2 text-left ${shadowClasses.subtle} transition ${
       theme === "dark"
-        ? "border-white/[0.10] bg-white/[0.05]"
+        ? "border-white/[0.16] bg-white/[0.18]"
         : theme === "paletteLight"
           ? "border-[#C8C0B5] bg-[#E5D5BC]/45"
           : "border-neutral-200 bg-neutral-100"
@@ -493,7 +493,7 @@ export const plannerControlsStyles = {
   leftCell: "col-span-4 flex items-center justify-start",
   centerCell: "relative col-span-4 flex items-center justify-center",
   rightCell: "col-span-4 flex items-center justify-end",
-  counterActions: `flex w-full items-center justify-start ${layoutClasses.tightControlGap}`,
+  counterActions: `flex w-full flex-wrap items-center justify-start ${layoutClasses.tightControlGap}`,
   actionSlotLeft: "flex",
   actionSlotCenter: "flex",
   actionSlotRight: "flex",
@@ -517,6 +517,50 @@ export const plannerControlsStyles = {
           : "border-red-200 bg-red-50 text-red-700"
     }`,
 };
+
+export const prepHelperStyles = {
+  modalBackdrop: modalLayoutClasses.centeredBackdrop,
+  modalPanel: (theme: SiteTheme) =>
+    `grid ${sizeClasses.viewportModalMaxHeight} w-full max-w-2xl gap-4 overflow-hidden ${radiusClasses.figma6} border p-6 ${shadowClasses.overlay} ${surfaceClasses.modal(theme)}`,
+  header: "flex items-start justify-between gap-4",
+  title: "text-2xl font-bold leading-tight",
+  subtitle: (theme: SiteTheme) =>
+    `mt-1 text-sm font-semibold leading-[1.45] ${
+      theme === "dark"
+        ? "text-neutral-400"
+        : theme === "paletteLight"
+          ? "text-[#7A8864]"
+          : "text-neutral-500"
+    }`,
+  closeButton: controlStyles.modalCloseButton,
+  list: "grid max-h-[48vh] gap-3 overflow-y-auto pr-1",
+  item: (theme: SiteTheme) =>
+    `grid gap-2 rounded-md border p-3 ${shadowClasses.subtle} ${surfaceClasses.panel(theme)}`,
+  itemHeader: "flex flex-wrap items-start justify-between gap-3",
+  itemName: "text-base font-bold leading-tight",
+  itemAmount: "whitespace-nowrap text-sm font-extrabold",
+  actionList: "flex flex-wrap gap-2",
+  actionChip: (theme: SiteTheme) =>
+    `rounded-md border px-2 py-1 text-xs font-bold ${
+      theme === "dark"
+        ? "border-white/[0.10] bg-white/[0.08] text-neutral-100"
+        : theme === "paletteLight"
+          ? "border-[#7A8864]/25 bg-[#E5D5BC]/55 text-[#556145]"
+          : "border-neutral-200 bg-neutral-100 text-neutral-800"
+    }`,
+  sourceText: (theme: SiteTheme) =>
+    `text-xs font-semibold leading-tight ${
+      theme === "dark"
+        ? "text-neutral-400"
+        : theme === "paletteLight"
+          ? "text-[#7A8864]"
+          : "text-neutral-500"
+    }`,
+  emptyState: (theme: SiteTheme) =>
+    `rounded-md border p-6 text-center text-sm font-bold ${surfaceClasses.panel(theme)}`,
+  footer: "flex items-center justify-end border-t pt-4",
+  secondaryButton: controlStyles.secondaryButton,
+} as const;
 
 export const mealCalendarStyles = {
   shell: "flex w-full flex-col overflow-visible",

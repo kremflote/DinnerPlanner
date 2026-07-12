@@ -7,6 +7,7 @@ import IngredientCreateForm from "./IngredientCreateForm";
 import IngredientDetailContent from "./IngredientDetailContent";
 import RecipeCreateForm from "./RecipeCreateForm";
 import RecipeDetailContent from "./RecipeDetailContent";
+import { recipeTags } from "./formOptions";
 import { recipeBrowserStyles } from "./recipeBrowserStyles";
 import type { BrowserDetail } from "./types";
 
@@ -146,11 +147,13 @@ function BrowserDetailModal({ detail, theme, onClose, onSelectDetail }: BrowserD
             </h2>
             {detail.kind === "recipe" && (
               <div className={recipeBrowserStyles.detailHeaderTagList}>
-                {detail.recipe.tags.map((tag) => (
-                  <span className={recipeBrowserStyles.filterChip(theme)} key={tag}>
-                    {t.enums.recipeTags[tag]}
-                  </span>
-                ))}
+                {detail.recipe.tags
+                  .filter((tag) => recipeTags.includes(tag))
+                  .map((tag) => (
+                    <span className={recipeBrowserStyles.filterChip(theme)} key={tag}>
+                      {t.enums.recipeTags[tag]}
+                    </span>
+                  ))}
               </div>
             )}
             {detail.kind === "ingredient" && (

@@ -25,7 +25,7 @@ export const supplementaryFilters: SupplementaryFilter[] = [
 ];
 
 export const excludedSupplementaryTags: RecipeTag[] = recipeTags.filter(
-  (recipeTag) => recipeTag === "Breakfast" || recipeTag === "Dinner",
+  (recipeTag) => recipeTag === "Breakfast",
 );
 
 export const mainProteinFilters: IngredientTag[] = ingredientTags.filter(

@@ -35,7 +35,8 @@ public record RecipeIngredientRequest(
     int IngredientId,
     [Range(typeof(decimal), "0", "79228162514264337593543950335")]
     decimal? Amount,
-    MeasurementUnit Unit
+    MeasurementUnit Unit,
+    IngredientPreparation Preparation
 );
 
 public record RecipeDto(
@@ -56,5 +57,6 @@ public record RecipeIngredientDto(
     int RecipeIngredientId,
     IngredientDto Ingredient,
     decimal? Amount,
-    MeasurementUnit Unit
+    MeasurementUnit Unit,
+    IngredientPreparation Preparation
 );

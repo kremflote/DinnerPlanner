@@ -1,12 +1,22 @@
-import type { IngredientTag, MeasurementUnit, Vitamin } from "../interfaces/IIngredient";
+import type {
+  IngredientTag,
+  MeasurementUnit,
+  Vitamin,
+} from "../interfaces/IIngredient";
 import type { MealSlot, PlannerViewMode } from "../interfaces/IMeal";
-import type { DessertType, RecipeTag, RecipeType } from "../interfaces/IRecipe";
+import type {
+  DessertType,
+  IngredientPreparation,
+  RecipeTag,
+  RecipeType,
+} from "../interfaces/IRecipe";
 
 export type SupportedLanguage = "en" | "nb";
 
 type EnumLabels = {
   dessertTypes: Record<DessertType, string>;
   ingredientTags: Record<IngredientTag, string>;
+  ingredientPreparations: Record<IngredientPreparation, string>;
   mealSlots: Record<MealSlot, string>;
   measurementUnits: Record<MeasurementUnit, string>;
   recipeTags: Record<RecipeTag, string>;
@@ -134,6 +144,12 @@ export type TranslationDictionary = {
     noMainDishRecipesFound: string;
     plannerControls: string;
     plannerView: string;
+    prepHelper: string;
+    prepActionLabels: Record<string, string>;
+    prepHelperDescription: (from: string, to: string) => string;
+    prepHelperEmpty: string;
+    prepHelperSources: (sources: string) => string;
+    prepHelperTitle: string;
     previousRange: (range: string) => string;
     nextRange: (range: string) => string;
     openMealSlot: string;
@@ -224,6 +240,23 @@ const commonEnumLabels = {
     Other: "Other",
     LeafyGreen: "Leafy green",
   },
+  ingredientPreparations: {
+    None: "No prep",
+    Quartered: "Quartered",
+    Wedged: "Wedged",
+    Chopped: "Chopped",
+    RoughlyChopped: "Roughly chopped",
+    FinelyChopped: "Finely chopped",
+    Diced: "Diced",
+    Cubed: "Cubed",
+    Julienned: "Julienned",
+    Batons: "Batons",
+    Sliced: "Sliced",
+    Minced: "Minced",
+    Grated: "Grated",
+    Shredded: "Shredded",
+    Crushed: "Crushed",
+  },
   measurementUnits: {
     Gram: "g",
     Kilogram: "kg",
@@ -290,7 +323,8 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
       allRecipes: "All Recipes",
       cookbookSections: "Cookbook sections",
       create: "Create",
-      createIntro: "Add recipes, desserts, sauces, ingredients, and the rest of the kitchen library.",
+      createIntro:
+        "Add recipes, desserts, sauces, ingredients, and the rest of the kitchen library.",
       couldNotLoadIngredients: "Could not load ingredients",
       couldNotLoadRecipes: "Could not load recipes",
       fetchingCookbook: "Fetching the cookbook.",
@@ -370,7 +404,8 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     planner: {
       addMeal: (slot) => `Add ${slot}`,
       addMealLower: (slot) => `Add ${slot.toLowerCase()}`,
-      addSupplementsDescription: "Add up to six sides, sauces, dips, spice mixes, or salads.",
+      addSupplementsDescription:
+        "Add up to six sides, sauces, dips, spice mixes, or salads.",
       backToMain: "Back",
       chooseMainDish: "Choose main dish",
       chooseSides: "Choose sides",
@@ -380,14 +415,17 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
       clearRangeBody: (range) => `This will clear the current ${range}.`,
       clearing: "Clearing...",
       couldNotClear: (range) => `Could not clear this ${range}.`,
-      couldNotGenerate: (range) => `Could not generate meals for this ${range}.`,
+      couldNotGenerate: (range) =>
+        `Could not generate meals for this ${range}.`,
       couldNotLoadMealPlan: "Could not load meal plan.",
       dish: "Dish",
       editMeal: (slot, label) => `Edit ${slot}: ${label}`,
       exportGroceryList: "Export grocery list",
       groceryExportCouldNotLoad: "Could not load the grocery list.",
-      groceryExportCouldNotSend: "Could not export the grocery list. Check the export settings and try again.",
-      groceryExportDescription: "Review the ingredients before sending them to your shopping list.",
+      groceryExportCouldNotSend:
+        "Could not export the grocery list. Check the export settings and try again.",
+      groceryExportDescription:
+        "Review the ingredients before sending them to your shopping list.",
       groceryExportEmpty: "No ingredients found for this range.",
       groceryExportLoading: "Building grocery list...",
       groceryExportSections: {
@@ -398,7 +436,8 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
         Produce: "Produce",
         Protein: "Protein",
       },
-      groceryExportSelectedCount: (selected, total) => `${selected}/${total} selected`,
+      groceryExportSelectedCount: (selected, total) =>
+        `${selected}/${total} selected`,
       groceryExportSend: "Send list",
       groceryExportSending: "Sending...",
       groceryExportSent: "Shopping list exported.",
@@ -417,6 +456,28 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
       openMealSlot: "Open meal slot",
       plannerControls: "Planner controls",
       plannerView: "Planner view",
+      prepHelper: "Prep helper",
+      prepActionLabels: {
+        chop: "Chop",
+        cube: "Cube",
+        dice: "Dice",
+        batons: "Batons",
+        crush: "Crush",
+        grate: "Grate",
+        julienne: "Julienne",
+        mince: "Mince",
+        quarter: "Quarter",
+        roughChop: "Roughly chop",
+        shred: "Shred",
+        slice: "Slice",
+        wedge: "Cut into wedges",
+      },
+      prepHelperDescription: (from, to) =>
+        `Prep suggestions for planned meals from ${from} to ${to}.`,
+      prepHelperEmpty:
+        "No produce-style ingredients found in the planned meals for this week.",
+      prepHelperSources: (sources) => `Used in ${sources}`,
+      prepHelperTitle: "Weekly prep helper",
       previousRange: (range) => `Previous ${range}`,
       rangeNames: {
         week: "week",
@@ -438,7 +499,8 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     settings: {
       apiToken: "API token",
       apiTokenConfigured: "Token configured",
-      apiTokenHelp: "Leave blank to keep the current token. Tokens are never shown again after saving.",
+      apiTokenHelp:
+        "Leave blank to keep the current token. Tokens are never shown again after saving.",
       apiTokenPlaceholder: "Paste a new token",
       couldNotLoad: "Could not load settings.",
       couldNotSave: "Could not save settings.",
@@ -462,7 +524,8 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
       saveSettings: "Save settings",
       saved: "Settings saved.",
       saving: "Saving...",
-      systemBody: "Read-only server details that are useful when running MATFLOTE on a homeserver.",
+      systemBody:
+        "Read-only server details that are useful when running MATFLOTE on a homeserver.",
       systemTitle: "System",
       vikunjaBaseUrl: "Vikunja URL",
       vikunjaBaseUrlPlaceholder: "https://vikunja.example.com/",
@@ -509,7 +572,8 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
       allRecipes: "Alle oppskrifter",
       cookbookSections: "Kokebokseksjoner",
       create: "Opprett",
-      createIntro: "Legg til oppskrifter, desserter, sauser, ingredienser og resten av kjøkkenbiblioteket.",
+      createIntro:
+        "Legg til oppskrifter, desserter, sauser, ingredienser og resten av kjøkkenbiblioteket.",
       couldNotLoadIngredients: "Kunne ikke laste ingredienser",
       couldNotLoadRecipes: "Kunne ikke laste oppskrifter",
       fetchingCookbook: "Henter kokeboken.",
@@ -561,6 +625,23 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
         Other: "Annet",
         LeafyGreen: "Bladgrønt",
       },
+      ingredientPreparations: {
+        None: "Ingen prep",
+        Quartered: "Delt i fire",
+        Wedged: "Båter",
+        Chopped: "Hakket",
+        RoughlyChopped: "Grovhakket",
+        FinelyChopped: "Finhakket",
+        Diced: "Finternet",
+        Cubed: "Kuttet i terninger",
+        Julienned: "Julienne",
+        Batons: "Staver",
+        Sliced: "Skivet",
+        Minced: "Finhakket",
+        Grated: "Revet",
+        Shredded: "Strimlet",
+        Crushed: "Knust",
+      },
       mealSlots: {
         Breakfast: "Frokost",
         Lunch: "Lunsj",
@@ -585,7 +666,7 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
         Breakfast: "Frokost",
         Lunch: "Lunsj",
         Dinner: "Middag",
-        Bowl: "Bolle",
+        Bowl: "Bowl",
         Grill: "Grill",
         Pasta: "Pasta",
         Vegetarian: "Vegetar",
@@ -623,7 +704,7 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     },
     filters: {
       cuisine: "Kjøkken",
-      ingredientTags: "Ingredienstagger",
+      ingredientTags: "Tags",
       includes: "inneholder",
       protein: "Protein",
       recipeFilters: "Oppskriftsfiltre",
@@ -648,7 +729,8 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     planner: {
       addMeal: (slot) => `Legg til ${slot}`,
       addMealLower: (slot) => `Legg til ${slot.toLowerCase()}`,
-      addSupplementsDescription: "Legg til opptil seks tilbehør, sauser, dipper, krydderblandinger eller salater.",
+      addSupplementsDescription:
+        "Legg til opptil seks tilbehør, sauser, dipper, krydderblandinger eller salater.",
       backToMain: "Tilbake",
       chooseMainDish: "Velg hovedrett",
       chooseSides: "Velg tilbehør",
@@ -658,14 +740,17 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
       clearRangeBody: (range) => `Dette tømmer gjeldende ${range}.`,
       clearing: "Tømmer...",
       couldNotClear: (range) => `Kunne ikke tømme denne ${range}.`,
-      couldNotGenerate: (range) => `Kunne ikke generere måltider for denne ${range}.`,
+      couldNotGenerate: (range) =>
+        `Kunne ikke generere måltider for denne ${range}.`,
       couldNotLoadMealPlan: "Kunne ikke laste måltidsplanen.",
       dish: "Rett",
       editMeal: (slot, label) => `Rediger ${slot}: ${label}`,
       exportGroceryList: "Eksporter handleliste",
       groceryExportCouldNotLoad: "Kunne ikke laste handlelisten.",
-      groceryExportCouldNotSend: "Kunne ikke eksportere handlelisten. Sjekk eksportinnstillingene og prøv igjen.",
-      groceryExportDescription: "Se over ingrediensene før de sendes til handlelisten.",
+      groceryExportCouldNotSend:
+        "Kunne ikke eksportere handlelisten. Sjekk eksportinnstillingene og prøv igjen.",
+      groceryExportDescription:
+        "Se over ingrediensene før de sendes til handlelisten.",
       groceryExportEmpty: "Ingen ingredienser funnet for denne perioden.",
       groceryExportLoading: "Bygger handleliste...",
       groceryExportSections: {
@@ -676,7 +761,8 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
         Produce: "Frukt og grønt",
         Protein: "Protein",
       },
-      groceryExportSelectedCount: (selected, total) => `${selected}/${total} valgt`,
+      groceryExportSelectedCount: (selected, total) =>
+        `${selected}/${total} valgt`,
       groceryExportSend: "Send liste",
       groceryExportSending: "Sender...",
       groceryExportSent: "Handlelisten er eksportert.",
@@ -695,6 +781,28 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
       openMealSlot: "Åpne måltidsplass",
       plannerControls: "Planleggerkontroller",
       plannerView: "Planleggervisning",
+      prepHelper: "Prep-hjelp",
+      prepActionLabels: {
+        chop: "Hakk",
+        cube: "Kutt i terninger",
+        dice: "Fintern",
+        batons: "Staver",
+        crush: "Knus",
+        grate: "Riv",
+        julienne: "Julienne",
+        mince: "Finhakk",
+        quarter: "Del i fire",
+        roughChop: "Grovhakk",
+        shred: "Strimle",
+        slice: "Skjær",
+        wedge: "Kutt i båter",
+      },
+      prepHelperDescription: (from, to) =>
+        `Forslag til forberedelser for planlagte måltider fra ${from} til ${to}.`,
+      prepHelperEmpty:
+        "Ingen frukt- og grøntingredienser funnet i ukens planlagte måltider.",
+      prepHelperSources: (sources) => `Brukes i ${sources}`,
+      prepHelperTitle: "Ukens prep-hjelp",
       previousRange: (range) => `Forrige ${range}`,
       rangeNames: {
         week: "uke",
@@ -716,7 +824,8 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     settings: {
       apiToken: "API-token",
       apiTokenConfigured: "Token er konfigurert",
-      apiTokenHelp: "La feltet stå tomt for å beholde nåværende token. Tokens vises aldri igjen etter lagring.",
+      apiTokenHelp:
+        "La feltet stå tomt for å beholde nåværende token. Tokens vises aldri igjen etter lagring.",
       apiTokenPlaceholder: "Lim inn ny token",
       couldNotLoad: "Kunne ikke laste innstillinger.",
       couldNotSave: "Kunne ikke lagre innstillinger.",
@@ -727,20 +836,22 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
       exportBody: "Konfigurer hvor MATFLOTE sender genererte handlelister.",
       exportMode: "Eksportmodus",
       exportModeSeparateTasks: "Separate oppgaver",
-      exportModeSeparateTasksHelp: "Oppretter én Vikunja-oppgave per ingrediens.",
+      exportModeSeparateTasksHelp:
+        "Oppretter én Vikunja-oppgave per ingrediens.",
       exportModeSingleTask: "Én oppgave",
       exportModeSingleTaskHelp: "Oppretter én Vikunja-oppgave med sjekkliste.",
-      exportTitle: "Handlelisteeksport",
+      exportTitle: "Eksporter handleliste",
       imageStorage: "Bildelagring",
       languageBody: "Velg hvilket språk grensesnittet skal bruke.",
       languageTitle: "Språk",
       pageTitle: "Innstillinger",
       projectId: "Prosjekt-ID",
-      provider: "Gjeldende todo-tilbyder",
+      provider: "Todo-tilbyder",
       saveSettings: "Lagre innstillinger",
       saved: "Innstillinger lagret.",
       saving: "Lagrer...",
-      systemBody: "Skrivebeskyttede serverdetaljer som er nyttige når MATFLOTE kjører på en hjemmeserver.",
+      systemBody:
+        "Skrivebeskyttede serverdetaljer som er nyttige når MATFLOTE kjører på en hjemmeserver.",
       systemTitle: "System",
       vikunjaBaseUrl: "Vikunja-URL",
       vikunjaBaseUrlPlaceholder: "https://vikunja.example.com/",

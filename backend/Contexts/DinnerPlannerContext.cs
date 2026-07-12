@@ -116,6 +116,10 @@ public class DinnerPlannerContext(DbContextOptions<DinnerPlannerContext> options
         {
             entity.Property(recipeIngredient => recipeIngredient.Amount).HasPrecision(10, 2);
             entity.Property(recipeIngredient => recipeIngredient.Unit).HasConversion<string>().HasMaxLength(40);
+            entity.Property(recipeIngredient => recipeIngredient.Preparation)
+                .HasConversion<string>()
+                .HasMaxLength(40)
+                .HasDefaultValue(IngredientPreparation.None);
 
             entity.HasOne(recipeIngredient => recipeIngredient.Ingredient)
                 .WithMany()

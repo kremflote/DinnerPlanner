@@ -281,7 +281,10 @@ public class RecipesController(DinnerPlannerContext context) : ControllerBase
                 RecipeId = recipeId,
                 IngredientId = ingredient.IngredientId,
                 Amount = ingredient.Amount,
-                Unit = ingredient.Unit
+                Unit = ingredient.Unit,
+                Preparation = Enum.IsDefined(ingredient.Preparation)
+                    ? ingredient.Preparation
+                    : IngredientPreparation.None
             })
             .ToList();
 
@@ -289,7 +292,8 @@ public class RecipesController(DinnerPlannerContext context) : ControllerBase
         recipeIngredient.RecipeIngredientId,
         ToDto(recipeIngredient.Ingredient),
         recipeIngredient.Amount,
-        recipeIngredient.Unit
+        recipeIngredient.Unit,
+        recipeIngredient.Preparation
     );
 
     private async Task<bool> CuisineExists(int? cuisineId) =>

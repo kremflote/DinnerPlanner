@@ -2,6 +2,16 @@
 
 MATFLOTE is a household meal planning and cookbook app.
 
+## Current App Features
+
+- Cookbook with recipes, ingredients, cuisines, brands, tags, and image uploads.
+- Planner with week/month views, main dish selection, and up to 6 supplements such as sides, sauces, dips, spice mixes, and salads.
+- Recipe ingredients store both measurement unit and preparation, such as chopped, diced, julienned, grated, or crushed.
+- Prep helper for the current week. It lists produce-style ingredients only when an explicit preparation exists or one can be inferred from recipe instructions.
+- Shopping list preview and export through the provider-based grocery-list system. Vikunja is the first supported provider.
+
+Lunch and Dinner are still accepted as backend recipe tag values for older saved recipes, but they are not selectable as new recipe tags. Breakfast remains selectable.
+
 ## Docker
 
 MATFLOTE runs as two containers:
@@ -152,6 +162,18 @@ git pull
 docker compose up -d --build
 ```
 
+To build a fresh Docker version from local source without starting it:
+
+```powershell
+docker compose build
+```
+
+To rebuild and restart the running app:
+
+```powershell
+docker compose up -d --build
+```
+
 ## Verify A Local Build
 
 Use the smoke script before Docker work or before committing backend/frontend integration changes:
@@ -184,7 +206,16 @@ To rebuild the Docker images:
 docker compose build
 ```
 
-For a fresh-container check, start MATFLOTE with new volumes or after `docker compose down -v`. The backend applies migrations on startup, creates the SQLite database if needed, and seeds missing bundled images into the configured image storage volume.
+For a fresh-container check, start MATFLOTE with new volumes or after `docker compose down -v`. The backend applies migrations on startup, including recipe ingredient preparation migrations, creates the SQLite database if needed, and seeds missing bundled images into the configured image storage volume.
+
+Before committing a feature chunk, run:
+
+```powershell
+npm run build --prefix frontend
+dotnet build backend -c Release --no-restore
+.\scripts\smoke-test.ps1
+docker compose config
+```
 
 ## Sync Model
 

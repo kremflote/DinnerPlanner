@@ -430,6 +430,8 @@ Norwegian Bokmål
 
 Backend enum values and frontend union keys should remain stable English identifiers. User-facing labels for recipe types, recipe tags, ingredient tags, meal slots, planner view modes, and measurement units should come from `frontend/src/i18n/index.ts`.
 
+Lunch and Dinner remain backend-compatible recipe tag identifiers for older saved recipes, but they are not selectable in the recipe form. Breakfast is the only meal-slot-style recipe tag still exposed in the UI.
+
 User-created content such as recipe names, ingredient names, cuisine names, instructions, and descriptions is not translated automatically.
 
 ---
@@ -468,6 +470,7 @@ Icons should align visually with text and buttons.
 		- Opening a slot always starts on main dish selection
 		- Clicking a main dish highlights it; the user confirms with the bottom-left action before choosing sides
 		- Supplement selection allows up to 6 sides/sauces/dips/spice mixes/salads
+		- Supplement selection excludes Breakfast-tagged recipes, but does not exclude legacy Lunch or Dinner tags
 		- The bottom selected section shows the main dish thumbnail and selected side capsules
 		- Save is disabled while the main dish highlight is unconfirmed
 		- Remove meal is an explicit destructive action in edit mode
@@ -475,7 +478,15 @@ Icons should align visually with text and buttons.
 		- Current implementation is intentionally simple: fill empty slots only with a random dish and optional side
 		- Future implementation should generate based on protein, cuisine, tags, repetition, and slot type
 	- Prep helper
-		- Generate a list of all vegetables you need to prepare for week
+		- Week view includes a compact prep-helper button next to the other planner action buttons
+		- The prep helper opens a modal listing produce-style ingredients needed for the current week
+		- Produce-style ingredients are currently inferred from ingredient tags: Vegetable, Fruit, Herb, and LeafyGreen
+		- Recipe ingredients store preparation as explicit enum data, separate from measurement unit
+		- Measurement unit describes amount, such as gram, piece, or clove
+		- Ingredient preparation describes shape/state, such as quartered, wedged, chopped, roughly chopped, finely chopped, diced, cubed, julienned, batons, sliced, minced, grated, shredded, or crushed
+		- The prep helper uses explicit recipe-ingredient preparation first
+		- If no explicit preparation is stored, prep actions may still be inferred from recipe instructions when they contain words such as chop, roughly chop, cube, dice, julienne, batons, slice, mince, grate, shred, crush, quarter, or wedge
+		- If no prep action can be inferred, the ingredient is omitted from the prep helper
 		- Automatically generate vikunja shopping list
 - Cookbook
 	- Create dishes, desserts, sauces, dips, marinades, spice mixes

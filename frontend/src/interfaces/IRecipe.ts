@@ -20,7 +20,25 @@ export interface IRecipeIngredient {
   ingredient: IIngredient;
   amount: number | null;
   unit: MeasurementUnit;
+  preparation: IngredientPreparation;
 }
+
+export type IngredientPreparation =
+  | "None"
+  | "Quartered"
+  | "Wedged"
+  | "Chopped"
+  | "RoughlyChopped"
+  | "FinelyChopped"
+  | "Diced"
+  | "Cubed"
+  | "Julienned"
+  | "Batons"
+  | "Sliced"
+  | "Minced"
+  | "Grated"
+  | "Shredded"
+  | "Crushed";
 
 export type RecipeType =
   | "Dish"

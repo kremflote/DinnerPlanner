@@ -1,12 +1,13 @@
 import { useCallback, useMemo, useState, type FormEvent } from "react";
 import IngredientThumbnail from "../IngredientThumbnail";
-import { useCuisines, useIngredients, useRecipes } from "../../contexts";
+import { useCuisines, useIngredients, useLanguage, useRecipes } from "../../contexts";
 import type { IIngredient, MeasurementUnit } from "../../interfaces/IIngredient";
-import type { DessertType, IRecipe, RecipeTag, RecipeType } from "../../interfaces/IRecipe";
+import type { DessertType, IngredientPreparation, IRecipe, RecipeTag, RecipeType } from "../../interfaces/IRecipe";
 import { cuisineService, imageUploadService, recipeService } from "../../services";
 import type { SiteTheme } from "../../styles/appStyles";
 import {
   dessertTypes,
+  ingredientPreparations,
   measurementUnits,
   recipeTags,
   recipeTypes,
@@ -35,6 +36,7 @@ function RecipeCreateForm({
   onCancel,
 }: RecipeCreateFormProps) {
   const isEditing = initialRecipe !== null;
+  const { t } = useLanguage();
   const { cuisines, refreshCuisines } = useCuisines();
   const { ingredients } = useIngredients();
   const { refreshRecipes } = useRecipes();
@@ -47,10 +49,11 @@ function RecipeCreateForm({
       ingredientId: recipeIngredient.ingredient.ingredientId,
       amount: recipeIngredient.amount?.toString() ?? "",
       unit: recipeIngredient.unit,
+      preparation: recipeIngredient.preparation,
     })) ?? [],
   );
   const [selectedTags, setSelectedTags] = useState<RecipeTag[]>(
-    initialRecipe && initialRecipe.tags.length > 0 ? [...initialRecipe.tags] : ["Dinner"],
+    initialRecipe?.tags.filter((tag) => recipeTags.includes(tag)) ?? [],
   );
   const [cuisineId, setCuisineId] = useState<number | null>(initialRecipe?.cuisineId ?? null);
   const [dessertType, setDessertType] = useState<DessertType>(initialRecipe?.dessertType ?? "Other");
@@ -128,6 +131,7 @@ function RecipeCreateForm({
           ingredientId: ingredient.ingredientId,
           amount: nullableNumber(ingredient.amount),
           unit: ingredient.unit,
+          preparation: ingredient.preparation,
         })),
         tags: selectedTags,
         cuisineId: recipeType === "Dish" ? cuisineId : null,
@@ -307,6 +311,8 @@ function RecipeCreateForm({
                     selected={selectedIngredientIds.includes(ingredient.ingredientId)}
                     theme={theme}
                     unit={getSelectedIngredient(selectedIngredients, ingredient.ingredientId)?.unit ?? "Gram"}
+                    preparation={getSelectedIngredient(selectedIngredients, ingredient.ingredientId)?.preparation ?? "None"}
+                    preparationLabels={t.enums.ingredientPreparations}
                     onAmountChange={(amount) =>
                       setSelectedIngredients((currentIngredients) =>
                         updateSelectedIngredient(currentIngredients, ingredient.ingredientId, { amount }),
@@ -320,6 +326,11 @@ function RecipeCreateForm({
                     onUnitChange={(unit) =>
                       setSelectedIngredients((currentIngredients) =>
                         updateSelectedIngredient(currentIngredients, ingredient.ingredientId, { unit }),
+                      )
+                    }
+                    onPreparationChange={(preparation) =>
+                      setSelectedIngredients((currentIngredients) =>
+                        updateSelectedIngredient(currentIngredients, ingredient.ingredientId, { preparation }),
                       )
                     }
                   />
@@ -399,9 +410,12 @@ type IngredientPickerRowProps = {
   amount: string;
   ingredient: IIngredient;
   selected: boolean;
+  preparation: IngredientPreparation;
+  preparationLabels: Record<IngredientPreparation, string>;
   theme: SiteTheme;
   unit: MeasurementUnit;
   onAmountChange: (value: string) => void;
+  onPreparationChange: (value: IngredientPreparation) => void;
   onToggle: () => void;
   onUnitChange: (value: MeasurementUnit) => void;
 };
@@ -409,10 +423,13 @@ type IngredientPickerRowProps = {
 function IngredientPickerRow({
   amount,
   ingredient,
+  preparation,
+  preparationLabels,
   selected,
   theme,
   unit,
   onAmountChange,
+  onPreparationChange,
   onToggle,
   onUnitChange,
 }: IngredientPickerRowProps) {
@@ -456,6 +473,19 @@ function IngredientPickerRow({
           </option>
         ))}
       </select>
+      <select
+        aria-label={`${ingredient.ingredientName} preparation`}
+        className={recipeBrowserStyles.compactTextField(theme)}
+        disabled={!selected}
+        value={preparation}
+        onChange={(event) => onPreparationChange(event.target.value as IngredientPreparation)}
+      >
+        {ingredientPreparations.map((value) => (
+          <option key={value} value={value}>
+            {preparationLabels[value]}
+          </option>
+        ))}
+      </select>
     </div>
   );
 }
@@ -464,6 +494,7 @@ type SelectedRecipeIngredient = {
   ingredientId: number;
   amount: string;
   unit: MeasurementUnit;
+  preparation: IngredientPreparation;
 };
 
 function getSelectedIngredient(ingredients: SelectedRecipeIngredient[], ingredientId: number) {
@@ -481,6 +512,7 @@ function toggleRecipeIngredient(ingredients: SelectedRecipeIngredient[], ingredi
       ingredientId,
       amount: "",
       unit: "Gram" as MeasurementUnit,
+      preparation: "None" as IngredientPreparation,
     },
   ];
 }

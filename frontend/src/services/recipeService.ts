@@ -1,5 +1,5 @@
 import type { MeasurementUnit } from "../interfaces/IIngredient";
-import type { DessertType, IRecipe, RecipeTag, RecipeType } from "../interfaces/IRecipe";
+import type { DessertType, IngredientPreparation, IRecipe, RecipeTag, RecipeType } from "../interfaces/IRecipe";
 import { apiRequest } from "./apiClient";
 
 export interface RecipeRequest {
@@ -18,6 +18,7 @@ export interface RecipeIngredientRequest {
   ingredientId: number;
   amount: number | null;
   unit: MeasurementUnit;
+  preparation: IngredientPreparation;
 }
 
 export const recipeService = {

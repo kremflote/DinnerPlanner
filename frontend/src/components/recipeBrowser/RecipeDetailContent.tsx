@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLanguage } from "../../contexts";
 import type { IIngredient, INutritionFacts } from "../../interfaces/IIngredient";
 import { getApiAssetUrl } from "../../services/apiClient";
 import type { SiteTheme } from "../../styles/appStyles";
@@ -13,6 +14,7 @@ type RecipeDetailContentProps = {
 };
 
 function RecipeDetailContent({ recipe, theme, onIngredientClick }: RecipeDetailContentProps) {
+  const { t } = useLanguage();
   const imageUrl = getApiAssetUrl(recipe.imageUrl);
   const nutrition = calculateRecipeNutrition(recipe);
   const [ingredientMultiplier, setIngredientMultiplier] = useState("1");
@@ -86,11 +88,11 @@ function RecipeDetailContent({ recipe, theme, onIngredientClick }: RecipeDetailC
                     style={{ backgroundColor: recipeIngredient.ingredient.color ?? "currentColor" }}
                   />
                   <span className={recipeBrowserStyles.detailIngredientName}>{recipeIngredient.ingredient.ingredientName}</span>
-                  <span className={recipeBrowserStyles.detailIngredientBrand}>
-                    {recipeIngredient.ingredient.brand?.name ?? ""}
-                  </span>
                   <span className={recipeBrowserStyles.detailIngredientAmount}>
                     {formatRecipeIngredientAmount(recipeIngredient.amount, recipeIngredient.unit, amountMultiplier)}
+                  </span>
+                  <span className={recipeBrowserStyles.detailIngredientPreparation}>
+                    {recipeIngredient.preparation !== "None" ? t.enums.ingredientPreparations[recipeIngredient.preparation] : ""}
                   </span>
                 </button>
               ))}

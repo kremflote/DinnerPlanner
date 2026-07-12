@@ -26,7 +26,7 @@ function IngredientThumbnail({
   onClick,
 }: IngredientThumbnailProps) {
   const brandName = ingredient.brand?.name ?? "";
-  const tone = getIngredientTone(ingredient.color);
+  const tone = getIngredientTone(ingredient.color, theme);
   const selectedClassName =
     selectedPresentation === "muted"
       ? thumbnailStyles.ingredientSelectedMuted
@@ -78,9 +78,9 @@ function IngredientThumbnail({
   );
 }
 
-function getIngredientTone(color: string | null): IngredientTone {
+function getIngredientTone(color: string | null, theme: SiteTheme): IngredientTone {
   const dot = color ?? colorPalette.ingredientIconText;
-  const text = colorPalette.ingredientIconText;
+  const text = theme === "dark" ? colorPalette.nearBlack : colorPalette.ingredientIconText;
 
   return {
     dot,

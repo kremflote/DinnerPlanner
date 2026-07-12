@@ -16,6 +16,7 @@ type PlannerControlsProps = {
   onClearRange: () => void | Promise<void>;
   onExportRange: () => void | Promise<void>;
   onGenerateRange: () => void | Promise<void>;
+  onOpenPrepHelper: () => void;
   onViewModeChange: (value: PlannerViewMode) => void;
 };
 
@@ -33,6 +34,7 @@ function PlannerControls({
   onClearRange,
   onExportRange,
   onGenerateRange,
+  onOpenPrepHelper,
   onViewModeChange,
 }: PlannerControlsProps) {
   const { t } = useLanguage();
@@ -67,6 +69,20 @@ function PlannerControls({
               <GenerateIcon />
               <span className={plannerControlsStyles.tooltip(theme)}>
                 {isGenerateRangeRunning ? t.planner.generating : t.planner.generateMealPlan}
+              </span>
+            </button>
+          </div>
+          <div className={plannerControlsStyles.actionSlotRight}>
+            <button
+              aria-label={t.planner.prepHelper}
+              className={plannerControlsStyles.iconOnlyButton(theme)}
+              disabled={isRangeBusy || isGenerateRangeRunning || isClearRangeRunning}
+              type="button"
+              onClick={onOpenPrepHelper}
+            >
+              <PrepIcon />
+              <span className={plannerControlsStyles.tooltip(theme)}>
+                {t.planner.prepHelper}
               </span>
             </button>
           </div>
@@ -174,6 +190,14 @@ function ExportIcon() {
   return (
     <svg aria-hidden="true" className={plannerControlsStyles.buttonIcon} viewBox="0 0 24 24">
       <path d="M12 3 7.5 7.5l1.4 1.4 2.1-2.1V15h2V6.8l2.1 2.1 1.4-1.4L12 3Zm-7 9h2v7h10v-7h2v9H5v-9Z" />
+    </svg>
+  );
+}
+
+function PrepIcon() {
+  return (
+    <svg aria-hidden="true" className={plannerControlsStyles.buttonIcon} viewBox="0 0 24 24">
+      <path d="M7 3h10v2h-1v3.1a5 5 0 0 1 3 4.6V21H5v-8.3a5 5 0 0 1 3-4.6V5H7V3Zm3 2v4.4l-.7.2A3 3 0 0 0 7 12.7V19h10v-6.3a3 3 0 0 0-2.3-3.1l-.7-.2V5h-4Zm-1 8h6v2H9v-2Zm0 3h4v2H9v-2Z" />
     </svg>
   );
 }

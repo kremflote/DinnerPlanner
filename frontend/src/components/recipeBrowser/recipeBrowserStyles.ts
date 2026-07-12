@@ -225,7 +225,7 @@ export const recipeBrowserStyles = {
   recipeIngredientPickerGrid:
     "grid max-h-56 gap-2 overflow-y-auto rounded-md p-2",
   recipeIngredientPickerRow:
-    "grid grid-cols-[auto_minmax(0,1fr)_6rem_9rem] items-center gap-2 max-md:grid-cols-[auto_minmax(0,1fr)]",
+    "grid grid-cols-[auto_minmax(0,1fr)_6rem_8rem_10rem] items-center gap-2 max-lg:grid-cols-[auto_minmax(0,1fr)_6rem] max-md:grid-cols-[auto_minmax(0,1fr)]",
   compactTextField: (theme: SiteTheme) => controlStyles.compactTextField(theme),
   checkboxGridPanel: (theme: SiteTheme) =>
     theme === "dark"
@@ -404,7 +404,7 @@ export const recipeBrowserStyles = {
   detailRowLabel: "font-bold",
   detailRowValue: "shrink-0",
   detailIngredientRow: (theme: SiteTheme) =>
-    `relative flex h-8 w-full items-center gap-2 rounded-md px-2 text-left text-sm font-semibold transition-colors ${
+    `grid h-8 w-full grid-cols-[auto_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)] items-center gap-2 rounded-md px-2 text-left text-sm font-semibold transition-colors ${
       theme === "dark"
         ? "bg-white/[0.05] text-neutral-200 hover:bg-white/[0.09]"
         : theme === "paletteLight"
@@ -412,10 +412,9 @@ export const recipeBrowserStyles = {
           : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
     }`,
   detailIngredientDot: "h-2.5 w-2.5 rounded-md",
-  detailIngredientName: "min-w-0 max-w-[45%] truncate font-bold",
-  detailIngredientBrand:
-    "pointer-events-none absolute left-1/2 max-w-[32%] -translate-x-1/2 truncate text-center text-xs font-semibold opacity-75",
-  detailIngredientAmount: "ml-auto shrink-0 pl-3",
+  detailIngredientName: "min-w-0 truncate font-bold",
+  detailIngredientAmount: "min-w-0 truncate text-center text-xs font-semibold opacity-80",
+  detailIngredientPreparation: "min-w-0 truncate text-right text-xs font-bold",
   ingredientDetailMetaGrid: "grid grid-cols-2 gap-3 max-sm:grid-cols-1",
   detailChipSection: "grid gap-2",
   detailChipSectionCompact: "grid gap-1",

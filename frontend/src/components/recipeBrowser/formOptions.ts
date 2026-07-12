@@ -1,5 +1,5 @@
 import type { IngredientTag, MeasurementUnit, Vitamin } from "../../interfaces/IIngredient";
-import type { DessertType, RecipeTag, RecipeType } from "../../interfaces/IRecipe";
+import type { DessertType, IngredientPreparation, RecipeTag, RecipeType } from "../../interfaces/IRecipe";
 
 export const recipeTypes: RecipeType[] = [
   "Dish",
@@ -12,8 +12,6 @@ export const recipeTypes: RecipeType[] = [
 
 export const recipeTags: RecipeTag[] = [
   "Breakfast",
-  "Lunch",
-  "Dinner",
   "Bowl",
   "Grill",
   "Pasta",
@@ -73,6 +71,24 @@ export const measurementUnits: MeasurementUnit[] = [
   "Clove",
   "Pinch",
   "ToTaste",
+];
+
+export const ingredientPreparations: IngredientPreparation[] = [
+  "None",
+  "Quartered",
+  "Wedged",
+  "Chopped",
+  "RoughlyChopped",
+  "FinelyChopped",
+  "Diced",
+  "Cubed",
+  "Julienned",
+  "Batons",
+  "Sliced",
+  "Minced",
+  "Grated",
+  "Shredded",
+  "Crushed",
 ];
 
 export const vitamins: Vitamin[] = [
