@@ -81,6 +81,7 @@ export type TranslationDictionary = {
   };
   enums: EnumLabels;
   filters: {
+    categories: string;
     cuisine: string;
     ingredientTags: string;
     includes: string;
@@ -378,6 +379,7 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
       },
     },
     filters: {
+      categories: "Categories",
       cuisine: "Cuisine",
       ingredientTags: "Ingredient Tags",
       includes: "includes",
@@ -703,6 +705,7 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
       },
     },
     filters: {
+      categories: "Kategorier",
       cuisine: "Kjøkken",
       ingredientTags: "Tags",
       includes: "inneholder",

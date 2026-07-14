@@ -17,6 +17,7 @@ type BrowserFilterSectionProps = {
   selectedRecipeTags: RecipeTag[];
   selectedCuisineIds: number[];
   theme: SiteTheme;
+  variant?: "rail" | "panel";
   setSelectedIngredientTags: Dispatch<SetStateAction<IngredientTag[]>>;
   setSelectedRecipeTypes: Dispatch<SetStateAction<RecipeType[]>>;
   setSelectedRecipeTags: Dispatch<SetStateAction<RecipeTag[]>>;
@@ -31,15 +32,19 @@ function BrowserFilterSection({
   selectedRecipeTags,
   selectedCuisineIds,
   theme,
+  variant = "rail",
   setSelectedIngredientTags,
   setSelectedRecipeTypes,
   setSelectedRecipeTags,
   setSelectedCuisineIds,
 }: BrowserFilterSectionProps) {
   const { t } = useLanguage();
+  const className = variant === "rail"
+    ? recipeBrowserStyles.filterRail(theme)
+    : recipeBrowserStyles.filterPanel(theme);
 
   return (
-    <aside className={recipeBrowserStyles.filterRail(theme)} aria-label={t.filters.recipeFilters}>
+    <aside className={className} aria-label={t.filters.recipeFilters}>
       {mode === "ingredients" ? (
         <FilterGroup
           formatValue={(value) => t.enums.ingredientTags[value]}

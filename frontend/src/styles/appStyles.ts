@@ -155,7 +155,7 @@ export const siteColorClasses = {
 export const typographyClasses = {
   app: "font-['Nunito',system-ui,sans-serif]",
   hero: "font-['Segoe_Print','Bradley_Hand','Comic_Sans_MS',cursive]",
-  logo: "translate-x-0 font-['Ubuntu',sans-serif] text-[46px] font-bold leading-none",
+  logo: "translate-x-0 font-['Ubuntu',sans-serif] text-[46px] font-bold leading-none max-sm:text-[34px]",
   dayLabel: "text-2xl font-extralight tracking-normal",
   mealHeaderLabel: "text-2xl font-extralight tracking-wide",
 } as const;
@@ -167,6 +167,15 @@ export const layoutClasses = {
   gridGap: "gap-6",
   controlGap: "gap-4",
   tightControlGap: "gap-2",
+} as const;
+
+export const responsiveClasses = {
+  mobilePagePadding: "max-md:py-8 max-sm:py-6",
+  mobileStack: "max-md:grid-cols-1 max-md:gap-4",
+  mobileToolbarWrap: "max-md:flex-wrap max-md:justify-start max-sm:w-full",
+  mobileModalBackdrop: "max-sm:p-3",
+  mobileModalPanel: "max-sm:max-h-[calc(100vh_-_24px)] max-sm:p-4",
+  mobileTouchTarget: "max-sm:min-h-10",
 } as const;
 
 export const sizeClasses = {
@@ -215,7 +224,7 @@ export const surfaceClasses = {
 
 export const modalLayoutClasses = {
   centeredBackdrop:
-    "fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4",
+    `fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4 ${responsiveClasses.mobileModalBackdrop}`,
 } as const;
 
 export const thumbnailStyles = {
@@ -355,19 +364,19 @@ export const confirmationDialogStyles = {
 
 export const headerStyles = {
   shell: (theme: SiteTheme) =>
-    `relative z-10 min-h-20 border-b ${shadowClasses.raised} ${siteColorClasses[theme].header}`,
-  inner: `${layoutClasses.contentWidth} grid min-h-20 grid-cols-[1fr_auto_1fr] items-center gap-6 max-md:grid-cols-[1fr_auto] max-md:grid-rows-[auto_auto] max-md:gap-4 max-md:py-4`,
+    `relative z-10 border-b ${shadowClasses.raised} ${siteColorClasses[theme].header}`,
+  inner: `${layoutClasses.contentWidth} grid min-h-20 grid-cols-[1fr_auto_1fr] items-center gap-6 py-0 max-md:grid-cols-[1fr_auto] max-md:grid-rows-[auto_auto] max-md:gap-x-4 max-md:gap-y-3 max-md:py-3 max-sm:min-h-0 max-sm:py-3`,
   logo: (theme: SiteTheme) =>
     `justify-self-start border-0 bg-transparent p-0 text-left no-underline ${typographyClasses.logo} ${siteColorClasses[theme].headerForeground}`,
-  nav: "flex items-center justify-center gap-2 max-md:col-span-2 max-md:row-start-2 max-md:justify-self-center",
+  nav: "flex items-center justify-center gap-2 max-md:col-span-2 max-md:row-start-2 max-md:w-full max-md:justify-self-stretch max-md:overflow-x-auto max-md:pb-0.5",
   navButton: (theme: SiteTheme, selected: boolean) =>
-    `inline-flex h-16 min-w-20 cursor-pointer flex-col items-center justify-center gap-1 rounded-md border px-3 transition-colors duration-150 ${focusBase} ${siteColorClasses[theme].focus} ${
+    `inline-flex h-16 min-w-20 cursor-pointer flex-col items-center justify-center gap-1 rounded-md border px-3 transition-colors duration-150 max-md:h-12 max-md:min-w-0 max-md:flex-1 max-md:px-2 max-sm:h-10 ${focusBase} ${siteColorClasses[theme].focus} ${
       selected
         ? siteColorClasses[theme].controlSelected
         : `border-transparent bg-transparent ${siteColorClasses[theme].control}`
     }`,
-  icon: "h-8 w-8 fill-current",
-  navLabel: "text-xs font-semibold leading-none",
+  icon: "h-8 w-8 fill-current max-md:h-5 max-md:w-5",
+  navLabel: "text-xs font-semibold leading-none max-sm:text-[11px]",
   themeButton: (theme: SiteTheme) =>
     `inline-flex h-8 w-14 cursor-pointer items-center justify-center justify-self-end rounded-md border border-transparent bg-transparent p-0 ${focusBase} ${siteColorClasses[theme].focus}`,
   // Exception to the rectangular control rule: the theme switch keeps the familiar rounded toggle shape.
@@ -381,7 +390,7 @@ export const headerStyles = {
 };
 
 export const pageStyles = {
-  shell: `${layoutClasses.contentWidth} relative py-12`,
+  shell: `${layoutClasses.contentWidth} ${responsiveClasses.mobilePagePadding} relative py-12`,
   showColumnDebugOverlay: false,
   columnDebugOverlay:
     "pointer-events-none absolute inset-y-0 left-0 right-0 grid grid-cols-12 gap-6 opacity-100",

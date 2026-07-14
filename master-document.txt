@@ -339,6 +339,45 @@ Planner picker-specific layout:
 frontend/src/components/plannerRecipePicker/
 ```
 
+### Mobile layout rules
+
+Design mobile layouts explicitly for phone widths around 360-430px, then verify tablet and desktop remain intact.
+
+Use the Tailwind `max-md` breakpoint for tablet/phone layout shifts and `max-sm` for phone-specific tightening. Mobile values should live in centralized style helpers before they are used in page components.
+
+Current centralized mobile helpers live in `responsiveClasses` in `frontend/src/styles/appStyles.ts`.
+
+Mobile layout defaults:
+
+```
+Page horizontal width: layoutClasses.contentWidth
+Page vertical padding: 32px on mobile, 24px on small phones
+Modal viewport inset: 16px normally, 12px on small phones
+Modal max height: calc(100vh - 24px) on small phones
+Touch targets: at least 40px on small phones where controls are compact
+```
+
+Mobile behavior rules:
+
+- Header uses two rows: logo/theme on the first row, primary navigation on the second row
+- Header logo shrinks on small phones, but remains the first visual brand signal
+- Header navigation buttons become shorter and share available width
+- Toolbars may wrap, but related controls should stay visually grouped
+- Page grids should collapse to one column before causing horizontal scrolling
+- Desktop data grids and calendars may remain horizontally scrollable only when a mobile-specific replacement has not yet been implemented
+- Modals should keep headers and actions reachable, with only their body content scrolling when practical
+- Forms should become single-column on mobile and keep labels close to their fields
+- Avoid mobile-only one-off spacing values in components; add a token or helper first
+
+Mobile audit status:
+
+- Header/navigation: first responsive pass implemented
+- Shared modal/backdrop helpers: first responsive pass implemented
+- Cookbook: first responsive pass implemented for header actions, search/filter controls, category filter modal, result grids, detail rows, and modals
+- Planner week view: pending mobile day-list layout
+- Planner month view: pending compact month interaction review
+- Settings: pending mobile panel stacking and form review
+
 Shared browser/filter UI should be reused across Cookbook and Planner when the interaction is the same:
 
 ```

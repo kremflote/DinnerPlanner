@@ -48,6 +48,7 @@ function Browser({ mode, theme, headerActions }: BrowserProps) {
   const [selectedDetailKey, setSelectedDetailKey] = useState<BrowserDetailKey | null>(null);
   const [ingredientPickerSearch, setIngredientPickerSearch] = useState("");
   const [ingredientPickerPosition, setIngredientPickerPosition] = useState<{ x: number; y: number } | null>(null);
+  const [isCategoryFilterOpen, setIsCategoryFilterOpen] = useState(false);
   const ingredientFilterButtonRef = useRef<HTMLButtonElement | null>(null);
   const ingredientPickerRef = useRef<HTMLDivElement | null>(null);
 
@@ -153,6 +154,23 @@ function Browser({ mode, theme, headerActions }: BrowserProps) {
     return () => document.removeEventListener("pointerdown", handleOutsidePointerDown);
   }, [ingredientPickerPosition]);
 
+  useEffect(() => {
+    if (!isCategoryFilterOpen) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setIsCategoryFilterOpen(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isCategoryFilterOpen]);
+
   return (
     <>
       <header>
@@ -177,25 +195,32 @@ function Browser({ mode, theme, headerActions }: BrowserProps) {
               onChange={(event) => setSearchTerm(event.target.value)}
             />
             <div className={recipeBrowserStyles.filterButtonSlot}>
-              {mode === "recipes" && (
               <button
-                aria-label={t.browser.openIngredientFilter}
-                className={recipeBrowserStyles.filterButton(theme)}
-                ref={ingredientFilterButtonRef}
+                className={recipeBrowserStyles.categoryFilterButton(theme)}
                 type="button"
-                onClick={(event) =>
-                  setIngredientPickerPosition((currentPosition) =>
-                    currentPosition === null
-                      ? {
-                          x: event.clientX,
-                          y: event.clientY,
-                        }
-                      : null,
-                  )
-                }
+                onClick={() => setIsCategoryFilterOpen(true)}
               >
-                <FilterIcon />
+                {t.filters.categories}
               </button>
+              {mode === "recipes" && (
+                <button
+                  aria-label={t.browser.openIngredientFilter}
+                  className={recipeBrowserStyles.filterButton(theme)}
+                  ref={ingredientFilterButtonRef}
+                  type="button"
+                  onClick={(event) =>
+                    setIngredientPickerPosition((currentPosition) =>
+                      currentPosition === null
+                        ? {
+                            x: event.clientX,
+                            y: event.clientY,
+                          }
+                        : null,
+                    )
+                  }
+                >
+                  <FilterIcon />
+                </button>
               )}
             </div>
           </div>
@@ -250,6 +275,50 @@ function Browser({ mode, theme, headerActions }: BrowserProps) {
           />
         )}
       </header>
+
+      {isCategoryFilterOpen && (
+        <div
+          className={recipeBrowserStyles.categoryFilterBackdrop}
+          role="presentation"
+          onMouseDown={() => setIsCategoryFilterOpen(false)}
+        >
+          <section
+            aria-labelledby="cookbook-category-filter-title"
+            aria-modal="true"
+            className={recipeBrowserStyles.categoryFilterPanel(theme)}
+            role="dialog"
+            onMouseDown={(event) => event.stopPropagation()}
+          >
+            <div className={recipeBrowserStyles.categoryFilterHeader}>
+              <h2 className={recipeBrowserStyles.modalTitle} id="cookbook-category-filter-title">
+                {t.filters.categories}
+              </h2>
+              <button
+                aria-label={t.common.close}
+                className={recipeBrowserStyles.modalCloseButton(theme)}
+                type="button"
+                onClick={() => setIsCategoryFilterOpen(false)}
+              >
+                x
+              </button>
+            </div>
+            <BrowserFilterSection
+              mode={mode}
+              cuisines={cuisines}
+              selectedCuisineIds={selectedCuisineIds}
+              selectedRecipeTags={selectedRecipeTags}
+              selectedIngredientTags={selectedIngredientTags}
+              selectedRecipeTypes={selectedRecipeTypes}
+              setSelectedCuisineIds={setSelectedCuisineIds}
+              setSelectedRecipeTags={setSelectedRecipeTags}
+              setSelectedIngredientTags={setSelectedIngredientTags}
+              setSelectedRecipeTypes={setSelectedRecipeTypes}
+              theme={theme}
+              variant="panel"
+            />
+          </section>
+        </div>
+      )}
 
       <section className={recipeBrowserStyles.browserBodyGrid}>
         <BrowserFilterSection

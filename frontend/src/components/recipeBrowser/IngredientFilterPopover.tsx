@@ -90,7 +90,8 @@ export function FilterIcon() {
 function getClampedPopoverPosition(x: number, y: number) {
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
-  const left = Math.max(viewportMargin, Math.min(x, viewportWidth - popoverWidth - viewportMargin));
+  const effectivePopoverWidth = Math.min(popoverWidth, viewportWidth - viewportMargin * 2);
+  const left = Math.max(viewportMargin, Math.min(x, viewportWidth - effectivePopoverWidth - viewportMargin));
   const top = Math.max(viewportMargin, Math.min(y + 8, viewportHeight - popoverHeight - viewportMargin));
 
   return { left, top };

@@ -40,5 +40,28 @@ public class CuisinesController(DinnerPlannerContext context) : ControllerBase
         return Ok(ToDto(cuisine));
     }
 
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> DeleteCuisine(int id)
+    {
+        var cuisine = await context.Cuisines.FindAsync(id);
+        if (cuisine is null)
+        {
+            return NotFound();
+        }
+
+        var dishes = await context.Dishes
+            .Where(dish => dish.CuisineId == id)
+            .ToListAsync();
+
+        foreach (var dish in dishes)
+        {
+            dish.CuisineId = null;
+        }
+
+        context.Cuisines.Remove(cuisine);
+        await context.SaveChangesAsync();
+        return NoContent();
+    }
+
     private static CuisineDto ToDto(Cuisine cuisine) => new(cuisine.CuisineId, cuisine.Name);
 }
