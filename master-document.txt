@@ -402,6 +402,21 @@ docker compose up -d --build
 
 Fresh Docker runs should prove that backend startup migrations create or update the SQLite database, runtime settings can be persisted, and images remain in the persistent image volume after container restart.
 
+### Starter data catalog
+
+Starter ingredients and recipes should be shipped through `backend/SeedData/catalog.json`, not by editing a personal SQLite database.
+
+Backend startup imports this catalog after EF migrations. The import is additive and idempotent:
+
+- Brands and cuisines are created when missing
+- Ingredients are matched by ingredient name plus optional brand name
+- Recipes are matched by recipe name plus recipe type
+- Existing matching records are not overwritten
+
+The app exposes `GET /api/seed-catalog/export` so curated data can be created through the UI, exported to JSON, reviewed, and then committed as starter data.
+
+The JSON catalog should use stable English enum identifiers for recipe type, recipe tags, ingredient tags, measurement units, dessert type, and ingredient preparation.
+
 ### Confirmation dialogs
 
 Use the shared `ConfirmationDialog` component for destructive or bulk actions. Do not use `window.confirm` for app workflows.

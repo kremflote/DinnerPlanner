@@ -144,6 +144,7 @@ try {
     Invoke-SmokeEndpoint "/health"
     Invoke-SmokeEndpoint "/api/recipes"
     Invoke-SmokeEndpoint "/api/ingredients"
+    Invoke-SmokeEndpoint "/api/seed-catalog/export"
     Invoke-SmokeEndpoint "/api/mealplans?from=2026-01-01&to=2026-01-07"
     Invoke-SmokeEndpoint "/api/grocerylists/preview?from=2026-01-01&to=2026-01-07"
     Invoke-SmokeAppSettings

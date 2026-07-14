@@ -190,6 +190,7 @@ The smoke script builds the frontend, builds the backend in Release mode, starts
 - `/api/mealplans`
 - `/api/grocerylists/preview`
 - `/api/app-settings`
+- `/api/seed-catalog/export`
 - image upload storage
 
 It does not call Vikunja, because that would require a real external server and token.
@@ -261,3 +262,69 @@ POST /api/grocerylists/export?from=YYYY-MM-DD&to=YYYY-MM-DD
 ```
 
 The Settings page also includes a connection test that uses the current form values and the saved token when the token field is left blank.
+
+## Starter Data Catalog
+
+Starter ingredients and recipes can be shipped through `backend/SeedData/catalog.json`.
+
+On backend startup, after database migrations, MATFLOTE imports that JSON file if it exists. Import is intentionally additive:
+
+- Brands and cuisines are created when missing.
+- Ingredients are matched by ingredient name plus optional brand name.
+- Recipes are matched by recipe name plus recipe type.
+- Existing matching ingredients and recipes are left alone, so user edits are not overwritten.
+
+This means you can safely keep a starter catalog in the repository while allowing each household instance to evolve independently.
+
+To create starter data through the app:
+
+1. Run MATFLOTE locally.
+2. Add ingredients and recipes in the UI.
+3. Export the current catalog:
+
+```text
+GET /api/seed-catalog/export
+```
+
+The endpoint downloads `matflote-seed-catalog.json`. Review it, remove anything personal or experimental, then copy the curated content into `backend/SeedData/catalog.json`.
+
+The catalog uses string enum values, for example:
+
+```json
+{
+  "brands": [],
+  "cuisines": [{ "name": "Norwegian" }],
+  "ingredients": [
+    {
+      "ingredientName": "Carrot",
+      "description": "Sweet root vegetable for soups, stews, salads, and sides.",
+      "brandName": null,
+      "price": null,
+      "tags": ["Vegetable"],
+      "nutritionPer100": null,
+      "color": "#f28c28"
+    }
+  ],
+  "recipes": [
+    {
+      "recipeType": "Side",
+      "name": "Carrot sticks",
+      "imageUrl": null,
+      "description": "Simple crunchy side.",
+      "instructions": "Cut carrots into batons.",
+      "ingredients": [
+        {
+          "ingredientName": "Carrot",
+          "brandName": null,
+          "amount": 2,
+          "unit": "Piece",
+          "preparation": "Batons"
+        }
+      ],
+      "tags": ["Other"],
+      "cuisineName": null,
+      "dessertType": null
+    }
+  ]
+}
+```

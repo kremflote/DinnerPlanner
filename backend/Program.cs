@@ -39,6 +39,7 @@ builder.Services.AddSingleton<ImageStoragePathProvider>();
 builder.Services.AddScoped<AppSettingsService>();
 builder.Services.AddScoped<VikunjaOptionsResolver>();
 builder.Services.AddScoped<GroceryListService>();
+builder.Services.AddScoped<SeedCatalogService>();
 builder.Services.AddScoped<ShoppingListExportService>();
 builder.Services.AddHttpClient<VikunjaShoppingListExporter>();
 builder.Services.AddScoped<IShoppingListExporter>(provider => provider.GetRequiredService<VikunjaShoppingListExporter>());
@@ -102,6 +103,9 @@ static async Task PrepareDatabaseAsync(WebApplication app)
     await using var scope = app.Services.CreateAsyncScope();
     var context = scope.ServiceProvider.GetRequiredService<DinnerPlannerContext>();
     await context.Database.MigrateAsync();
+
+    var seedCatalogService = scope.ServiceProvider.GetRequiredService<SeedCatalogService>();
+    await seedCatalogService.ImportConfiguredCatalogAsync();
 }
 
 static void EnsureSqliteDirectory(string connectionString, string contentRootPath)
