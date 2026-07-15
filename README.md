@@ -9,6 +9,7 @@ MATFLOTE is a household meal planning and cookbook app.
 - Recipe ingredients store both measurement unit and preparation, such as chopped, diced, julienned, grated, or crushed.
 - Prep helper for the current week. It lists produce-style ingredients only when an explicit preparation exists or one can be inferred from recipe instructions.
 - Shopping list preview and export through the provider-based grocery-list system. Vikunja is the first supported provider.
+- Scanner/Skanner page for looking up Norwegian grocery products by barcode/EAN through Kassalapp.
 
 Lunch and Dinner are still accepted as backend recipe tag values for older saved recipes, but they are not selectable as new recipe tags. Breakfast remains selectable.
 
@@ -262,6 +263,30 @@ POST /api/grocerylists/export?from=YYYY-MM-DD&to=YYYY-MM-DD
 ```
 
 The Settings page also includes a connection test that uses the current form values and the saved token when the token field is left blank.
+
+## Product Scanner
+
+The Scanner/Skanner page uses Kassalapp through the backend. The frontend never receives the Kassalapp API key.
+
+For local development, store the key with .NET user-secrets:
+
+```powershell
+dotnet user-secrets set "Kassalapp:ApiKey" "your-api-key-here" --project backend
+```
+
+For Docker/server use, set the key in your private `.env` or server environment:
+
+```env
+KASSALAPP_API_KEY=your-api-key-here
+```
+
+Manual EAN lookup and camera barcode scanning both use the same backend endpoint:
+
+```text
+GET /api/product-lookup/ean/{ean}
+```
+
+Camera scanning is a progressive enhancement. It depends on browser support for camera access and barcode detection, and phone browsers normally require MATFLOTE to be opened from a secure origin such as HTTPS.
 
 ## Starter Data Catalog
 

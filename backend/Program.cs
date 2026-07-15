@@ -41,6 +41,7 @@ builder.Services.AddScoped<VikunjaOptionsResolver>();
 builder.Services.AddScoped<GroceryListService>();
 builder.Services.AddScoped<SeedCatalogService>();
 builder.Services.AddScoped<ShoppingListExportService>();
+builder.Services.AddHttpClient<KassalappProductLookupService>();
 builder.Services.AddHttpClient<VikunjaShoppingListExporter>();
 builder.Services.AddScoped<IShoppingListExporter>(provider => provider.GetRequiredService<VikunjaShoppingListExporter>());
 

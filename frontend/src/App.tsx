@@ -2,6 +2,7 @@ import { useState } from "react";
 import Header, { type PageId } from "./components/Header";
 import CookbookPage from "./pages/CookbookPage";
 import PlannerPage from "./pages/PlannerPage";
+import ScannerPage from "./pages/ScannerPage";
 import SettingsPage from "./pages/SettingsPage";
 import { appStyles, type SiteTheme } from "./styles/appStyles";
 
@@ -20,6 +21,7 @@ function App() {
       {activePage === "settings" && <SettingsPage theme={theme} />}
       {activePage === "weekPlanner" && <PlannerPage theme={theme} />}
       {activePage === "cookbook" && <CookbookPage theme={theme} />}
+      {activePage === "scanner" && <ScannerPage theme={theme} />}
     </div>
   );
 }

@@ -1,16 +1,17 @@
 import { useLanguage } from "../contexts";
 import { headerStyles, type SiteTheme } from "../styles/appStyles";
 
-export type PageId = "settings" | "weekPlanner" | "cookbook";
+export type PageId = "settings" | "weekPlanner" | "cookbook" | "scanner";
 
 const navItems: Array<{
   id: PageId;
-  labelKey: "settings" | "planner" | "cookbook";
-  icon: "settings" | "calendar" | "book";
+  labelKey: "settings" | "planner" | "cookbook" | "scanner";
+  icon: "settings" | "calendar" | "book" | "barcode";
 }> = [
   { id: "settings", labelKey: "settings", icon: "settings" },
   { id: "weekPlanner", labelKey: "planner", icon: "calendar" },
   { id: "cookbook", labelKey: "cookbook", icon: "book" },
+  { id: "scanner", labelKey: "scanner", icon: "barcode" },
 ];
 
 type HeaderProps = {
@@ -90,7 +91,7 @@ function Header({
 function HeaderIcon({
   icon,
 }: {
-  icon: "settings" | "calendar" | "book" | "moon" | "sun";
+  icon: "settings" | "calendar" | "book" | "barcode" | "moon" | "sun";
 }) {
   if (icon === "settings") {
     return (
@@ -113,6 +114,14 @@ function HeaderIcon({
     return (
       <svg aria-hidden="true" className={headerStyles.icon} viewBox="0 0 24 24">
         <path d="M5 3h5.5c1 0 1.9.3 2.5 1 .6-.7 1.5-1 2.5-1H21v16h-5.5c-.7 0-1.3.2-1.8.7l-.7.7-.7-.7c-.5-.5-1.1-.7-1.8-.7H5V3Zm2 2v12h3.5c.6 0 1.1.1 1.5.3V6.5c-.3-1-1-1.5-1.5-1.5H7Zm7 1.5v10.8c.4-.2.9-.3 1.5-.3H19V5h-3.5c-.5 0-1.2.5-1.5 1.5Z" />
+      </svg>
+    );
+  }
+
+  if (icon === "barcode") {
+    return (
+      <svg aria-hidden="true" className={headerStyles.icon} viewBox="0 0 24 24">
+        <path d="M4 5h2v14H4V5Zm3 0h1v14H7V5Zm3 0h2v14h-2V5Zm3 0h1v14h-1V5Zm3 0h1v14h-1V5Zm2 0h2v14h-2V5Z" />
       </svg>
     );
   }

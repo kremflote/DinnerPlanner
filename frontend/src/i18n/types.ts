@@ -102,7 +102,36 @@ export type TranslationDictionary = {
     home: string;
     planner: string;
     primary: string;
+    scanner: string;
     settings: string;
+  };
+  scanner: {
+    cameraPermissionDenied: string;
+    cameraStart: string;
+    cameraStop: string;
+    cameraUnsupported: string;
+    calories: string;
+    carbs: string;
+    eanLabel: string;
+    eanPlaceholder: string;
+    invalidEan: string;
+    lookup: string;
+    lookupFailed: string;
+    noImage: string;
+    noPrice: string;
+    noProductsFound: (ean: string) => string;
+    pageIntro: string;
+    pageTitle: string;
+    price: (price: number) => string;
+    protein: string;
+    resultsLabel: string;
+    salt: string;
+    scannerFound: (ean: string) => string;
+    scannerReady: string;
+    scanningHint: string;
+    searching: string;
+    unitPrice: (price: number) => string;
+    unknownBrand: string;
   };
   planner: {
     actionClear: string;

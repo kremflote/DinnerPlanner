@@ -473,6 +473,112 @@ export const settingsStyles = {
   systemValue: "min-w-0 break-words font-semibold opacity-80",
 } as const;
 
+export const scannerStyles = {
+  shell: "mx-auto grid w-full max-w-4xl gap-6",
+  header: "grid gap-2",
+  title: (theme: SiteTheme) =>
+    `text-3xl font-bold leading-tight ${theme === "paletteLight" ? "text-[#556145]" : siteColorClasses[theme].plannerCounterAccent}`,
+  intro: (theme: SiteTheme) =>
+    `max-w-2xl text-sm font-semibold leading-[1.5] ${
+      theme === "dark"
+        ? "text-neutral-300"
+        : theme === "paletteLight"
+          ? "text-[#7A8864]"
+          : "text-neutral-600"
+    }`,
+  panel: (theme: SiteTheme) =>
+    `grid gap-4 rounded-md border p-4 ${shadowClasses.subtle} ${surfaceClasses.panel(theme)}`,
+  lookupForm: "grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3 max-sm:grid-cols-1",
+  field: "grid gap-2",
+  label: "text-sm font-bold leading-tight",
+  input: controlStyles.formField,
+  submitButton: controlStyles.primaryButton,
+  scannerActions: "flex flex-wrap items-center gap-3",
+  cameraButton: controlStyles.secondaryButton,
+  cameraFrame: (theme: SiteTheme) =>
+    `relative aspect-video w-full overflow-hidden rounded-md border ${shadowClasses.subtle} ${
+      theme === "dark"
+        ? "border-white/[0.12] bg-neutral-950"
+        : theme === "paletteLight"
+          ? "border-[#C8C0B5] bg-[#FAF7F2]"
+          : "border-neutral-200 bg-neutral-950"
+    }`,
+  cameraVideo: "h-full w-full object-cover",
+  cameraGuide:
+    "pointer-events-none absolute inset-[18%] rounded-md border-2 border-white/80 shadow-[0_0_0_999px_rgba(0,0,0,0.22)]",
+  cameraStatus: (theme: SiteTheme) =>
+    `text-sm font-semibold leading-[1.45] ${
+      theme === "dark"
+        ? "text-neutral-300"
+        : theme === "paletteLight"
+          ? "text-[#7A8864]"
+          : "text-neutral-600"
+    }`,
+  statusError: (theme: SiteTheme) =>
+    `${radiusClasses.figma6} border px-3 py-2 text-sm font-semibold ${
+      theme === "dark"
+        ? "border-red-400/30 bg-red-500/10 text-red-200"
+        : theme === "paletteLight"
+          ? "border-red-700/25 bg-red-700/10 text-red-800"
+          : "border-red-200 bg-red-50 text-red-700"
+    }`,
+  emptyState: (theme: SiteTheme) =>
+    `rounded-md border p-6 text-center text-sm font-bold ${surfaceClasses.panel(theme)}`,
+  resultList: "grid gap-3",
+  productCard: (theme: SiteTheme) =>
+    `grid grid-cols-[6rem_minmax(0,1fr)_auto] gap-4 rounded-md border p-3 max-sm:grid-cols-[5rem_minmax(0,1fr)] ${shadowClasses.subtle} ${surfaceClasses.panel(theme)}`,
+  productImageFrame: (theme: SiteTheme) =>
+    `aspect-square overflow-hidden rounded-md border ${
+      theme === "dark"
+        ? "border-white/[0.10] bg-neutral-900"
+        : theme === "paletteLight"
+          ? "border-[#C8C0B5] bg-[#FAF7F2]"
+          : "border-neutral-200 bg-white"
+    }`,
+  productImage: "h-full w-full object-cover",
+  productImageFallback: (theme: SiteTheme) =>
+    `flex h-full w-full items-center justify-center px-2 text-center text-xs font-bold ${
+      theme === "dark"
+        ? "text-neutral-500"
+        : theme === "paletteLight"
+          ? "text-[#7A8864]"
+          : "text-neutral-400"
+    }`,
+  productMain: "grid min-w-0 content-start gap-2",
+  productTitle: "min-w-0 text-lg font-bold leading-tight",
+  productMeta: (theme: SiteTheme) =>
+    `text-xs font-semibold leading-tight ${
+      theme === "dark"
+        ? "text-neutral-400"
+        : theme === "paletteLight"
+          ? "text-[#7A8864]"
+          : "text-neutral-500"
+    }`,
+  chipRow: "flex flex-wrap gap-2",
+  chip: (theme: SiteTheme) =>
+    `rounded-md px-2 py-1 text-xs font-bold ${
+      theme === "dark"
+        ? "bg-white/[0.10] text-neutral-100"
+        : theme === "paletteLight"
+          ? "bg-[#E5D5BC] text-[#556145]"
+          : "bg-neutral-200 text-neutral-700"
+    }`,
+  priceBlock: "grid content-start justify-items-end gap-1 max-sm:col-span-2 max-sm:justify-items-start",
+  price: (theme: SiteTheme) =>
+    `text-xl font-extrabold leading-tight ${theme === "paletteLight" ? "text-[#556145]" : siteColorClasses[theme].plannerCounterAccent}`,
+  unitPrice: (theme: SiteTheme) =>
+    `text-xs font-bold ${
+      theme === "dark"
+        ? "text-neutral-400"
+        : theme === "paletteLight"
+          ? "text-[#7A8864]"
+          : "text-neutral-500"
+    }`,
+  nutritionGrid: "grid grid-cols-4 gap-2 max-md:grid-cols-2 max-sm:grid-cols-1",
+  nutritionItem: (theme: SiteTheme) =>
+    `rounded-md border px-2 py-1 text-xs font-semibold ${surfaceClasses.panel(theme)}`,
+} as const;
+
 export const plannerControlsStyles = {
   /* Keep the planner content aligned with the cookbook grid using the shared spacing scale. */
   shell: `mb-8 mt-3 grid w-full grid-cols-12 ${layoutClasses.gridGap} max-md:mb-4 max-md:grid-cols-1 max-md:gap-3`,

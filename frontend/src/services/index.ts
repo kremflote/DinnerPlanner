@@ -6,6 +6,7 @@ export { imageUploadService } from "./imageUploadService";
 export { groceryListService } from "./groceryListService";
 export { ingredientService } from "./ingredientService";
 export { mealPlanService } from "./mealPlanService";
+export { productLookupService } from "./productLookupService";
 export { recipeService } from "./recipeService";
 export type { ImageFolder, ImageUploadResponse } from "./imageUploadService";
 export type { IngredientRequest } from "./ingredientService";
