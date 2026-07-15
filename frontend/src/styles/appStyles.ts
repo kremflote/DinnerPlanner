@@ -488,6 +488,9 @@ export const scannerStyles = {
     }`,
   panel: (theme: SiteTheme) =>
     `grid gap-4 rounded-md border p-4 ${shadowClasses.subtle} ${surfaceClasses.panel(theme)}`,
+  mobileOnlyPanel: (theme: SiteTheme) =>
+    `hidden rounded-md border p-6 text-center text-base font-bold leading-[1.45] lg:block ${shadowClasses.subtle} ${surfaceClasses.panel(theme)}`,
+  mobileScannerSurface: "grid gap-4 lg:hidden",
   lookupForm: "grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3 max-sm:grid-cols-1",
   field: "grid gap-2",
   label: "text-sm font-bold leading-tight",
@@ -577,6 +580,46 @@ export const scannerStyles = {
   nutritionGrid: "grid grid-cols-4 gap-2 max-md:grid-cols-2 max-sm:grid-cols-1",
   nutritionItem: (theme: SiteTheme) =>
     `rounded-md border px-2 py-1 text-xs font-semibold ${surfaceClasses.panel(theme)}`,
+  candidateSection: "grid gap-3 lg:hidden",
+  candidateTitle: "text-lg font-bold leading-tight",
+  candidateList: "grid gap-2",
+  candidateButton: (theme: SiteTheme, selected: boolean) =>
+    `grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-md border p-3 text-left transition-colors ${shadowClasses.subtle} ${focusBase} ${siteColorClasses[theme].focus} ${
+      selected
+        ? theme === "dark"
+          ? "border-white/[0.28] bg-white/[0.14]"
+          : theme === "paletteLight"
+            ? "border-[#7A8864]/50 bg-[#E5D5BC]/55"
+            : "border-neutral-900 bg-neutral-100"
+        : surfaceClasses.panel(theme)
+    }`,
+  candidateName: "min-w-0 text-base font-bold leading-tight",
+  candidateMeta: (theme: SiteTheme) =>
+    `mt-1 min-w-0 text-xs font-semibold leading-tight ${
+      theme === "dark"
+        ? "text-neutral-400"
+        : theme === "paletteLight"
+          ? "text-[#7A8864]"
+          : "text-neutral-500"
+    }`,
+  candidateSelectLabel: (theme: SiteTheme) =>
+    `rounded-md px-2 py-1 text-xs font-bold ${
+      theme === "dark"
+        ? "bg-white/[0.10] text-white"
+        : theme === "paletteLight"
+          ? "bg-[#7A8864] text-[#FAF7F2]"
+          : "bg-neutral-900 text-white"
+    }`,
+  ingredientEditor: (theme: SiteTheme) =>
+    `grid gap-3 rounded-md border p-3 ${shadowClasses.subtle} ${surfaceClasses.panel(theme)}`,
+  compactFormGrid: "grid grid-cols-2 gap-3 max-sm:grid-cols-1",
+  tagGrid: "grid grid-cols-2 gap-2",
+  tagOption: (theme: SiteTheme) =>
+    `flex min-h-10 items-center gap-2 rounded-md border px-3 text-sm font-semibold ${surfaceClasses.field(theme)}`,
+  colorRow: "grid grid-cols-[minmax(0,1fr)_3rem] items-end gap-3",
+  colorInput:
+    "h-12 w-full cursor-pointer rounded-md border border-transparent bg-transparent p-0",
+  saveButton: controlStyles.primaryButton,
 } as const;
 
 export const plannerControlsStyles = {

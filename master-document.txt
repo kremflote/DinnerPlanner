@@ -438,11 +438,11 @@ The Settings page may expose exporter options such as one checklist task versus 
 
 ### Product scanner assumptions
 
-The Scanner/Skanner page looks up Norwegian grocery products by EAN/barcode. It supports manual EAN entry plus camera scanning through the ZXing browser scanner library. Both entry modes use the same backend lookup endpoint and return product, price, store, image, and nutrition information when Kassalapp provides it.
+The Scanner/Skanner page looks up Norwegian grocery products by EAN/barcode. It supports manual EAN entry plus camera scanning through the ZXing browser scanner library. Both entry modes use the same backend lookup endpoint and return product, price, store, image, and nutrition information when Kassalapp provides it. On phone/tablet widths, lookup results generate compact ingredient suggestions; the user selects one, edits its values, confirms, and saves it through the normal ingredient API.
 
 Kassalapp integration must stay backend-only. The frontend calls MATFLOTE through `/api/product-lookup/*`; it must never call Kassalapp directly or contain the Kassalapp API key. Development secrets should use .NET user-secrets or local environment variables, while Docker/production should receive the key through environment configuration or a Docker secret-like deployment mechanism.
 
-Scanner styling should use the same page, panel, form, button, radius, shadow, and theme helpers as Settings, Cookbook, and Planner. Product result cards should remain compact and readable on phone widths, with the image kept as a supporting visual instead of taking over the page. Camera scanning is a progressive enhancement; the manual EAN field must remain available. The scanner library should stay lazy-loaded so Planner/Cookbook startup does not pay for camera scanning code.
+Scanner styling should use the same page, panel, form, button, radius, shadow, and theme helpers as Settings, Cookbook, and Planner. Product result cards and ingredient suggestion editors should remain compact and readable on phone widths, with the image kept as a supporting visual instead of taking over the page. Camera scanning is a progressive enhancement; the manual EAN field must remain available. The scanner library should stay lazy-loaded so Planner/Cookbook startup does not pay for camera scanning code. Desktop widths should present scanner as a phone/tablet workflow instead of rendering camera controls.
 
 ### Runtime verification
 

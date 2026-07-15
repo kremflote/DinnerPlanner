@@ -288,6 +288,8 @@ GET /api/product-lookup/ean/{ean}
 
 Camera scanning uses ZXing in the browser and is loaded only when the scan button is used. Phone browsers normally require MATFLOTE to be opened from a secure origin such as HTTPS before camera access works.
 
+On phone/tablet widths, scanned product results become suggested ingredients. Choose a suggestion, edit the name, brand, price, tags, or color, then confirm to save it through the normal ingredient API.
+
 ## Starter Data Catalog
 
 Starter ingredients and recipes can be shipped through `backend/SeedData/catalog.json`.
