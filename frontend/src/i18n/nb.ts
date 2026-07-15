@@ -191,7 +191,7 @@ export const nb: TranslationDictionary = {
       cameraPermissionDenied: "Kameratilgang ble blokkert. Tillat kamera i nettleseren, eller skriv inn strekkoden manuelt.",
       cameraStart: "Skann strekkode",
       cameraStop: "Stopp kamera",
-      cameraUnsupported: "Kameraskanning av strekkoder støttes ikke i denne nettleseren ennå. Du kan fortsatt skrive inn strekkoden manuelt.",
+      cameraUnsupported: "Kunne ikke starte kameraskanning i denne nettleseren. Du kan fortsatt skrive inn strekkoden manuelt.",
       calories: "Kalorier",
       carbs: "Karbo",
       eanLabel: "Strekkode / EAN",

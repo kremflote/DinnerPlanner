@@ -286,7 +286,7 @@ Manual EAN lookup and camera barcode scanning both use the same backend endpoint
 GET /api/product-lookup/ean/{ean}
 ```
 
-Camera scanning is a progressive enhancement. It depends on browser support for camera access and barcode detection, and phone browsers normally require MATFLOTE to be opened from a secure origin such as HTTPS.
+Camera scanning uses ZXing in the browser and is loaded only when the scan button is used. Phone browsers normally require MATFLOTE to be opened from a secure origin such as HTTPS before camera access works.
 
 ## Starter Data Catalog
 

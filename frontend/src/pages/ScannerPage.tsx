@@ -1,3 +1,4 @@
+import type { IScannerControls } from "@zxing/browser";
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { useLanguage } from "../contexts";
 import type { IProductLookupNutrition, IProductLookupResult } from "../interfaces/IProductLookup";
@@ -9,19 +10,6 @@ type ScannerPageProps = {
   theme: SiteTheme;
 };
 
-type BarcodeDetectorShape = {
-  detect: (source: HTMLVideoElement) => Promise<Array<{ rawValue?: string }>>;
-};
-
-type BarcodeDetectorConstructor = new (options?: {
-  formats?: string[];
-}) => BarcodeDetectorShape;
-
-type WindowWithBarcodeDetector = Window &
-  typeof globalThis & {
-    BarcodeDetector?: BarcodeDetectorConstructor;
-  };
-
 function ScannerPage({ theme }: ScannerPageProps) {
   const { t } = useLanguage();
   const [ean, setEan] = useState("");
@@ -32,8 +20,7 @@ function ScannerPage({ theme }: ScannerPageProps) {
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [cameraStatus, setCameraStatus] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-  const scanFrameRef = useRef<number | null>(null);
+  const scannerControlsRef = useRef<IScannerControls | null>(null);
   const lastScannedEanRef = useRef<string | null>(null);
 
   const lookupEan = useCallback(async (rawEan: string) => {
@@ -68,19 +55,13 @@ function ScannerPage({ theme }: ScannerPageProps) {
   };
 
   const stopCamera = useCallback(() => {
-    if (scanFrameRef.current !== null) {
-      window.cancelAnimationFrame(scanFrameRef.current);
-      scanFrameRef.current = null;
-    }
-
-    streamRef.current?.getTracks().forEach((track) => track.stop());
-    streamRef.current = null;
+    scannerControlsRef.current?.stop();
+    scannerControlsRef.current = null;
     setIsCameraOpen(false);
   }, []);
 
   const startCamera = async () => {
-    const detectorConstructor = (window as WindowWithBarcodeDetector).BarcodeDetector;
-    if (!navigator.mediaDevices?.getUserMedia || detectorConstructor === undefined) {
+    if (!navigator.mediaDevices?.getUserMedia) {
       setError(t.scanner.cameraUnsupported);
       return;
     }
@@ -90,59 +71,41 @@ function ScannerPage({ theme }: ScannerPageProps) {
     setIsCameraOpen(true);
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: { ideal: "environment" },
-        },
-        audio: false,
-      });
-
-      streamRef.current = stream;
       await new Promise<void>((resolve) => {
         window.requestAnimationFrame(() => resolve());
       });
 
-      if (videoRef.current !== null) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
+      if (videoRef.current === null) {
+        throw new Error("Scanner video element was not ready.");
       }
 
-      const detector = new detectorConstructor({
-        formats: ["ean_13", "ean_8", "upc_a", "upc_e"],
-      });
-
-      const scan = async () => {
-        const video = videoRef.current;
-        if (video === null || streamRef.current === null) {
+      const { BrowserMultiFormatReader } = await import("@zxing/browser");
+      const scanner = new BrowserMultiFormatReader();
+      const controls = await scanner.decodeFromVideoDevice(undefined, videoRef.current, (result) => {
+        const detectedEan = result?.getText().replace(/\D/g, "");
+        if (detectedEan === undefined || !/^(\d{8}|\d{13})$/.test(detectedEan)) {
           return;
         }
 
-        try {
-          if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
-            const barcodes = await detector.detect(video);
-            const detectedEan = barcodes
-              .map((barcode) => barcode.rawValue?.replace(/\D/g, "") ?? "")
-              .find((value) => /^(\d{8}|\d{13})$/.test(value));
-
-            if (detectedEan !== undefined && detectedEan !== lastScannedEanRef.current) {
-              lastScannedEanRef.current = detectedEan;
-              setEan(detectedEan);
-              setCameraStatus(t.scanner.scannerFound(detectedEan));
-              stopCamera();
-              await lookupEan(detectedEan);
-              return;
-            }
-          }
-        } catch {
-          setCameraStatus(t.scanner.scanningHint);
+        if (detectedEan !== lastScannedEanRef.current) {
+          lastScannedEanRef.current = detectedEan;
+          setEan(detectedEan);
+          setCameraStatus(t.scanner.scannerFound(detectedEan));
+          controls.stop();
+          scannerControlsRef.current = null;
+          setIsCameraOpen(false);
+          void lookupEan(detectedEan);
         }
+      });
 
-        scanFrameRef.current = window.requestAnimationFrame(scan);
-      };
-
-      scanFrameRef.current = window.requestAnimationFrame(scan);
-    } catch {
-      setError(t.scanner.cameraPermissionDenied);
+      scannerControlsRef.current = controls;
+    } catch (caughtError) {
+      const errorName = caughtError instanceof DOMException ? caughtError.name : "";
+      setError(
+        errorName === "NotAllowedError" || errorName === "PermissionDeniedError"
+          ? t.scanner.cameraPermissionDenied
+          : t.scanner.cameraUnsupported
+      );
       setCameraStatus(null);
       stopCamera();
     }

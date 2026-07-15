@@ -116,7 +116,7 @@ export const en: TranslationDictionary = {
       cameraPermissionDenied: "Camera access was blocked. Allow camera access in the browser, or enter the barcode manually.",
       cameraStart: "Scan barcode",
       cameraStop: "Stop camera",
-      cameraUnsupported: "Camera barcode scanning is not supported in this browser yet. You can still enter the barcode manually.",
+      cameraUnsupported: "Could not start camera scanning in this browser. You can still enter the barcode manually.",
       calories: "Calories",
       carbs: "Carbs",
       eanLabel: "Barcode / EAN",
