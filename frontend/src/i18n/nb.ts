@@ -305,8 +305,8 @@ export const nb: TranslationDictionary = {
       noImage: "Ingen bilde",
       noPrice: "Ingen pris",
       noProductsFound: (ean) => `Ingen produkter funnet for ${ean}.`,
-      pageIntro:
-        "Slå opp norske dagligvarer via Kassalapp ved å skrive inn eller skanne en strekkode.",
+      pageIntroBeforeKassalapp: "Slå opp norske dagligvarer via ",
+      pageIntroAfterKassalapp: " ved å skrive inn eller skanne en strekkode.",
       pageTitle: "Skanner",
       price: (price) => `${price.toLocaleString("nb-NO", { maximumFractionDigits: 2 })} kr`,
       priceLabel: "Pris",

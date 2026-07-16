@@ -42,8 +42,6 @@ function PlannerControls({
   const { t } = useLanguage();
   const [isMobileActionsOpen, setIsMobileActionsOpen] = useState(false);
   const rangeLabel = t.planner.rangeNames[viewMode];
-  const nextViewMode: PlannerViewMode = viewMode === "week" ? "month" : "week";
-  const nextViewLabel = t.enums.viewModes[nextViewMode];
   const showMobileTools = viewMode === "week";
   const runMobileAction = (action: () => void | Promise<void>) => {
     setIsMobileActionsOpen(false);
@@ -188,20 +186,8 @@ function PlannerControls({
             onClick={() => setIsMobileActionsOpen(true)}
           >
             <PrepIcon />
-            <span className={plannerControlsStyles.actionButtonLabel}>{t.planner.plannerTools}</span>
           </button>
-        ) : (
-          <div className={plannerControlsStyles.mobileControlPlaceholder} aria-hidden="true" />
-        )}
-        <button
-          aria-label={t.planner.switchToView(nextViewLabel)}
-          className={plannerControlsStyles.mobileControlButton(theme, true)}
-          disabled={isClearRangeRunning || isGenerateRangeRunning}
-          type="button"
-          onClick={() => onViewModeChange(nextViewMode)}
-        >
-          <span className={plannerControlsStyles.actionButtonLabel}>{t.enums.viewModes[viewMode]}</span>
-        </button>
+        ) : null}
       </div>
       {isMobileActionsOpen ? (
         <Modal

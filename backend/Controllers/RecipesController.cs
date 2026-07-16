@@ -144,6 +144,25 @@ public class RecipesController(DinnerPlannerContext context) : ControllerBase
             return NotFound();
         }
 
+        var mealPlanEntries = await context.MealPlanEntries
+            .Include(entry => entry.Recipes)
+            .Where(entry => entry.Recipes.Any(planRecipe => planRecipe.RecipeId == id))
+            .ToListAsync();
+
+        foreach (var entry in mealPlanEntries)
+        {
+            var matchingPlanRecipes = entry.Recipes
+                .Where(planRecipe => planRecipe.RecipeId == id)
+                .ToList();
+
+            context.MealPlanRecipes.RemoveRange(matchingPlanRecipes);
+
+            if (entry.Recipes.Count == matchingPlanRecipes.Count)
+            {
+                context.MealPlanEntries.Remove(entry);
+            }
+        }
+
         var componentLinks = await context.RecipeComponents
             .Where(component => component.ChildRecipeId == id)
             .ToListAsync();

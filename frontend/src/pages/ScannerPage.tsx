@@ -228,7 +228,13 @@ function ScannerPage({ theme }: ScannerPageProps) {
       <section className={scannerStyles.shell}>
         <header className={scannerStyles.header}>
           <h1 className={scannerStyles.title(theme)}>{t.scanner.pageTitle}</h1>
-          <p className={scannerStyles.intro(theme)}>{t.scanner.pageIntro}</p>
+          <p className={scannerStyles.intro(theme)}>
+            {t.scanner.pageIntroBeforeKassalapp}
+            <a className={scannerStyles.introLink(theme)} href="https://kassal.app/" rel="noreferrer" target="_blank">
+              Kassalapp
+            </a>
+            {t.scanner.pageIntroAfterKassalapp}
+          </p>
         </header>
 
         <div className={scannerStyles.scannerSurface}>
@@ -252,10 +258,17 @@ function ScannerPage({ theme }: ScannerPageProps) {
               >
                 {isManualEntryOpen ? t.scanner.hideManualEntry : t.scanner.manualEntry}
               </button>
-              <span className={scannerStyles.cameraStatus(theme)}>
-                {cameraStatus ?? t.scanner.scanningHint}
-              </span>
             </div>
+            {cameraStatus !== null && (
+              <span className={scannerStyles.cameraStatus(theme)}>
+                {cameraStatus}
+              </span>
+            )}
+            {!isCameraOpen && cameraStatus === null && (
+              <span className={scannerStyles.cameraStatus(theme)}>
+                {t.scanner.scanningHint}
+              </span>
+            )}
 
             <form className={scannerStyles.lookupForm(isManualEntryOpen)} onSubmit={lookupProduct}>
               <label className={scannerStyles.field}>

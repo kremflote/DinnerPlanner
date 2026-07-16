@@ -88,7 +88,7 @@ export const siteColorClasses = {
       "border-white/[0.18] bg-white/[0.18] text-neutral-50 max-md:border-white/[0.24] max-md:bg-neutral-700",
     plannerControl: `border-white/[0.12] bg-white/[0.06] text-white ${plannerControlHoverClasses.dark}`,
     cookbookAddButton:
-      "border-white/[0.08] bg-black/50 text-white hover:bg-black/70",
+      "border-neutral-700 bg-neutral-950 text-white hover:bg-neutral-900",
     ingredientThumbnailInteractive: plannerControlHoverClasses.dark,
     plannerDateItem: "bg-white/[0.12]",
     plannerCounter: "border-white/[0.10] bg-white/[0.06] text-white",
@@ -142,7 +142,7 @@ export const siteColorClasses = {
     controlSelected: "border-[#FAF7F2]/70 bg-[#FAF7F2] text-[#7A8864]",
     plannerControl: `border-[#7A8864]/35 bg-[#FAF7F2]/35 text-[#556145] ${plannerControlHoverClasses.paletteLight}`,
     cookbookAddButton:
-      "border-[#7A8864]/35 bg-[#FAF7F2] text-[#556145] hover:bg-[#E5D5BC]",
+      "border-[#7A8864] bg-[#FAF7F2] text-[#556145] hover:bg-[#E5D5BC]",
     ingredientThumbnailInteractive: plannerControlHoverClasses.paletteLight,
     plannerDateItem: "bg-[#C8C0B5]/70",
     plannerCounter: "border-[#C8C0B5] bg-[#E5D5BC]/60 text-[#556145]",
@@ -256,7 +256,8 @@ export const thumbnailStyles = {
     "absolute inset-x-0 bottom-0 flex h-[38%] min-h-0 flex-col justify-center px-1.5",
   recipeTitle: "truncate text-base font-bold leading-tight text-[#FAF7F2]",
   recipeTitleCompact: "truncate text-sm font-bold leading-tight text-[#FAF7F2]",
-  recipeTitleMicro: "truncate text-[10px] font-bold leading-tight text-[#FAF7F2]",
+  recipeTitleMicro:
+    "truncate text-[10px] font-bold leading-tight text-[#FAF7F2]",
   recipeSubtitle: (theme: SiteTheme) =>
     theme === "paletteLight" ? "text-[#FAF7F2]/75" : "text-neutral-300",
   recipeSubtitleLayout: "mt-0.5 truncate text-xs font-semibold leading-tight",
@@ -504,6 +505,14 @@ export const scannerStyles = {
           ? "text-[#7A8864]"
           : "text-neutral-600"
     }`,
+  introLink: (theme: SiteTheme) =>
+    `font-extrabold underline underline-offset-2 ${
+      theme === "dark"
+        ? "text-neutral-50"
+        : theme === "paletteLight"
+          ? "text-[#556145]"
+          : "text-neutral-950"
+    }`,
   panel: (theme: SiteTheme) =>
     `grid gap-4 rounded-md border p-4 ${shadowClasses.subtle} ${surfaceClasses.panel(theme)}`,
   desktopScannerHint: (theme: SiteTheme) =>
@@ -720,13 +729,17 @@ export const plannerControlsStyles = {
     segmentedToggleStyles.shell(theme, sizeClasses.thumbnailControlWidth),
   viewToggleOption: (theme: SiteTheme, selected: boolean) =>
     segmentedToggleStyles.option(theme, selected),
-  mobileControlRow: `hidden w-full grid-cols-2 ${layoutClasses.calendarGap} max-md:order-2 max-md:mt-4 max-md:grid`,
+  mobileControlRow: "hidden max-md:block",
   mobileControlPlaceholder: "hidden max-md:block",
   mobileControlButton: (theme: SiteTheme, selected = false) =>
-    `${sizeClasses.plannerControlHeight} inline-flex min-w-0 items-center justify-center gap-2 ${radiusClasses.figma6} border px-3 text-sm font-bold ${shadowClasses.subtle} transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-55 ${focusBase} ${siteColorClasses[theme].focus} ${
+    `fixed bottom-30 right-8 z-[55] inline-flex h-14 w-14 min-w-0 items-center justify-center gap-2 rounded-full border p-0 text-2xl font-bold [&_svg]:h-6 [&_svg]:w-6 ${shadowClasses.subtle} transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-55 ${focusBase} ${siteColorClasses[theme].focus} ${
       selected
         ? siteColorClasses[theme].plannerToggleSelected
-        : siteColorClasses[theme].plannerControl
+        : theme === "dark"
+          ? "border-neutral-700 bg-neutral-950 text-white hover:bg-neutral-900"
+          : theme === "paletteLight"
+            ? "border-[#7A8864] bg-[#FAF7F2] text-[#556145] hover:bg-[#E5D5BC]"
+            : "border-neutral-300 bg-neutral-200 text-neutral-950 hover:bg-neutral-300"
     }`,
   mobileActionsBackdrop:
     "fixed inset-0 z-50 hidden items-center justify-center bg-black/35 p-4 max-md:flex",

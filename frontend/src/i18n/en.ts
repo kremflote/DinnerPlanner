@@ -231,8 +231,8 @@ export const en: TranslationDictionary = {
       noImage: "No image",
       noPrice: "No price",
       noProductsFound: (ean) => `No products found for ${ean}.`,
-      pageIntro:
-        "Look up Norwegian grocery products through Kassalapp by typing or scanning a barcode.",
+      pageIntroBeforeKassalapp: "Look up Norwegian grocery products through ",
+      pageIntroAfterKassalapp: " by typing or scanning a barcode.",
       pageTitle: "Scanner",
       price: (price) => `${price.toLocaleString("en", { maximumFractionDigits: 2 })} kr`,
       priceLabel: "Price",

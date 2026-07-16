@@ -215,7 +215,8 @@ export type TranslationDictionary = {
     noImage: string;
     noPrice: string;
     noProductsFound: (ean: string) => string;
-    pageIntro: string;
+    pageIntroAfterKassalapp: string;
+    pageIntroBeforeKassalapp: string;
     pageTitle: string;
     priceLabel: string;
     price: (price: number) => string;

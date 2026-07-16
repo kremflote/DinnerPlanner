@@ -87,7 +87,7 @@ export const recipeBrowserStyles = {
     "mt-3 flex max-h-72 flex-col gap-2 overflow-y-auto pr-1",
   ingredientPickerItem: "h-9 px-3",
   addButton: (theme: SiteTheme) =>
-    `inline-flex h-9 w-32 items-center justify-center gap-1 rounded-md border px-3 text-xs font-extrabold ${shadowClasses.subtle} transition-colors max-md:fixed max-md:bottom-36 max-md:right-4 max-md:z-[55] max-md:h-14 max-md:w-14 max-md:rounded-full max-md:px-0 max-md:text-2xl ${siteColorClasses[theme].cookbookAddButton}`,
+    `inline-flex h-9 w-32 items-center justify-center gap-1 rounded-md border px-3 text-xs font-extrabold ${shadowClasses.subtle} transition-colors max-md:fixed max-md:bottom-30 max-md:right-8 max-md:z-[55] max-md:h-14 max-md:w-14 max-md:rounded-full max-md:px-0 max-md:text-2xl ${siteColorClasses[theme].cookbookAddButton}`,
   addButtonLabel: "max-md:sr-only",
   modalBackdrop: `fixed inset-0 z-[60] flex items-center justify-center bg-black/45 p-4 ${responsiveClasses.mobileModalBackdrop}`,
   modalPanel: (theme: SiteTheme) =>
@@ -145,7 +145,8 @@ export const recipeBrowserStyles = {
   recipePrimaryFields: "grid min-w-0 content-start gap-4",
   recipeTypeFieldMobile: "md:hidden",
   recipeTypeFieldDesktop: "hidden md:grid",
-  recipeImageField: "relative mt-6 grid min-w-0 content-start max-sm:mt-0 max-sm:gap-2",
+  recipeImageField:
+    "relative mt-6 grid min-w-0 content-start max-sm:mt-0 max-sm:gap-2",
   recipeImageLabel: "absolute -top-6 left-0 max-sm:static",
   recipeImageControl: "max-sm:mt-0",
   field: "grid gap-2",
@@ -268,7 +269,8 @@ export const recipeBrowserStyles = {
     "grid max-h-56 gap-2 overflow-y-auto rounded-md p-2",
   desktopIngredientPicker: "grid gap-2 max-sm:hidden",
   mobileIngredientSummary: "hidden gap-3 max-sm:grid",
-  selectedIngredientCapsules: "flex flex-wrap gap-2 max-sm:grid max-sm:grid-cols-1",
+  selectedIngredientCapsules:
+    "flex flex-wrap gap-2 max-sm:grid max-sm:grid-cols-1",
   selectedIngredientCapsule: (theme: SiteTheme) =>
     `inline-flex h-8 max-w-full items-center rounded-md border px-3 text-xs font-bold text-neutral-950 ${shadowClasses.subtle} ${
       theme === "dark"
@@ -535,7 +537,7 @@ export const recipeBrowserStyles = {
     "flex h-full w-full items-center justify-center px-4 text-center text-sm font-bold text-neutral-400",
   recipeDetailDescriptionWrap: "grid content-start",
   recipeDetailDescriptionPanel:
-    "h-[260px] grid-rows-[auto_minmax(0,1fr)] max-md:h-auto max-sm:min-h-[42vw]",
+    "h-[260px] grid-rows-[auto_minmax(0,1fr)] max-md:h-auto max-sm:min-h-[38vw]",
   recipeDetailSplitGrid: "grid grid-cols-2 gap-6 max-md:grid-cols-1",
   detailSectionHeader: "flex flex-wrap items-center justify-between gap-3",
   detailSectionTitle: "text-sm font-bold uppercase tracking-wide",
@@ -591,7 +593,35 @@ export const recipeBrowserStyles = {
     "min-w-0 truncate text-center text-xs font-semibold opacity-80 max-sm:text-left",
   detailIngredientPreparation:
     "min-w-0 truncate text-right text-xs font-bold max-sm:text-left",
-  ingredientDetailMetaGrid: "grid grid-cols-2 gap-3 max-sm:grid-cols-1",
+  ingredientDetailOverviewGrid: "grid grid-cols-2 gap-3",
+  ingredientDetailImageFrame: (theme: SiteTheme) =>
+    `flex aspect-square min-h-0 w-full items-center justify-center overflow-hidden rounded-md border ${shadowClasses.subtle} ${
+      theme === "dark"
+        ? "border-white/[0.14] bg-white/[0.08]"
+        : theme === "paletteLight"
+          ? "border-[#C8C0B5] bg-[#FAF7F2]"
+          : "border-neutral-300 bg-neutral-100"
+    }`,
+  ingredientDetailImage: "h-full w-full object-cover",
+  ingredientDetailImageFallback: "text-2xl font-black leading-none opacity-70",
+  ingredientDetailMetaStack: "grid content-start gap-3",
+  ingredientDetailMetaField: (theme: SiteTheme) =>
+    `grid gap-1 rounded-md px-3 py-2 text-sm font-semibold ${
+      theme === "dark"
+        ? "bg-white/[0.05] text-neutral-200"
+        : theme === "paletteLight"
+          ? "bg-[#E5D5BC]/45 text-[#556145]"
+          : "bg-neutral-100 text-neutral-700"
+    }`,
+  ingredientDetailMetaLabel: (theme: SiteTheme) =>
+    `text-[10px] font-extrabold uppercase tracking-wide ${
+      theme === "dark"
+        ? "text-neutral-400"
+        : theme === "paletteLight"
+          ? "text-[#7A8864]"
+          : "text-neutral-500"
+    }`,
+  ingredientDetailMetaValue: "min-w-0 truncate",
   detailChipSection: "grid gap-2",
   detailChipSectionCompact: "grid gap-1",
   detailChipList: "flex flex-wrap gap-2",
