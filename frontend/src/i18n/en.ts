@@ -90,6 +90,12 @@ export const en: TranslationDictionary = {
       categories: "Categories",
       cuisine: "Cuisine",
       ingredientTags: "Ingredient Tags",
+      ingredientTagGroups: {
+        other: "Other",
+        pantry: "Pantry",
+        produce: "Produce",
+        protein: "Protein",
+      },
       includes: "includes",
       protein: "Protein",
       recipeFilters: "Recipe filters",

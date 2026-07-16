@@ -165,6 +165,12 @@ export const nb: TranslationDictionary = {
       categories: "Kategorier",
       cuisine: "Kjøkken",
       ingredientTags: "Tags",
+      ingredientTagGroups: {
+        other: "Annet",
+        pantry: "Tørrvarer",
+        produce: "Frukt og grønt",
+        protein: "Protein",
+      },
       includes: "inneholder",
       protein: "Protein",
       recipeFilters: "Oppskriftsfiltre",

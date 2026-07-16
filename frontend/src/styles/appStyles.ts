@@ -395,7 +395,7 @@ export const pageStyles = {
 
 export const settingsStyles = {
   shell: "mx-auto grid w-full max-w-2xl gap-6",
-  quickSettingsRow: "flex flex-wrap items-start justify-between gap-4",
+  quickSettingsRow: "flex flex-wrap items-start justify-between gap-4 max-sm:grid max-sm:w-full max-sm:grid-cols-1",
   title: (theme: SiteTheme) =>
     `text-3xl font-bold leading-tight ${theme === "paletteLight" ? "text-[#556145]" : siteColorClasses[theme].plannerCounterAccent}`,
   panel: (theme: SiteTheme) =>
@@ -410,7 +410,7 @@ export const settingsStyles = {
           : "text-neutral-600"
     }`,
   languagePanel: (theme: SiteTheme) =>
-    `flex w-fit flex-wrap items-center gap-4 rounded-md border p-2 ${shadowClasses.subtle} ${surfaceClasses.panel(theme)}`,
+    `flex w-fit flex-wrap items-center gap-4 rounded-md border p-2 max-sm:w-full max-sm:justify-between ${shadowClasses.subtle} ${surfaceClasses.panel(theme)}`,
   languagePanelTitle: "pl-2 text-sm font-bold leading-tight",
   languageOptions: "flex items-center gap-2",
   languageButton: (theme: SiteTheme, selected: boolean) =>
@@ -460,7 +460,7 @@ export const settingsStyles = {
   saveButton: controlStyles.primaryButton,
   secondaryButton: controlStyles.secondaryButton,
   currentProviderCard: (theme: SiteTheme) =>
-    `flex w-fit flex-wrap items-center gap-4 rounded-md border p-2 ${shadowClasses.subtle} ${surfaceClasses.panel(theme)}`,
+    `flex w-fit flex-wrap items-center gap-4 rounded-md border p-2 max-sm:w-full max-sm:justify-between ${shadowClasses.subtle} ${surfaceClasses.panel(theme)}`,
   currentProviderTitle: "text-sm font-bold leading-tight",
   currentProviderDetails: "flex flex-wrap items-center gap-2",
   currentProviderItem: (theme: SiteTheme) =>
@@ -649,6 +649,23 @@ export const scannerStyles = {
     `${controlStyles.secondaryButton(theme)} h-12 min-w-0 cursor-pointer px-4 text-sm`,
   hiddenFileInput: "sr-only",
   compactFormGrid: "grid grid-cols-2 gap-3 max-sm:grid-cols-1",
+  groupedTagPanel: "grid gap-3",
+  groupedTagSection: (theme: SiteTheme) =>
+    `grid gap-2 border-b pb-3 last:border-b-0 last:pb-0 ${
+      theme === "dark"
+        ? "border-white/[0.10]"
+        : theme === "paletteLight"
+          ? "border-[#7A8864]/25"
+          : "border-neutral-200"
+    }`,
+  groupedTagTitle: (theme: SiteTheme) =>
+    `text-[11px] font-extrabold uppercase tracking-wide ${
+      theme === "dark"
+        ? "text-neutral-400"
+        : theme === "paletteLight"
+          ? "text-[#7A8864]"
+          : "text-neutral-500"
+    }`,
   tagGrid: "grid grid-cols-2 gap-2",
   tagOption: (theme: SiteTheme) =>
     `flex min-h-10 items-center gap-2 rounded-md border px-3 text-sm font-semibold ${surfaceClasses.field(theme)}`,
@@ -765,7 +782,7 @@ export const prepHelperStyles = {
 } as const;
 
 export const mealCalendarStyles = {
-  shell: "flex w-full flex-col overflow-visible max-md:overflow-x-auto",
+  shell: "flex w-full flex-col overflow-visible max-md:overflow-x-auto max-md:pb-24",
   grid: `grid w-full min-w-[720px] grid-cols-12 ${layoutClasses.calendarGap} max-md:min-w-0 max-md:grid-cols-1`,
   rows: `flex flex-col ${layoutClasses.calendarGap}`,
   row: `relative min-h-36 min-w-[720px] max-md:grid max-md:min-h-0 max-md:min-w-0 max-md:gap-2`,

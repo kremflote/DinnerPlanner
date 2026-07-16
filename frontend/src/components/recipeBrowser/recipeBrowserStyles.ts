@@ -239,6 +239,26 @@ export const recipeBrowserStyles = {
     "grid max-h-44 grid-cols-2 gap-2 overflow-y-auto rounded-md p-2 max-md:grid-cols-1",
   tagCheckboxGrid:
     "grid grid-cols-3 gap-2 rounded-md p-2 max-md:grid-cols-2 max-sm:grid-cols-1",
+  groupedTagPanel:
+    "grid gap-3 rounded-md p-2",
+  groupedTagSection: (theme: SiteTheme) =>
+    `grid gap-2 border-b pb-3 last:border-b-0 last:pb-0 ${
+      theme === "dark"
+        ? "border-white/[0.10]"
+        : theme === "paletteLight"
+          ? "border-[#7A8864]/25"
+          : "border-neutral-200"
+    }`,
+  groupedTagTitle: (theme: SiteTheme) =>
+    `text-[11px] font-extrabold uppercase tracking-wide ${
+      theme === "dark"
+        ? "border-white/[0.10] text-neutral-400"
+        : theme === "paletteLight"
+          ? "border-[#7A8864]/25 text-[#7A8864]"
+          : "border-neutral-200 text-neutral-500"
+    }`,
+  groupedTagGrid:
+    "grid grid-cols-3 gap-2 max-md:grid-cols-2 max-sm:grid-cols-1",
   recipeIngredientPickerGrid:
     "grid max-h-56 gap-2 overflow-y-auto rounded-md p-2",
   desktopIngredientPicker: "grid gap-2 max-sm:hidden",
@@ -410,6 +430,15 @@ export const recipeBrowserStyles = {
     `text-sm font-bold ${theme === "dark" ? "text-neutral-100" : theme === "paletteLight" ? "text-[#556145]" : "text-neutral-900"}`,
   filterGroupHeader: "flex items-center justify-between gap-2",
   filterOptionList: "mt-2 flex flex-col gap-1",
+  groupedFilterOptionList: "mt-2 grid gap-3",
+  groupedFilterSection: (theme: SiteTheme) =>
+    `grid gap-2 border-b pb-3 last:border-b-0 last:pb-0 ${
+      theme === "dark"
+        ? "border-white/[0.10]"
+        : theme === "paletteLight"
+          ? "border-[#7A8864]/25"
+          : "border-neutral-200"
+    }`,
   checkboxLabel: (theme: SiteTheme) =>
     `flex items-center gap-2 text-xs font-semibold ${
       theme === "dark"

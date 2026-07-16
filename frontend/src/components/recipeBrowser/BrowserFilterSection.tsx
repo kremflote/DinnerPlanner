@@ -4,9 +4,9 @@ import type { IngredientTag } from "../../interfaces/IIngredient";
 import type { ICuisine } from "../../interfaces/ILookup";
 import type { RecipeTag, RecipeType } from "../../interfaces/IRecipe";
 import type { SiteTheme } from "../../styles/appStyles";
-import { ingredientTags, recipeTags, recipeTypes } from "./formOptions";
+import { ingredientTagGroups, recipeTags, recipeTypes } from "./formOptions";
 import { recipeBrowserStyles } from "./recipeBrowserStyles";
-import { FilterGroup, NumberFilterGroup } from "./BrowserFilterGroups";
+import { FilterGroup, GroupedFilterGroup, NumberFilterGroup } from "./BrowserFilterGroups";
 import type { BrowserMode } from "./types";
 
 type BrowserFilterSectionProps = {
@@ -46,12 +46,13 @@ function BrowserFilterSection({
   return (
     <aside className={className} aria-label={t.filters.recipeFilters}>
       {mode === "ingredients" ? (
-        <FilterGroup
+        <GroupedFilterGroup
           formatValue={(value) => t.enums.ingredientTags[value]}
+          groupLabels={t.filters.ingredientTagGroups}
+          groups={ingredientTagGroups}
           selectedValues={selectedIngredientTags}
           theme={theme}
           title={t.filters.ingredientTags}
-          values={ingredientTags}
           onToggle={(value) => toggleSelection(value, setSelectedIngredientTags)}
         />
       ) : (

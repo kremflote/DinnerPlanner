@@ -1,4 +1,5 @@
 import type { SiteTheme } from "../../styles/appStyles";
+import type { IngredientTagGroupKey } from "./formOptions";
 import { formatLabel, recipeBrowserStyles } from "./recipeBrowserStyles";
 
 export type NumberFilterOption = {
@@ -100,6 +101,71 @@ export function FilterGroup<TValue extends string>({
             </label>
           );
         })}
+      </div>
+    </fieldset>
+  );
+}
+
+type GroupedFilterGroupProps<TValue extends string> = {
+  title: string;
+  groups: readonly {
+    key: IngredientTagGroupKey;
+    values: readonly TValue[];
+  }[];
+  groupLabels: Record<string, string>;
+  disabledValues?: readonly TValue[];
+  formatValue?: (value: TValue) => string;
+  selectedValues: readonly TValue[];
+  theme: SiteTheme;
+  onToggle: (value: TValue) => void;
+};
+
+export function GroupedFilterGroup<TValue extends string>({
+  title,
+  groups,
+  groupLabels,
+  disabledValues = [],
+  formatValue = formatLabel,
+  selectedValues,
+  theme,
+  onToggle,
+}: GroupedFilterGroupProps<TValue>) {
+  return (
+    <fieldset className={recipeBrowserStyles.filterGroup(theme)}>
+      <div className={recipeBrowserStyles.filterGroupHeader}>
+        <legend className={recipeBrowserStyles.filterLegend(theme)}>{title}</legend>
+      </div>
+      <div className={recipeBrowserStyles.groupedFilterOptionList}>
+        {groups.map((group) => (
+          <section className={recipeBrowserStyles.groupedFilterSection(theme)} key={group.key}>
+            <h3 className={recipeBrowserStyles.groupedTagTitle(theme)}>
+              {groupLabels[group.key]}
+            </h3>
+            <div className={recipeBrowserStyles.filterOptionList}>
+              {group.values.map((value) => {
+                const disabled = disabledValues.includes(value);
+
+                return (
+                  <label
+                    className={`${recipeBrowserStyles.checkboxLabel(theme)} ${
+                      disabled ? recipeBrowserStyles.disabledFilterOption(theme) : ""
+                    }`}
+                    key={value}
+                  >
+                    <input
+                      checked={disabled ? false : selectedValues.includes(value)}
+                      className={recipeBrowserStyles.checkbox}
+                      disabled={disabled}
+                      type="checkbox"
+                      onChange={() => onToggle(value)}
+                    />
+                    {formatValue(value)}
+                  </label>
+                );
+              })}
+            </div>
+          </section>
+        ))}
       </div>
     </fieldset>
   );

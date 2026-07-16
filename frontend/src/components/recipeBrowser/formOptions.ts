@@ -59,6 +59,30 @@ export const ingredientTags: IngredientTag[] = [
   "LeafyGreen",
 ];
 
+export type IngredientTagGroupKey = "produce" | "protein" | "pantry" | "other";
+
+export const ingredientTagGroups: Array<{
+  key: IngredientTagGroupKey;
+  values: IngredientTag[];
+}> = [
+  {
+    key: "produce",
+    values: ["Vegetable", "Fruit", "LeafyGreen", "Herb"],
+  },
+  {
+    key: "protein",
+    values: ["Chicken", "Fish", "Beef", "Lamb", "Mince", "Dairy"],
+  },
+  {
+    key: "pantry",
+    values: ["Grain", "Spice", "Sauce", "Pantry", "Frozen"],
+  },
+  {
+    key: "other",
+    values: ["Other"],
+  },
+];
+
 export const measurementUnits: MeasurementUnit[] = [
   "Gram",
   "Kilogram",

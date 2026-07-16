@@ -7,7 +7,7 @@ import type { IProductLookupNutrition, IProductLookupResult } from "../interface
 import { brandService, imageUploadService, ingredientService, productLookupService } from "../services";
 import { getApiAssetUrl } from "../services/apiClient";
 import { pageStyles, scannerStyles, type SiteTheme } from "../styles/appStyles";
-import { ingredientTags } from "../components/recipeBrowser/formOptions";
+import { ingredientTagGroups } from "../components/recipeBrowser/formOptions";
 import { formatLabel } from "../components/recipeBrowser/recipeBrowserStyles";
 
 type ScannerPageProps = {
@@ -446,16 +446,25 @@ function IngredientDraftEditor({
 
       <section className={scannerStyles.field}>
         <span className={scannerStyles.label}>{t.scanner.selectTags}</span>
-        <div className={scannerStyles.tagGrid}>
-          {ingredientTags.map((tag) => (
-            <label className={scannerStyles.tagOption(theme)} key={tag}>
-              <input
-                checked={draft.tags.includes(tag)}
-                type="checkbox"
-                onChange={() => onChange({ ...draft, tags: toggleValue(draft.tags, tag) })}
-              />
-              {formatLabel(tag)}
-            </label>
+        <div className={scannerStyles.groupedTagPanel}>
+          {ingredientTagGroups.map((group) => (
+            <section className={scannerStyles.groupedTagSection(theme)} key={group.key}>
+              <h3 className={scannerStyles.groupedTagTitle(theme)}>
+                {t.filters.ingredientTagGroups[group.key]}
+              </h3>
+              <div className={scannerStyles.tagGrid}>
+                {group.values.map((tag) => (
+                  <label className={scannerStyles.tagOption(theme)} key={tag}>
+                    <input
+                      checked={draft.tags.includes(tag)}
+                      type="checkbox"
+                      onChange={() => onChange({ ...draft, tags: toggleValue(draft.tags, tag) })}
+                    />
+                    {formatLabel(tag)}
+                  </label>
+                ))}
+              </div>
+            </section>
           ))}
         </div>
       </section>

@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useId, useState, type FormEvent } from "react";
-import { useBrands, useIngredients, useRecipes } from "../../contexts";
+import { useBrands, useIngredients, useLanguage, useRecipes } from "../../contexts";
 import type { IIngredient, IngredientTag, Vitamin } from "../../interfaces/IIngredient";
 import { brandService, imageUploadService, ingredientService } from "../../services";
 import { getApiAssetUrl } from "../../services/apiClient";
 import type { SiteTheme } from "../../styles/appStyles";
-import { ingredientTags, vitamins } from "./formOptions";
+import { ingredientTagGroups, vitamins } from "./formOptions";
 import CreatableSelect from "./CreatableSelect";
 import { formatLabel, recipeBrowserStyles } from "./recipeBrowserStyles";
 
@@ -101,6 +101,7 @@ function IngredientCreateForm({
   onCancel,
 }: IngredientCreateFormProps) {
   const isEditing = initialIngredient !== null;
+  const { t } = useLanguage();
   const { brands, refreshBrands } = useBrands();
   const { refreshIngredients } = useIngredients();
   const { refreshRecipes } = useRecipes();
@@ -375,17 +376,26 @@ function IngredientCreateForm({
               Tags<span className={recipeBrowserStyles.requiredMark(theme)}> *</span>
               <span className={recipeBrowserStyles.inlineHint(theme)}>Pick 1 or more</span>
             </span>
-            <div className={`${recipeBrowserStyles.tagCheckboxGrid} ${recipeBrowserStyles.checkboxGridPanel(theme)}`}>
-              {ingredientTags.map((value) => (
-                <label className={recipeBrowserStyles.checkboxLabel(theme)} key={value}>
-                  <input
-                    checked={selectedTags.includes(value)}
-                    className={recipeBrowserStyles.checkbox}
-                    type="checkbox"
-                    onChange={() => setSelectedTags((currentTags) => toggleValue(currentTags, value))}
-                  />
-                  {formatLabel(value)}
-                </label>
+            <div className={`${recipeBrowserStyles.groupedTagPanel} ${recipeBrowserStyles.checkboxGridPanel(theme)}`}>
+              {ingredientTagGroups.map((group) => (
+                <section className={recipeBrowserStyles.groupedTagSection(theme)} key={group.key}>
+                  <h3 className={recipeBrowserStyles.groupedTagTitle(theme)}>
+                    {t.filters.ingredientTagGroups[group.key]}
+                  </h3>
+                  <div className={recipeBrowserStyles.groupedTagGrid}>
+                    {group.values.map((value) => (
+                      <label className={recipeBrowserStyles.checkboxLabel(theme)} key={value}>
+                        <input
+                          checked={selectedTags.includes(value)}
+                          className={recipeBrowserStyles.checkbox}
+                          type="checkbox"
+                          onChange={() => setSelectedTags((currentTags) => toggleValue(currentTags, value))}
+                        />
+                        {formatLabel(value)}
+                      </label>
+                    ))}
+                  </div>
+                </section>
               ))}
             </div>
           </section>
