@@ -1,13 +1,12 @@
-import { useCallback, useEffect, useId, useRef, useState, type FormEvent } from "react";
-import IngredientThumbnail from "../IngredientThumbnail";
+import { useCallback, useEffect, useId, useState, type FormEvent } from "react";
 import { useBrands, useIngredients, useRecipes } from "../../contexts";
 import type { IIngredient, IngredientTag, Vitamin } from "../../interfaces/IIngredient";
 import { brandService, imageUploadService, ingredientService } from "../../services";
+import { getApiAssetUrl } from "../../services/apiClient";
 import type { SiteTheme } from "../../styles/appStyles";
 import { ingredientTags, vitamins } from "./formOptions";
 import CreatableSelect from "./CreatableSelect";
 import { formatLabel, recipeBrowserStyles } from "./recipeBrowserStyles";
-import ImageCropPicker from "./ImageCropPicker";
 
 type IngredientCreateFormProps = {
   initialIngredient?: IIngredient | null;
@@ -55,6 +54,46 @@ function NutritionNumberField({
   );
 }
 
+type CompactIngredientImagePickerProps = {
+  inputId: string;
+  initialImageUrl?: string | null;
+  previewUrl: string | null;
+  theme: SiteTheme;
+  onFileChange: (file: File | null) => void;
+};
+
+function CompactIngredientImagePicker({
+  inputId,
+  initialImageUrl = null,
+  previewUrl,
+  theme,
+  onFileChange,
+}: CompactIngredientImagePickerProps) {
+  const imageUrl = previewUrl ?? getApiAssetUrl(initialImageUrl);
+
+  return (
+    <div className={recipeBrowserStyles.compactIngredientImageControl}>
+      <input
+        accept="image/jpeg,image/png,image/webp"
+        className={recipeBrowserStyles.hiddenFileInput}
+        id={inputId}
+        type="file"
+        onChange={(event) => onFileChange(event.target.files?.[0] ?? null)}
+      />
+      <div className={recipeBrowserStyles.compactIngredientImagePreview(theme)}>
+        {imageUrl === null ? (
+          <div className={recipeBrowserStyles.compactIngredientImageFallback}>IMG</div>
+        ) : (
+          <img className={recipeBrowserStyles.compactIngredientImage} src={imageUrl} alt="" />
+        )}
+      </div>
+      <label className={recipeBrowserStyles.compactIngredientImageButton(theme)} htmlFor={inputId}>
+        Choose file
+      </label>
+    </div>
+  );
+}
+
 function IngredientCreateForm({
   initialIngredient = null,
   theme,
@@ -69,7 +108,7 @@ function IngredientCreateForm({
   const [ingredientName, setIngredientName] = useState(initialIngredient?.ingredientName ?? "");
   const [brandId, setBrandId] = useState<number | null>(initialIngredient?.brandId ?? null);
   const [croppedImageFile, setCroppedImageFile] = useState<File | null>(null);
-  const [price, setPrice] = useState(numberToInputValue(initialIngredient?.price));
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
   const [selectedTags, setSelectedTags] = useState<IngredientTag[]>(
     initialIngredient && initialIngredient.tags.length > 0 ? [...initialIngredient.tags] : ["Vegetable"],
   );
@@ -97,40 +136,24 @@ function IngredientCreateForm({
   const [selectedVitamins, setSelectedVitamins] = useState<Vitamin[]>(
     initialIngredient?.nutritionPer100?.vitamins ?? [],
   );
-  const [color, setColor] = useState(initialIngredient?.color ?? "");
-  const [colorDraft, setColorDraft] = useState("#00d83b");
-  const [showColorPicker, setShowColorPicker] = useState(false);
   const [showNutrition, setShowNutrition] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const colorControlRef = useRef<HTMLElement | null>(null);
-  const selectedBrand = brands.find((brand) => brand.brandId === brandId) ?? null;
   const handleCroppedFileChange = useCallback((file: File | null) => {
     setCroppedImageFile(file);
   }, []);
 
   useEffect(() => {
-    if (!showColorPicker) {
+    if (croppedImageFile === null) {
+      setImagePreviewUrl(null);
       return;
     }
 
-    const handleOutsidePointerDown = (event: PointerEvent) => {
-      const target = event.target;
-      if (!(target instanceof Node)) {
-        return;
-      }
+    const objectUrl = URL.createObjectURL(croppedImageFile);
+    setImagePreviewUrl(objectUrl);
 
-      if (colorControlRef.current?.contains(target)) {
-        return;
-      }
-
-      setShowColorPicker(false);
-    };
-
-    document.addEventListener("pointerdown", handleOutsidePointerDown);
-
-    return () => document.removeEventListener("pointerdown", handleOutsidePointerDown);
-  }, [showColorPicker]);
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [croppedImageFile]);
 
   const submitIngredient = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -163,7 +186,7 @@ function IngredientCreateForm({
         description: initialIngredient?.description ?? null,
         brandId,
         imageUrl: upload?.url ?? initialIngredient?.imageUrl ?? null,
-        price: nullableNumber(price),
+        price: initialIngredient?.price ?? null,
         tags: selectedTags,
         nutritionPer100: {
           calories: nullableNumber(calories),
@@ -177,7 +200,7 @@ function IngredientCreateForm({
           polyunsaturatedFatGrams: nullableNumber(polyunsaturatedFatGrams),
           vitamins: selectedVitamins,
         },
-        color: nullableText(color),
+        color: initialIngredient?.color ?? null,
       };
 
       if (isEditing) {
@@ -241,18 +264,6 @@ function IngredientCreateForm({
               }}
             />
 
-            <label className={recipeBrowserStyles.field}>
-              <span className={recipeBrowserStyles.label(theme)}>Price per kg</span>
-              <input
-                className={recipeBrowserStyles.textField(theme)}
-                min="0"
-                step="0.01"
-                type="number"
-                value={price}
-                onChange={(event) => setPrice(event.target.value)}
-              />
-            </label>
-
             <section className={recipeBrowserStyles.field}>
               <span className={recipeBrowserStyles.label(theme)}>Nutrition</span>
               <button
@@ -264,15 +275,17 @@ function IngredientCreateForm({
                 {showNutrition ? "Hide nutrition" : "Add nutrition"}
               </button>
             </section>
-          </div>
 
-          <div className={recipeBrowserStyles.recipeImageField}>
-            <ImageCropPicker
-              inputId={imageInputId}
-              initialImageUrl={initialIngredient?.imageUrl}
-              theme={theme}
-              onCroppedFileChange={handleCroppedFileChange}
-            />
+            <section className={recipeBrowserStyles.field}>
+              <span className={recipeBrowserStyles.label(theme)}>Image</span>
+              <CompactIngredientImagePicker
+                inputId={imageInputId}
+                initialImageUrl={initialIngredient?.imageUrl}
+                previewUrl={imagePreviewUrl}
+                theme={theme}
+                onFileChange={handleCroppedFileChange}
+              />
+            </section>
           </div>
 
           {showNutrition && (
@@ -378,73 +391,6 @@ function IngredientCreateForm({
           </section>
         </div>
 
-        <div className={recipeBrowserStyles.formGrid}>
-          <section className={recipeBrowserStyles.field} ref={colorControlRef}>
-            <span className={recipeBrowserStyles.label(theme)}>Color</span>
-            <button
-              className={recipeBrowserStyles.colorFieldButton(theme)}
-              type="button"
-              onClick={() => {
-                setColorDraft(isHexColor(color) ? color : "#00d83b");
-                setShowColorPicker((currentValue) => !currentValue);
-              }}
-            >
-              <span>{color || "Select color"}</span>
-              <span
-                aria-hidden="true"
-                className={recipeBrowserStyles.colorSwatch}
-                style={{ backgroundColor: isHexColor(color) ? color : "transparent" }}
-              />
-            </button>
-            {showColorPicker && (
-              <div
-                className={recipeBrowserStyles.colorPickerPanel(theme)}
-                onPointerDown={(event) => event.stopPropagation()}
-              >
-                <input
-                  aria-label="Choose ingredient color"
-                  className={recipeBrowserStyles.colorPickerInput}
-                  type="color"
-                  value={colorDraft}
-                  onChange={(event) => setColorDraft(event.target.value)}
-                />
-                <div className={recipeBrowserStyles.colorPickerActions}>
-                  <button
-                    className={recipeBrowserStyles.secondaryButton(theme)}
-                    type="button"
-                    onClick={() => setShowColorPicker(false)}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    className={recipeBrowserStyles.primaryButton(theme)}
-                    type="button"
-                    onClick={() => {
-                      setColor(colorDraft);
-                      setShowColorPicker(false);
-                    }}
-                  >
-                    OK
-                  </button>
-                </div>
-              </div>
-            )}
-          </section>
-
-          <section className={recipeBrowserStyles.field}>
-            <span className={recipeBrowserStyles.label(theme)}>Ingredient preview</span>
-            <IngredientThumbnail
-              ingredient={{
-                ingredientName: ingredientName.trim() || "Ingredient",
-                brand: selectedBrand,
-                imageUrl: croppedImageFile === null ? initialIngredient?.imageUrl ?? null : null,
-                tags: selectedTags,
-                color: nullableText(color),
-              }}
-              theme={theme}
-            />
-          </section>
-        </div>
       </div>
 
       <div className={recipeBrowserStyles.formActions}>
@@ -459,11 +405,6 @@ function IngredientCreateForm({
   );
 }
 
-function nullableText(value: string) {
-  const trimmedValue = value.trim();
-  return trimmedValue.length === 0 ? null : trimmedValue;
-}
-
 function nullableNumber(value: string) {
   const trimmedValue = value.trim();
   if (trimmedValue.length === 0) {
@@ -476,10 +417,6 @@ function nullableNumber(value: string) {
 
 function numberToInputValue(value: number | null | undefined) {
   return value === null || value === undefined ? "" : value.toString();
-}
-
-function isHexColor(value: string) {
-  return /^#[0-9a-f]{6}$/i.test(value);
 }
 
 function toggleValue<TValue>(values: TValue[], value: TValue) {

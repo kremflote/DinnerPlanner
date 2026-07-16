@@ -139,9 +139,9 @@ export const recipeBrowserStyles = {
     }`,
   recipeCreateTopGrid:
     "grid grid-cols-[minmax(0,1fr)_minmax(220px,280px)] gap-4 max-md:grid-cols-1",
-  recipePrimaryFields: "grid content-start gap-4",
+  recipePrimaryFields: "grid min-w-0 content-start gap-4 max-sm:gap-3",
   recipeImageField:
-    "relative mt-6 grid content-start max-sm:mt-0",
+    "relative mt-6 grid min-w-0 content-start max-sm:mt-0",
   field: "grid gap-2",
   label: (theme: SiteTheme) =>
     `text-xs font-bold ${
@@ -281,8 +281,18 @@ export const recipeBrowserStyles = {
           ? "border-[#C8C0B5] bg-[#E5D5BC]/45 text-[#556145] hover:bg-[#C8C0B5]/70"
           : "border-neutral-300 bg-neutral-100 text-neutral-800 hover:bg-neutral-200"
     }`,
+  imageUploadActionStack:
+    "absolute left-1/2 top-1/2 z-10 grid w-fit -translate-x-1/2 -translate-y-1/2 gap-2 max-sm:w-[min(10rem,calc(100%-1rem))]",
   imageUploadFloatingButton: (theme: SiteTheme) =>
-    `absolute left-1/2 top-1/2 z-10 inline-flex h-9 w-fit -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center gap-2 rounded-md border px-4 text-center text-[10px] font-bold leading-none ${shadowClasses.subtle} transition-colors max-sm:static max-sm:col-start-1 max-sm:row-start-2 max-sm:w-full max-sm:translate-x-0 max-sm:translate-y-0 max-sm:text-xs ${
+    `inline-flex h-9 w-fit cursor-pointer items-center justify-center gap-2 rounded-md border px-4 text-center text-[10px] font-bold leading-none ${shadowClasses.subtle} transition-colors max-sm:w-full max-sm:px-2 max-sm:text-xs ${
+      theme === "dark"
+        ? "border-white/[0.10] bg-neutral-950/85 text-neutral-200 hover:bg-neutral-950"
+        : theme === "paletteLight"
+          ? "border-[#C8C0B5] bg-[#FAF7F2]/90 text-[#556145] hover:bg-[#FAF7F2]"
+          : "border-neutral-300 bg-white/90 text-neutral-800 hover:bg-white"
+    }`,
+  imageCaptureButton: (theme: SiteTheme) =>
+    `hidden h-9 w-full cursor-pointer items-center justify-center gap-2 rounded-md border px-2 text-center text-xs font-bold leading-none ${shadowClasses.subtle} transition-colors max-sm:inline-flex ${
       theme === "dark"
         ? "border-white/[0.10] bg-neutral-950/85 text-neutral-200 hover:bg-neutral-950"
         : theme === "paletteLight"
@@ -290,6 +300,24 @@ export const recipeBrowserStyles = {
           : "border-neutral-300 bg-white/90 text-neutral-800 hover:bg-white"
     }`,
   imageUploadIcon: "h-4 w-4",
+  desktopUploadLabel: "max-sm:hidden",
+  mobileUploadLabel: "hidden max-sm:inline",
+  compactIngredientImageControl:
+    "grid grid-cols-[3rem_minmax(0,1fr)] items-center gap-3",
+  compactIngredientImagePreview: (theme: SiteTheme) =>
+    `flex h-12 w-12 items-center justify-center overflow-hidden rounded-md border ${shadowClasses.subtle} ${
+      theme === "dark"
+        ? "border-white/[0.14] bg-white/[0.08]"
+        : theme === "paletteLight"
+          ? "border-[#C8C0B5] bg-[#FAF7F2]"
+          : "border-neutral-300 bg-neutral-100"
+    }`,
+  compactIngredientImage:
+    "h-full w-full object-cover",
+  compactIngredientImageFallback:
+    "text-[10px] font-black leading-none opacity-55",
+  compactIngredientImageButton: (theme: SiteTheme) =>
+    `${controlStyles.secondaryButton(theme)} h-12 min-w-0 cursor-pointer px-4 text-sm`,
   detailsPanel: (theme: SiteTheme) =>
     `grid gap-4 rounded-md border p-3 ${surfaceClasses.panel(theme)}`,
   formActions:
@@ -344,7 +372,7 @@ export const recipeBrowserStyles = {
   statusErrorWithOffset: (theme: SiteTheme) =>
     `mt-4 ${recipeBrowserStyles.statusError(theme)}`,
   cropPreview: (theme: SiteTheme) =>
-    `aspect-square w-full overflow-hidden rounded-md border max-sm:col-start-1 max-sm:row-start-1 ${
+    `relative aspect-square w-full overflow-hidden rounded-md border ${
       theme === "dark"
         ? "border-white/[0.10] bg-neutral-900"
         : theme === "paletteLight"
@@ -484,13 +512,13 @@ export const recipeBrowserStyles = {
   scaleField: "w-20",
   scaleInput: "w-full pr-6",
   imageCropper:
-    "relative grid gap-3 max-sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] max-sm:items-start",
+    "relative grid gap-3 max-sm:items-start",
   hiddenFileInput: "sr-only",
   cropImage: "h-full w-full object-cover",
   cropFallback:
     "flex h-full w-full items-center justify-center px-4 text-center text-sm font-semibold opacity-60",
   cropControls:
-    "grid gap-3 max-sm:col-start-2 max-sm:row-span-2 max-sm:row-start-1 max-sm:-translate-y-3 max-sm:gap-2",
+    "grid gap-3 max-sm:gap-2",
   cropConfirmButton:
     "max-sm:h-8 max-sm:min-w-0 max-sm:px-3 max-sm:text-xs",
   sliderField: "grid gap-1 text-xs font-bold",

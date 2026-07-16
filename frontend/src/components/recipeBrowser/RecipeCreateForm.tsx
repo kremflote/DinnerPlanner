@@ -202,26 +202,26 @@ function RecipeCreateForm({
         {error !== null && <p className={recipeBrowserStyles.statusError(theme)}>{error}</p>}
 
         <div className={recipeBrowserStyles.recipeCreateScrollArea(theme)}>
+          <label className={recipeBrowserStyles.field}>
+            <span className={recipeBrowserStyles.label(theme)}>
+              Recipe type<span className={recipeBrowserStyles.requiredMark(theme)}> *</span>
+            </span>
+            <select
+              className={recipeBrowserStyles.textField(theme)}
+              disabled={isEditing}
+              value={recipeType}
+              onChange={(event) => setRecipeType(event.target.value as RecipeType)}
+            >
+              {recipeTypes.map((type) => (
+                <option key={type} value={type}>
+                  {formatLabel(type)}
+                </option>
+              ))}
+            </select>
+          </label>
+
           <div className={recipeBrowserStyles.recipeCreateTopGrid}>
             <div className={recipeBrowserStyles.recipePrimaryFields}>
-              <label className={recipeBrowserStyles.field}>
-                <span className={recipeBrowserStyles.label(theme)}>
-                  Recipe type<span className={recipeBrowserStyles.requiredMark(theme)}> *</span>
-                </span>
-                <select
-                  className={recipeBrowserStyles.textField(theme)}
-                  disabled={isEditing}
-                  value={recipeType}
-                  onChange={(event) => setRecipeType(event.target.value as RecipeType)}
-                >
-                  {recipeTypes.map((type) => (
-                    <option key={type} value={type}>
-                      {formatLabel(type)}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
               <label className={recipeBrowserStyles.field}>
                 <span className={recipeBrowserStyles.label(theme)}>
                   Name<span className={recipeBrowserStyles.requiredMark(theme)}> *</span>
@@ -273,7 +273,6 @@ function RecipeCreateForm({
                 </label>
               )}
             </div>
-
             <div className={recipeBrowserStyles.recipeImageField}>
               <ImageCropPicker
                 inputId={imageInputId}

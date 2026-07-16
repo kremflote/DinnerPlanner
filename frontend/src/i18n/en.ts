@@ -127,7 +127,7 @@ export const en: TranslationDictionary = {
       ingredientSaved: (name) => `${name} was saved to ingredients.`,
       lookup: "Lookup",
       lookupFailed: "Could not look up this product.",
-      mobileOnly: "Use this scanner on your phone or tablet. Barcode scanning is designed for camera-first devices.",
+      mobileOnly: "Manual EAN lookup works here. Camera scanning is available on phone and tablet sizes.",
       nameLabel: "Name",
       noCandidateSelected: "Choose a suggested ingredient first.",
       noImage: "No image",

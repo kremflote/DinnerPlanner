@@ -226,9 +226,7 @@ function ScannerPage({ theme }: ScannerPageProps) {
           <p className={scannerStyles.intro(theme)}>{t.scanner.pageIntro}</p>
         </header>
 
-        <div className={scannerStyles.mobileOnlyPanel(theme)}>{t.scanner.mobileOnly}</div>
-
-        <div className={scannerStyles.mobileScannerSurface}>
+        <div className={scannerStyles.scannerSurface}>
           <section className={scannerStyles.panel(theme)}>
             <form className={scannerStyles.lookupForm} onSubmit={lookupProduct}>
               <label className={scannerStyles.field}>
@@ -250,6 +248,8 @@ function ScannerPage({ theme }: ScannerPageProps) {
                 {isLoading ? t.scanner.searching : t.scanner.lookup}
               </button>
             </form>
+
+            <div className={scannerStyles.desktopScannerHint(theme)}>{t.scanner.mobileOnly}</div>
 
             <div className={scannerStyles.scannerActions}>
               <button

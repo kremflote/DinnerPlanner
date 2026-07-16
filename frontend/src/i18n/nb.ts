@@ -202,7 +202,7 @@ export const nb: TranslationDictionary = {
       ingredientSaved: (name) => `${name} ble lagret i ingredienslisten.`,
       lookup: "Søk opp",
       lookupFailed: "Kunne ikke slå opp produktet.",
-      mobileOnly: "Bruk skanneren på telefon eller nettbrett. Strekkodeskanning er laget for enheter med kamera.",
+      mobileOnly: "Manuelt EAN-oppslag fungerer her. Kameraskanning er tilgjengelig på telefon- og nettbrettstørrelser.",
       nameLabel: "Navn",
       noCandidateSelected: "Velg et foreslått ingrediensforslag først.",
       noImage: "Ingen bilde",

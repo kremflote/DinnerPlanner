@@ -14,6 +14,7 @@ const cropOutputSize = 800;
 const placeholderImageUrl = getApiAssetUrl("/images/placeholders/recipe-photo-placeholder.png");
 
 function ImageCropPicker({ inputId, initialImageUrl = null, theme, onCroppedFileChange }: ImageCropPickerProps) {
+  const cameraInputId = `${inputId}-camera`;
   const [sourceFile, setSourceFile] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -99,6 +100,13 @@ function ImageCropPicker({ inputId, initialImageUrl = null, theme, onCroppedFile
   }, [imageUrl, offsetX, offsetY, onCroppedFileChange, sourceFile, zoom]);
 
   const hasImage = useMemo(() => sourceFile !== null && previewUrl !== null, [previewUrl, sourceFile]);
+  const handleImageSelected = (file: File | null) => {
+    setSourceFile(file);
+    setZoom(1);
+    setOffsetX(0);
+    setOffsetY(0);
+    setCropConfirmed(false);
+  };
 
   return (
     <div className={recipeBrowserStyles.imageCropper}>
@@ -107,13 +115,15 @@ function ImageCropPicker({ inputId, initialImageUrl = null, theme, onCroppedFile
         className={recipeBrowserStyles.hiddenFileInput}
         id={inputId}
         type="file"
-        onChange={(event) => {
-          setSourceFile(event.target.files?.[0] ?? null);
-          setZoom(1);
-          setOffsetX(0);
-          setOffsetY(0);
-          setCropConfirmed(false);
-        }}
+        onChange={(event) => handleImageSelected(event.target.files?.[0] ?? null)}
+      />
+      <input
+        accept="image/*"
+        capture="environment"
+        className={recipeBrowserStyles.hiddenFileInput}
+        id={cameraInputId}
+        type="file"
+        onChange={(event) => handleImageSelected(event.target.files?.[0] ?? null)}
       />
 
       <div className={recipeBrowserStyles.cropPreview(theme)}>
@@ -136,12 +146,18 @@ function ImageCropPicker({ inputId, initialImageUrl = null, theme, onCroppedFile
             Image preview
           </div>
         )}
+        <div className={recipeBrowserStyles.imageUploadActionStack}>
+          <label className={recipeBrowserStyles.imageUploadFloatingButton(theme)} htmlFor={inputId}>
+            <ImageUploadIcon />
+            <span className={recipeBrowserStyles.desktopUploadLabel}>Choose file</span>
+            <span className={recipeBrowserStyles.mobileUploadLabel}>Choose photo</span>
+          </label>
+          <label className={recipeBrowserStyles.imageCaptureButton(theme)} htmlFor={cameraInputId}>
+            <CameraIcon />
+            Take photo
+          </label>
+        </div>
       </div>
-
-      <label className={recipeBrowserStyles.imageUploadFloatingButton(theme)} htmlFor={inputId}>
-        <ImageUploadIcon />
-        Choose file
-      </label>
 
       {hasImage && !cropConfirmed && (
         <div className={recipeBrowserStyles.cropControls}>
@@ -189,6 +205,25 @@ function ImageUploadIcon() {
         strokeWidth="2"
       />
       <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" />
+    </svg>
+  );
+}
+
+function CameraIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className={recipeBrowserStyles.imageUploadIcon}
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <path
+        d="M7.5 7 9 4.75h6L16.5 7H18a3 3 0 0 1 3 3v6.5a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V10a3 3 0 0 1 3-3h1.5Z"
+        stroke="currentColor"
+        strokeLinejoin="round"
+        strokeWidth="2"
+      />
+      <circle cx="12" cy="13.25" r="3.25" stroke="currentColor" strokeWidth="2" />
     </svg>
   );
 }

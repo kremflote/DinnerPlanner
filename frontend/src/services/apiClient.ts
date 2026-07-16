@@ -48,7 +48,7 @@ export function getApiAssetUrl(path: string | null) {
     return null;
   }
 
-  if (/^https?:\/\//i.test(path) || path.startsWith("data:")) {
+  if (/^https?:\/\//i.test(path) || path.startsWith("data:") || path.startsWith("blob:")) {
     return path;
   }
 

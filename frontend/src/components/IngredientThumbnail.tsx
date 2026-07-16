@@ -111,7 +111,7 @@ function getInitials(value: string) {
 
 function getIngredientTone(color: string | null, theme: SiteTheme): IngredientTone {
   const dot = color ?? colorPalette.ingredientIconText;
-  const text = theme === "dark" ? colorPalette.nearBlack : colorPalette.ingredientIconText;
+  const text = theme === "dark" ? colorPalette.ivory : colorPalette.ingredientIconText;
 
   return {
     dot,

@@ -262,7 +262,7 @@ export const thumbnailStyles = {
   ingredientShell: (theme: SiteTheme) =>
     `grid h-12 w-full grid-cols-[2.25rem_minmax(0,1fr)] items-center gap-2 rounded-md border p-1.5 text-left ${shadowClasses.subtle} transition ${
       theme === "dark"
-        ? "border-white/[0.16] bg-white/[0.18]"
+        ? "border-white/[0.14] bg-white/[0.08]"
         : theme === "paletteLight"
           ? "border-[#C8C0B5] bg-[#E5D5BC]/45"
           : "border-neutral-200 bg-neutral-100"
@@ -497,15 +497,15 @@ export const scannerStyles = {
     }`,
   panel: (theme: SiteTheme) =>
     `grid gap-4 rounded-md border p-4 ${shadowClasses.subtle} ${surfaceClasses.panel(theme)}`,
-  mobileOnlyPanel: (theme: SiteTheme) =>
-    `hidden rounded-md border p-6 text-center text-base font-bold leading-[1.45] lg:block ${shadowClasses.subtle} ${surfaceClasses.panel(theme)}`,
-  mobileScannerSurface: "grid gap-4 lg:hidden",
+  desktopScannerHint: (theme: SiteTheme) =>
+    `hidden rounded-md border px-4 py-3 text-sm font-semibold leading-[1.45] lg:block ${shadowClasses.subtle} ${surfaceClasses.panel(theme)}`,
+  scannerSurface: "grid gap-4",
   lookupForm: "grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3 max-sm:grid-cols-1",
   field: "grid gap-2",
   label: "text-sm font-bold leading-tight",
   input: controlStyles.formField,
   submitButton: controlStyles.primaryButton,
-  scannerActions: "flex flex-wrap items-center gap-3",
+  scannerActions: "flex flex-wrap items-center gap-3 lg:hidden",
   cameraButton: controlStyles.secondaryButton,
   cameraFrame: (theme: SiteTheme) =>
     `relative aspect-video w-full overflow-hidden rounded-md border ${shadowClasses.subtle} ${
