@@ -483,7 +483,7 @@ export const settingsStyles = {
 } as const;
 
 export const scannerStyles = {
-  shell: "mx-auto grid w-full max-w-4xl gap-6",
+  shell: "mx-auto grid w-full max-w-4xl gap-6 max-md:pb-20",
   header: "grid gap-2",
   title: (theme: SiteTheme) =>
     `text-3xl font-bold leading-tight ${theme === "paletteLight" ? "text-[#556145]" : siteColorClasses[theme].plannerCounterAccent}`,
@@ -644,6 +644,9 @@ export const scannerStyles = {
           ? "border-[#C8C0B5] bg-[#FAF7F2]"
           : "border-neutral-200 bg-white"
     }`,
+  editorImageButton: (theme: SiteTheme) =>
+    `${controlStyles.secondaryButton(theme)} h-10 w-fit px-4 text-sm`,
+  hiddenFileInput: "sr-only",
   compactFormGrid: "grid grid-cols-2 gap-3 max-sm:grid-cols-1",
   tagGrid: "grid grid-cols-2 gap-2",
   tagOption: (theme: SiteTheme) =>

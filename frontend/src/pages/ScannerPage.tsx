@@ -1,10 +1,10 @@
 import type { IScannerControls } from "@zxing/browser";
-import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type FormEvent } from "react";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 import { useBrands, useIngredients, useLanguage } from "../contexts";
 import type { IngredientTag, INutritionFacts } from "../interfaces/IIngredient";
 import type { IProductLookupNutrition, IProductLookupResult } from "../interfaces/IProductLookup";
-import { brandService, ingredientService, productLookupService } from "../services";
+import { brandService, imageUploadService, ingredientService, productLookupService } from "../services";
 import { getApiAssetUrl } from "../services/apiClient";
 import { pageStyles, scannerStyles, type SiteTheme } from "../styles/appStyles";
 import { ingredientTags } from "../components/recipeBrowser/formOptions";
@@ -30,6 +30,7 @@ type IngredientDraft = {
   brandName: string;
   price: string;
   imageUrl: string | null;
+  imageFile: File | null;
   tags: IngredientTag[];
   nutritionPer100: INutritionFacts | null;
 };
@@ -138,11 +139,15 @@ function ScannerPage({ theme }: ScannerPageProps) {
         await refreshBrands();
       }
 
+      const uploadedImage = ingredientDraft.imageFile === null
+        ? null
+        : await imageUploadService.upload(ingredientDraft.imageFile, "ingredients");
+
       await ingredientService.create({
         ingredientName,
         description: null,
         brandId: brand?.brandId ?? null,
-        imageUrl: ingredientDraft.imageUrl,
+        imageUrl: uploadedImage?.url ?? ingredientDraft.imageUrl,
         price: nullableNumber(ingredientDraft.price),
         tags: ingredientDraft.tags.length > 0 ? ingredientDraft.tags : ["Other"],
         nutritionPer100: ingredientDraft.nutritionPer100,
@@ -368,11 +373,32 @@ function IngredientDraftEditor({
   onChange: (draft: IngredientDraft) => void;
 }) {
   const { t } = useLanguage();
-  const imageUrl = getApiAssetUrl(draft.imageUrl);
+  const imageInputId = useId();
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
+  const imageUrl = getApiAssetUrl(imagePreviewUrl ?? draft.imageUrl);
+
+  useEffect(() => {
+    if (draft.imageFile === null) {
+      setImagePreviewUrl(null);
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(draft.imageFile);
+    setImagePreviewUrl(objectUrl);
+
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [draft.imageFile]);
 
   return (
     <section className={scannerStyles.ingredientEditor(theme)}>
       <div className={scannerStyles.editorImageRow}>
+        <input
+          accept="image/jpeg,image/png,image/webp"
+          className={scannerStyles.hiddenFileInput}
+          id={imageInputId}
+          type="file"
+          onChange={(event) => onChange({ ...draft, imageFile: event.target.files?.[0] ?? null })}
+        />
         <span className={scannerStyles.label}>{t.scanner.productImageLabel}</span>
         <div className={scannerStyles.editorImageFrame(theme)}>
           {imageUrl === null ? (
@@ -381,6 +407,9 @@ function IngredientDraftEditor({
             <img className={scannerStyles.productImage} src={imageUrl} alt="" />
           )}
         </div>
+        <label className={scannerStyles.editorImageButton(theme)} htmlFor={imageInputId}>
+          {t.scanner.chooseImage}
+        </label>
       </div>
 
       <div className={scannerStyles.compactFormGrid}>
@@ -487,6 +516,7 @@ function candidateToDraft(candidate: IngredientCandidate): IngredientDraft {
     brandName: candidate.brandName,
     price: numberToInputValue(candidate.price),
     imageUrl: candidate.imageUrl,
+    imageFile: null,
     tags: candidate.tags,
     nutritionPer100: candidate.nutritionPer100,
   };

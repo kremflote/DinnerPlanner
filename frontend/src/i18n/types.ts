@@ -113,6 +113,7 @@ export type TranslationDictionary = {
     brandLabel: string;
     calories: string;
     carbs: string;
+    chooseImage: string;
     colorLabel: string;
     eanLabel: string;
     eanPlaceholder: string;

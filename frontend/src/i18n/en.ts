@@ -120,6 +120,7 @@ export const en: TranslationDictionary = {
       brandLabel: "Brand",
       calories: "Calories",
       carbs: "Carbs",
+      chooseImage: "Choose image",
       colorLabel: "Color",
       eanLabel: "Barcode / EAN",
       eanPlaceholder: "7044618874687",

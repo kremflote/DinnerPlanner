@@ -195,6 +195,7 @@ export const nb: TranslationDictionary = {
       brandLabel: "Merke",
       calories: "Kalorier",
       carbs: "Karbo",
+      chooseImage: "Velg bilde",
       colorLabel: "Farge",
       eanLabel: "Strekkode / EAN",
       eanPlaceholder: "7044618874687",
