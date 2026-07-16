@@ -70,6 +70,7 @@ function CompactIngredientImagePicker({
   theme,
   onFileChange,
 }: CompactIngredientImagePickerProps) {
+  const { t } = useLanguage();
   const imageUrl = previewUrl ?? getApiAssetUrl(initialImageUrl);
 
   return (
@@ -89,7 +90,7 @@ function CompactIngredientImagePicker({
         )}
       </div>
       <label className={recipeBrowserStyles.compactIngredientImageButton(theme)} htmlFor={inputId}>
-        Choose file
+        {t.cookbook.chooseFile}
       </label>
     </div>
   );
@@ -162,17 +163,17 @@ function IngredientCreateForm({
     const trimmedName = ingredientName.trim();
 
     if (trimmedName.length === 0) {
-      setError("Ingredient needs a name.");
+      setError(t.cookbook.ingredientNeedsName);
       return;
     }
 
     if (trimmedName.length > INGREDIENT_NAME_MAX_LENGTH) {
-      setError(`Ingredient name can be at most ${INGREDIENT_NAME_MAX_LENGTH} characters.`);
+      setError(t.cookbook.ingredientNameTooLong(INGREDIENT_NAME_MAX_LENGTH));
       return;
     }
 
     if (selectedTags.length === 0) {
-      setError("Choose at least one ingredient tag.");
+      setError(t.cookbook.chooseAtLeastOneIngredientTag);
       return;
     }
 
@@ -215,7 +216,7 @@ function IngredientCreateForm({
       await refreshRecipes();
       onCreated();
     } catch (caughtError) {
-      setError(caughtError instanceof Error ? caughtError.message : "Could not save ingredient.");
+      setError(caughtError instanceof Error ? caughtError.message : t.cookbook.couldNotSaveIngredient);
     } finally {
       setIsSaving(false);
     }
@@ -225,7 +226,7 @@ function IngredientCreateForm({
     <div className={recipeBrowserStyles.detailsPanel(theme)}>
       <div className={recipeBrowserStyles.formGrid}>
         <NutritionNumberField
-          label="Calories per 100g"
+          label={t.cookbook.caloriesPer100g}
           step="1"
           theme={theme}
           unit="kcal"
@@ -233,51 +234,51 @@ function IngredientCreateForm({
           onChange={setCalories}
         />
         <NutritionNumberField
-          label="Carbs per 100g"
+          label={t.cookbook.carbsPer100g}
           theme={theme}
           value={carbohydrateGrams}
           onChange={setCarbohydrateGrams}
         />
         <NutritionNumberField
-          label="Protein per 100g"
+          label={`${t.scanner.protein} per 100g`}
           theme={theme}
           value={proteinGrams}
           onChange={setProteinGrams}
         />
         <NutritionNumberField
-          label="Salt per 100g"
+          label={t.cookbook.saltPer100g}
           step="0.01"
           theme={theme}
           value={saltGrams}
           onChange={setSaltGrams}
         />
         <NutritionNumberField
-          label="Fiber per 100g"
+          label={t.cookbook.fiberPer100g}
           theme={theme}
           value={dietaryFiberGrams}
           onChange={setDietaryFiberGrams}
         />
         <NutritionNumberField
           className={recipeBrowserStyles.nutritionSecondRowStart}
-          label="Saturated fats per 100g"
+          label={t.cookbook.saturatedFatsPer100g}
           theme={theme}
           value={saturatedFatGrams}
           onChange={setSaturatedFatGrams}
         />
         <NutritionNumberField
-          label="Unsaturated fats per 100g"
+          label={t.cookbook.unsaturatedFatsPer100g}
           theme={theme}
           value={unsaturatedFatGrams}
           onChange={setUnsaturatedFatGrams}
         />
         <NutritionNumberField
-          label="Monounsaturated fats per 100g"
+          label={t.cookbook.monounsaturatedFatsPer100g}
           theme={theme}
           value={monounsaturatedFatGrams}
           onChange={setMonounsaturatedFatGrams}
         />
         <NutritionNumberField
-          label="Polyunsaturated fats per 100g"
+          label={t.cookbook.polyunsaturatedFatsPer100g}
           theme={theme}
           value={polyunsaturatedFatGrams}
           onChange={setPolyunsaturatedFatGrams}
@@ -285,7 +286,7 @@ function IngredientCreateForm({
       </div>
 
       <section className={recipeBrowserStyles.field}>
-        <span className={recipeBrowserStyles.label(theme)}>Vitamins</span>
+        <span className={recipeBrowserStyles.label(theme)}>{t.cookbook.vitamins}</span>
         <div className={`${recipeBrowserStyles.tagCheckboxGrid} ${recipeBrowserStyles.checkboxGridPanel(theme)}`}>
           {vitamins.map((vitamin) => (
             <label className={recipeBrowserStyles.checkboxLabel(theme)} key={vitamin}>
@@ -312,7 +313,7 @@ function IngredientCreateForm({
           <div className={recipeBrowserStyles.formGrid}>
             <label className={recipeBrowserStyles.field}>
               <span className={recipeBrowserStyles.label(theme)}>
-                Name<span className={recipeBrowserStyles.requiredMark(theme)}> *</span>
+                  {t.cookbook.name}<span className={recipeBrowserStyles.requiredMark(theme)}> *</span>
                 <span className={recipeBrowserStyles.inlineHint(theme)}>
                   {ingredientName.length}/{INGREDIENT_NAME_MAX_LENGTH}
                 </span>
@@ -328,10 +329,10 @@ function IngredientCreateForm({
             </label>
 
             <CreatableSelect
-              createLabel="Create New"
-              label="Brand"
+              createLabel={t.common.createNew}
+              label={t.cookbook.brand}
               options={brands.map((brand) => ({ id: brand.brandId, name: brand.name }))}
-              placeholder="Select brand"
+              placeholder={t.cookbook.selectBrand}
               theme={theme}
               value={brandId}
               onChange={setBrandId}
@@ -349,20 +350,20 @@ function IngredientCreateForm({
             />
 
             <section className={recipeBrowserStyles.field}>
-              <span className={recipeBrowserStyles.label(theme)}>Nutrition</span>
+              <span className={recipeBrowserStyles.label(theme)}>{t.cookbook.nutrition}</span>
               <button
                 aria-expanded={showNutrition}
                 className={recipeBrowserStyles.detailsToggleFull(theme)}
                 type="button"
                 onClick={() => setShowNutrition((currentValue) => !currentValue)}
               >
-                {showNutrition ? "Hide nutrition" : "Add nutrition"}
+                {showNutrition ? t.cookbook.hideNutrition : t.cookbook.addNutrition}
               </button>
               {showNutrition && <div className="md:hidden">{nutritionPanel}</div>}
             </section>
 
             <section className={recipeBrowserStyles.field}>
-              <span className={recipeBrowserStyles.label(theme)}>Image</span>
+              <span className={recipeBrowserStyles.label(theme)}>{t.cookbook.image}</span>
               <CompactIngredientImagePicker
                 inputId={imageInputId}
                 initialImageUrl={initialIngredient?.imageUrl}
@@ -377,8 +378,8 @@ function IngredientCreateForm({
 
           <section className={recipeBrowserStyles.field}>
             <span className={recipeBrowserStyles.label(theme)}>
-              Tags<span className={recipeBrowserStyles.requiredMark(theme)}> *</span>
-              <span className={recipeBrowserStyles.inlineHint(theme)}>Pick 1 or more</span>
+              {t.cookbook.tags}<span className={recipeBrowserStyles.requiredMark(theme)}> *</span>
+              <span className={recipeBrowserStyles.inlineHint(theme)}>{t.cookbook.pickOneOrMore}</span>
             </span>
             <GroupedCheckboxPanel
               formatValue={(value) => t.enums.ingredientTags[value]}
@@ -396,10 +397,10 @@ function IngredientCreateForm({
 
       <div className={recipeBrowserStyles.formActions}>
         <button className={`${recipeBrowserStyles.secondaryButton(theme)} ${recipeBrowserStyles.formActionButton}`} disabled={isSaving} type="button" onClick={onCancel}>
-          Cancel
+          {t.common.cancel}
         </button>
         <button className={`${recipeBrowserStyles.primaryButton(theme)} ${recipeBrowserStyles.formActionButton}`} disabled={isSaving} type="submit">
-          {isSaving ? "Saving..." : isEditing ? "Save ingredient" : "Create ingredient"}
+          {isSaving ? t.common.saving : isEditing ? t.cookbook.saveIngredient : t.cookbook.createIngredient}
         </button>
       </div>
     </form>

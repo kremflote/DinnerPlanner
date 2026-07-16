@@ -10,7 +10,7 @@ type RecipeThumbnailProps = {
   className?: string;
   interactiveEffect?: boolean;
   ariaPressed?: boolean;
-  textScale?: "default" | "compact";
+  textScale?: "default" | "compact" | "micro";
   theme?: SiteTheme;
   onClick?: () => void;
 };
@@ -27,9 +27,19 @@ function RecipeThumbnail({
   const subtitle = recipe.subtitle ?? recipe.cuisine ?? "No cuisine";
   const imageUrl = getApiAssetUrl(recipe.imageUrl);
   const titleClassName =
-    textScale === "compact" ? thumbnailStyles.recipeTitleCompact : thumbnailStyles.recipeTitle;
+    textScale === "micro"
+      ? thumbnailStyles.recipeTitleMicro
+      : textScale === "compact"
+        ? thumbnailStyles.recipeTitleCompact
+        : thumbnailStyles.recipeTitle;
   const subtitleLayoutClassName =
-    textScale === "compact" ? thumbnailStyles.recipeSubtitleLayoutCompact : thumbnailStyles.recipeSubtitleLayout;
+    textScale === "micro"
+      ? thumbnailStyles.recipeSubtitleLayoutMicro
+      : textScale === "compact"
+        ? thumbnailStyles.recipeSubtitleLayoutCompact
+        : thumbnailStyles.recipeSubtitleLayout;
+  const titleBandLayoutClassName =
+    textScale === "micro" ? thumbnailStyles.recipeTitleBandLayoutMicro : thumbnailStyles.recipeTitleBandLayout;
   const sharedClassName = `${thumbnailStyles.recipeShell} ${className} ${
     onClick ? (interactiveEffect ? thumbnailStyles.recipeShellInteractive : "cursor-pointer") : ""
   }`;
@@ -48,7 +58,7 @@ function RecipeThumbnail({
 
       <div className={thumbnailStyles.recipeImageOverlay(theme)} aria-hidden="true" />
 
-      <div className={`${thumbnailStyles.recipeTitleBandLayout} ${thumbnailStyles.recipeTitleBand(theme)}`}>
+      <div className={`${titleBandLayoutClassName} ${thumbnailStyles.recipeTitleBand(theme)}`}>
         <h3 className={titleClassName}>{recipe.name}</h3>
         <p className={`${subtitleLayoutClassName} ${thumbnailStyles.recipeSubtitle(theme)}`}>{subtitle}</p>
       </div>

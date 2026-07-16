@@ -22,6 +22,7 @@ export interface IRecipeComponent {
   name: string;
   imageUrl: string | null;
   sortOrder: number;
+  ingredients?: IRecipeIngredient[];
 }
 
 export interface IRecipeIngredient {

@@ -172,7 +172,15 @@ public class RecipesController(DinnerPlannerContext context) : ControllerBase
         .Include(recipe => (recipe as Dish)!.Cuisine)
         .Include(recipe => recipe.Tags)
         .Include(recipe => recipe.Components)
-            .ThenInclude(component => component.ChildRecipe);
+            .ThenInclude(component => component.ChildRecipe)
+                .ThenInclude(childRecipe => childRecipe.Ingredients)
+                    .ThenInclude(recipeIngredient => recipeIngredient.Ingredient)
+                        .ThenInclude(ingredient => ingredient.Brand)
+        .Include(recipe => recipe.Components)
+            .ThenInclude(component => component.ChildRecipe)
+                .ThenInclude(childRecipe => childRecipe.Ingredients)
+                    .ThenInclude(recipeIngredient => recipeIngredient.Ingredient)
+                        .ThenInclude(ingredient => ingredient.Tags);
     }
 
     private async Task<List<Recipe>> GetComponentRecipes(IEnumerable<int> recipeIds)
@@ -420,7 +428,8 @@ public class RecipesController(DinnerPlannerContext context) : ControllerBase
         ToType(component.ChildRecipe),
         component.ChildRecipe.Name,
         component.ChildRecipe.ImageUrl,
-        component.SortOrder
+        component.SortOrder,
+        component.ChildRecipe.Ingredients.Select(ToDto).ToList()
     );
 
     private async Task<bool> CuisineExists(int? cuisineId) =>

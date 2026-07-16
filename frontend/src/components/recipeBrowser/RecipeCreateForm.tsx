@@ -19,7 +19,7 @@ import {
   RecipeIngredientPickerDialog,
   SelectedIngredientCapsules,
 } from "./RecipeIngredientPicker";
-import { formatLabel, recipeBrowserStyles } from "./recipeBrowserStyles";
+import { recipeBrowserStyles } from "./recipeBrowserStyles";
 import {
   toggleRecipeIngredient,
   updateSelectedIngredient,
@@ -169,17 +169,17 @@ function RecipeCreateForm({
     const trimmedName = name.trim();
 
     if (trimmedName.length === 0) {
-      setError("Recipe needs a name.");
+      setError(t.cookbook.recipeNeedsName);
       return;
     }
 
     if (trimmedName.length > RECIPE_NAME_MAX_LENGTH) {
-      setError(`Recipe name can be at most ${RECIPE_NAME_MAX_LENGTH} characters.`);
+      setError(t.cookbook.recipeNameTooLong(RECIPE_NAME_MAX_LENGTH));
       return;
     }
 
     if (selectedIngredients.length === 0) {
-      setError("Choose at least one ingredient.");
+      setError(t.cookbook.chooseAtLeastOneIngredient);
       return;
     }
 
@@ -221,7 +221,7 @@ function RecipeCreateForm({
       await refreshRecipes();
       onCreated();
     } catch (caughtError) {
-      setError(caughtError instanceof Error ? caughtError.message : "Could not create recipe.");
+      setError(caughtError instanceof Error ? caughtError.message : t.cookbook.couldNotCreateRecipe);
     } finally {
       setIsSaving(false);
     }
@@ -230,7 +230,7 @@ function RecipeCreateForm({
   const renderRecipeTypeField = (className: string) => (
     <label className={`${recipeBrowserStyles.field} ${className}`}>
       <span className={recipeBrowserStyles.label(theme)}>
-        Recipe type<span className={recipeBrowserStyles.requiredMark(theme)}> *</span>
+        {t.cookbook.recipeType}<span className={recipeBrowserStyles.requiredMark(theme)}> *</span>
       </span>
       <select
         className={recipeBrowserStyles.textField(theme)}
@@ -240,7 +240,7 @@ function RecipeCreateForm({
       >
         {recipeTypes.map((type) => (
           <option key={type} value={type}>
-            {formatLabel(type)}
+            {t.enums.recipeTypes[type]}
           </option>
         ))}
       </select>
@@ -279,9 +279,9 @@ function RecipeCreateForm({
               {recipeType === "Dish" && (
                 <CreatableSelect
                   createLabel="Create New"
-                  label="Cuisine"
+                  label={t.cookbook.cuisine}
                   options={cuisines.map((cuisine) => ({ id: cuisine.cuisineId, name: cuisine.name }))}
-                  placeholder="Select cuisine"
+                  placeholder={t.cookbook.selectCuisine}
                   theme={theme}
                   value={cuisineId}
                   onChange={setCuisineId}
@@ -295,7 +295,7 @@ function RecipeCreateForm({
 
               {recipeType === "Dessert" && (
                 <label className={recipeBrowserStyles.field}>
-                  <span className={recipeBrowserStyles.label(theme)}>Dessert type</span>
+                  <span className={recipeBrowserStyles.label(theme)}>{t.cookbook.dessertType}</span>
                   <select
                     className={recipeBrowserStyles.textField(theme)}
                     value={dessertType}
@@ -303,7 +303,7 @@ function RecipeCreateForm({
                   >
                     {dessertTypes.map((value) => (
                       <option key={value} value={value}>
-                        {formatLabel(value)}
+                        {t.enums.dessertTypes[value]}
                       </option>
                     ))}
                   </select>
@@ -311,7 +311,7 @@ function RecipeCreateForm({
               )}
             </div>
             <div className={recipeBrowserStyles.recipeImageField}>
-              <span className={`${recipeBrowserStyles.label(theme)} ${recipeBrowserStyles.recipeImageLabel}`}>Image</span>
+              <span className={`${recipeBrowserStyles.label(theme)} ${recipeBrowserStyles.recipeImageLabel}`}>{t.cookbook.image}</span>
               <div className={recipeBrowserStyles.recipeImageControl}>
                 <ImageCropPicker
                   inputId={imageInputId}
@@ -325,8 +325,8 @@ function RecipeCreateForm({
 
           <section className={recipeBrowserStyles.field}>
             <span className={recipeBrowserStyles.label(theme)}>
-              Tags
-              <span className={recipeBrowserStyles.inlineHint(theme)}>Optional</span>
+              {t.cookbook.tags}
+              <span className={recipeBrowserStyles.inlineHint(theme)}>{t.cookbook.optional}</span>
             </span>
             <GroupedCheckboxPanel
               formatValue={(value) => t.enums.recipeTags[value]}
@@ -341,9 +341,9 @@ function RecipeCreateForm({
 
           <section className={recipeBrowserStyles.field}>
             <span className={recipeBrowserStyles.label(theme)}>
-              Add sides
+              {t.cookbook.addSides}
               <span className={recipeBrowserStyles.inlineHint(theme)}>
-                Add sauces, dips or similar which already have recipes to this recipe
+                {t.cookbook.addSidesHelp}
               </span>
             </span>
             <button
@@ -351,10 +351,10 @@ function RecipeCreateForm({
               type="button"
               onClick={() => setIsComponentPickerOpen(true)}
             >
-              Add sides
+              {t.cookbook.addSides}
             </button>
             {selectedComponentRecipes.length === 0 ? (
-              <p className={recipeBrowserStyles.helperText(theme)}>No sides added.</p>
+              <p className={recipeBrowserStyles.helperText(theme)}>{t.cookbook.noSidesAdded}</p>
             ) : (
               <div className={recipeBrowserStyles.selectedComponentThumbnails}>
                 {selectedComponentRecipes.map((componentRecipe) => (
@@ -365,9 +365,9 @@ function RecipeCreateForm({
                     recipe={{
                       name: componentRecipe.name,
                       imageUrl: componentRecipe.imageUrl,
-                      subtitle: formatLabel(componentRecipe.recipeType),
+                      subtitle: t.enums.recipeTypes[componentRecipe.recipeType],
                     }}
-                    textScale="compact"
+                    textScale="micro"
                     theme={theme}
                     onClick={() =>
                       setSelectedComponentIds((currentIds) =>
@@ -382,11 +382,11 @@ function RecipeCreateForm({
 
           <section className={recipeBrowserStyles.field}>
             <span className={recipeBrowserStyles.label(theme)}>
-              Ingredients<span className={recipeBrowserStyles.requiredMark(theme)}> *</span>
+              {t.cookbook.ingredients}<span className={recipeBrowserStyles.requiredMark(theme)}> *</span>
             </span>
             <div className={recipeBrowserStyles.mobileIngredientSummary}>
               <button className={recipeBrowserStyles.detailsToggleFull(theme)} type="button" onClick={openMobileIngredientPicker}>
-                Choose ingredients
+                {t.cookbook.chooseIngredients}
               </button>
               <SelectedIngredientCapsules
                 ingredients={ingredients}
@@ -442,7 +442,7 @@ function RecipeCreateForm({
             <div className={recipeBrowserStyles.detailsPanel(theme)}>
               <div className={recipeBrowserStyles.formGrid}>
                 <label className={recipeBrowserStyles.field}>
-                  <span className={recipeBrowserStyles.label(theme)}>Description</span>
+                  <span className={recipeBrowserStyles.label(theme)}>{t.cookbook.description}</span>
                   <textarea
                     className={recipeBrowserStyles.textArea(theme)}
                     maxLength={600}
@@ -452,7 +452,7 @@ function RecipeCreateForm({
                 </label>
 
                 <label className={recipeBrowserStyles.field}>
-                  <span className={recipeBrowserStyles.label(theme)}>Instructions</span>
+                  <span className={recipeBrowserStyles.label(theme)}>{t.cookbook.instructions}</span>
                   <textarea
                     className={recipeBrowserStyles.textArea(theme)}
                     value={instructions}
@@ -467,10 +467,10 @@ function RecipeCreateForm({
 
       <div className={recipeBrowserStyles.formActions}>
         <button className={`${recipeBrowserStyles.secondaryButton(theme)} ${recipeBrowserStyles.formActionButton}`} disabled={isSaving} type="button" onClick={onCancel}>
-          Cancel
+          {t.common.cancel}
         </button>
         <button className={`${recipeBrowserStyles.primaryButton(theme)} ${recipeBrowserStyles.formActionButton}`} disabled={isSaving} type="submit">
-          {isSaving ? "Saving..." : isEditing ? "Save recipe" : "Create recipe"}
+          {isSaving ? t.common.saving : isEditing ? t.cookbook.saveRecipe : t.cookbook.createRecipe}
         </button>
       </div>
       {isIngredientPickerOpen && (
@@ -544,31 +544,33 @@ function RecipeComponentPickerDialog({
   onConfirm,
   onToggle,
 }: RecipeComponentPickerDialogProps) {
+  const { t } = useLanguage();
+
   return (
     <Modal
       backdropClassName={recipeBrowserStyles.nestedModalBackdrop}
       bodyClassName={recipeBrowserStyles.nestedIngredientModalBody}
       closeButtonClassName={recipeBrowserStyles.modalCloseAligned(theme)}
-      closeLabel="Close"
+      closeLabel={t.common.close}
       footer={
         <>
           <button className={`${recipeBrowserStyles.secondaryButton(theme)} ${recipeBrowserStyles.formActionButton}`} type="button" onClick={onCancel}>
-            Cancel
+            {t.common.cancel}
           </button>
           <button className={`${recipeBrowserStyles.primaryButton(theme)} ${recipeBrowserStyles.formActionButton}`} type="button" onClick={onConfirm}>
-            Confirm
+            {t.common.confirm}
           </button>
         </>
       }
       footerClassName={recipeBrowserStyles.formActions}
       headerClassName={recipeBrowserStyles.modalHeader}
       panelClassName={recipeBrowserStyles.nestedIngredientModalPanel(theme)}
-      title="Add sides"
+      title={t.cookbook.addSides}
       titleClassName={recipeBrowserStyles.modalTitle}
       onClose={onCancel}
     >
       {recipes.length === 0 ? (
-        <p className={recipeBrowserStyles.helperText(theme)}>Create a sauce, dip, side, or spice mix first.</p>
+        <p className={recipeBrowserStyles.helperText(theme)}>{t.cookbook.createSideRecipeFirst}</p>
       ) : (
         <div className={recipeBrowserStyles.componentRecipeBrowserGrid}>
           {recipes.map((recipe) => {
@@ -583,7 +585,7 @@ function RecipeComponentPickerDialog({
                 recipe={{
                   name: recipe.name,
                   imageUrl: recipe.imageUrl,
-                  subtitle: formatLabel(recipe.recipeType),
+                  subtitle: t.enums.recipeTypes[recipe.recipeType],
                 }}
                 textScale="compact"
                 theme={theme}

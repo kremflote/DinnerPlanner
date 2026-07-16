@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useLanguage } from "../../contexts";
 import { getApiAssetUrl } from "../../services/apiClient";
 import type { SiteTheme } from "../../styles/appStyles";
 import { recipeBrowserStyles } from "./recipeBrowserStyles";
@@ -14,6 +15,7 @@ const cropOutputSize = 800;
 const placeholderImageUrl = getApiAssetUrl("/images/placeholders/recipe-photo-placeholder.png");
 
 function ImageCropPicker({ inputId, initialImageUrl = null, theme, onCroppedFileChange }: ImageCropPickerProps) {
+  const { t } = useLanguage();
   const cameraInputId = `${inputId}-camera`;
   const [sourceFile, setSourceFile] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -128,48 +130,48 @@ function ImageCropPicker({ inputId, initialImageUrl = null, theme, onCroppedFile
 
       <div className={recipeBrowserStyles.cropPreview(theme)}>
         {previewUrl ? (
-          <img className={recipeBrowserStyles.cropImage} src={previewUrl} alt="Recipe image crop preview" />
+          <img className={recipeBrowserStyles.cropImage} src={previewUrl} alt={t.cookbook.imagePreview} />
         ) : currentImageUrl ? (
           <img
             className={recipeBrowserStyles.cropImage}
             src={currentImageUrl}
-            alt="Current recipe"
+            alt={t.cookbook.image}
           />
         ) : placeholderImageUrl ? (
           <img
             className={recipeBrowserStyles.cropImage}
             src={placeholderImageUrl}
-            alt="Top-down recipe photo guide"
+            alt={t.cookbook.imagePreview}
           />
         ) : (
           <div className={recipeBrowserStyles.cropFallback}>
-            Image preview
+            {t.cookbook.imagePreview}
           </div>
         )}
         <div className={recipeBrowserStyles.imageUploadActionStack}>
           <label className={recipeBrowserStyles.imageUploadFloatingButton(theme)} htmlFor={inputId}>
             <ImageUploadIcon />
-            <span className={recipeBrowserStyles.desktopUploadLabel}>Choose file</span>
-            <span className={recipeBrowserStyles.mobileUploadLabel}>Choose photo</span>
+            <span className={recipeBrowserStyles.desktopUploadLabel}>{t.cookbook.chooseFile}</span>
+            <span className={recipeBrowserStyles.mobileUploadLabel}>{t.cookbook.choosePhoto}</span>
           </label>
           <label className={recipeBrowserStyles.imageCaptureButton(theme)} htmlFor={cameraInputId}>
             <CameraIcon />
-            Take photo
+            {t.cookbook.takePhoto}
           </label>
         </div>
       </div>
 
       {hasImage && !cropConfirmed && (
         <div className={recipeBrowserStyles.cropControls}>
-          <SliderField label="Zoom" max={3} min={1} step={0.05} value={zoom} onChange={setZoom} />
-          <SliderField label="Horizontal crop" max={100} min={-100} step={1} value={offsetX} onChange={setOffsetX} />
-          <SliderField label="Vertical crop" max={100} min={-100} step={1} value={offsetY} onChange={setOffsetY} />
+          <SliderField label={t.cookbook.zoom} max={3} min={1} step={0.05} value={zoom} onChange={setZoom} />
+          <SliderField label={t.cookbook.horizontalCrop} max={100} min={-100} step={1} value={offsetX} onChange={setOffsetX} />
+          <SliderField label={t.cookbook.verticalCrop} max={100} min={-100} step={1} value={offsetY} onChange={setOffsetY} />
           <button
             className={`${recipeBrowserStyles.secondaryButton(theme)} ${recipeBrowserStyles.cropConfirmButton}`}
             type="button"
             onClick={() => setCropConfirmed(true)}
           >
-            Confirm image
+            {t.cookbook.confirmImage}
           </button>
         </div>
       )}

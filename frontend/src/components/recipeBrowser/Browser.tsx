@@ -356,7 +356,6 @@ function Browser({ mode, theme, headerActions, modeToggle }: BrowserProps) {
           detail={selectedDetail}
           theme={theme}
           onClose={() => selectDetail(null)}
-          onSelectDetail={selectDetail}
         />
       )}
     </>

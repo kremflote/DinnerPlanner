@@ -1,22 +1,27 @@
 import { useState } from "react";
 import { useLanguage } from "../../contexts";
 import IngredientThumbnail from "../IngredientThumbnail";
-import RecipeThumbnail from "../RecipeThumbnail";
-import type { IIngredient, INutritionFacts } from "../../interfaces/IIngredient";
+import type { IIngredient, INutritionFacts, MeasurementUnit } from "../../interfaces/IIngredient";
 import { getApiAssetUrl } from "../../services/apiClient";
 import type { SiteTheme } from "../../styles/appStyles";
 import { DetailSection, DetailText, DetailTextWithMeta, NutritionGrid } from "./detailComponents";
-import { formatLabel, recipeBrowserStyles } from "./recipeBrowserStyles";
+import { recipeBrowserStyles } from "./recipeBrowserStyles";
 import type { EnrichedRecipe } from "./types";
-
 type RecipeDetailContentProps = {
+  allRecipes: EnrichedRecipe[];
   recipe: EnrichedRecipe;
   theme: SiteTheme;
   onIngredientClick?: (ingredient: IIngredient) => void;
   onRecipeClick?: (recipeId: number) => void;
 };
 
-function RecipeDetailContent({ recipe, theme, onIngredientClick, onRecipeClick }: RecipeDetailContentProps) {
+function RecipeDetailContent({
+  allRecipes,
+  recipe,
+  theme,
+  onIngredientClick,
+  onRecipeClick,
+}: RecipeDetailContentProps) {
   const { t } = useLanguage();
   const imageUrl = getApiAssetUrl(recipe.imageUrl);
   const nutrition = calculateRecipeNutrition(recipe);
@@ -31,7 +36,7 @@ function RecipeDetailContent({ recipe, theme, onIngredientClick, onRecipeClick }
             <img className={recipeBrowserStyles.detailImage} src={imageUrl} alt={recipe.name} />
           ) : (
             <div className={recipeBrowserStyles.detailImageFallback}>
-              No image
+              {t.cookbook.noImage}
             </div>
           )}
         </div>
@@ -39,28 +44,28 @@ function RecipeDetailContent({ recipe, theme, onIngredientClick, onRecipeClick }
         <div className={recipeBrowserStyles.recipeDetailDescriptionWrap}>
           <DetailTextWithMeta
             className={recipeBrowserStyles.recipeDetailDescriptionPanel}
-            label="Description"
+            label={t.cookbook.description}
             meta={[
-              formatLabel(recipe.recipeType),
+              t.enums.recipeTypes[recipe.recipeType],
               recipe.cuisine?.name,
-              recipe.dessertType ? formatLabel(recipe.dessertType) : null,
+              recipe.dessertType ? t.enums.dessertTypes[recipe.dessertType] : null,
             ].filter(Boolean).join(" · ")}
             theme={theme}
-            value={recipe.description || "No description yet."}
+            value={recipe.description || t.cookbook.noDescription}
           />
         </div>
       </div>
 
       <div className={recipeBrowserStyles.recipeDetailSplitGrid}>
         <DetailSection
-          title="Ingredients"
+          title={t.cookbook.ingredients}
           theme={theme}
           headerAction={
             <label className={recipeBrowserStyles.scaleLabel}>
-              <span className={recipeBrowserStyles.helperText(theme)}>Scale</span>
+              <span className={recipeBrowserStyles.helperText(theme)}>{t.cookbook.scale}</span>
               <span className={`${recipeBrowserStyles.numberField} ${recipeBrowserStyles.scaleField}`}>
                 <input
-                  aria-label="Ingredient amount multiplier"
+                  aria-label={t.cookbook.ingredientAmountMultiplier}
                   className={`${recipeBrowserStyles.compactTextField(theme)} ${recipeBrowserStyles.scaleInput}`}
                   min="0"
                   placeholder="1"
@@ -74,89 +79,125 @@ function RecipeDetailContent({ recipe, theme, onIngredientClick, onRecipeClick }
             </label>
           }
         >
-          {recipe.ingredients.length === 0 ? (
-            <p className={recipeBrowserStyles.helperText(theme)}>No ingredients added.</p>
-          ) : (
-            <div className={recipeBrowserStyles.detailRows}>
-              {recipe.ingredients.map((recipeIngredient) => (
-                <button
-                  className={recipeBrowserStyles.detailIngredientRow(theme)}
-                  key={recipeIngredient.recipeIngredientId}
-                  type="button"
-                  onClick={() => onIngredientClick?.(recipeIngredient.ingredient)}
-                >
-                  <IngredientThumbnail
-                    className={recipeBrowserStyles.detailIngredientThumbnail}
-                    ingredient={recipeIngredient.ingredient}
+          <div className={recipeBrowserStyles.detailIngredientSections}>
+            <RecipeIngredientSection
+              amountMultiplier={amountMultiplier}
+              ingredients={recipe.ingredients}
+              title={t.cookbook.mainRecipe}
+              theme={theme}
+              onIngredientClick={onIngredientClick}
+            />
+            {recipe.components
+              .slice()
+              .sort((first, second) => first.sortOrder - second.sortOrder)
+              .map((component) => {
+                const fullComponentRecipe = allRecipes.find((currentRecipe) => currentRecipe.recipeId === component.recipeId);
+                const componentIngredients = component.ingredients ?? fullComponentRecipe?.ingredients ?? [];
+
+                return (
+                  <RecipeIngredientSection
+                    amountMultiplier={amountMultiplier}
+                    ingredients={componentIngredients}
+                    key={component.recipeId}
+                    recipeId={component.recipeId}
+                    title={t.enums.recipeTypes[component.recipeType]}
+                    titleLinkLabel={component.name}
                     theme={theme}
+                    onIngredientClick={onIngredientClick}
+                    onRecipeClick={onRecipeClick}
                   />
-                  <span className={recipeBrowserStyles.detailIngredientAmount}>
-                    {formatRecipeIngredientAmount(recipeIngredient.amount, recipeIngredient.unit, amountMultiplier)}
-                  </span>
-                  <span className={recipeBrowserStyles.detailIngredientPreparation}>
-                    {recipeIngredient.preparation !== "None" ? t.enums.ingredientPreparations[recipeIngredient.preparation] : ""}
-                  </span>
-                </button>
-              ))}
-            </div>
-          )}
+                );
+              })}
+          </div>
         </DetailSection>
 
         <DetailText
-          label="Instructions"
+          label={t.cookbook.instructions}
           theme={theme}
-          value={recipe.instructions || "No instructions yet."}
+          value={recipe.instructions || t.cookbook.noInstructions}
         />
       </div>
 
-      {recipe.components.length > 0 && (
-        <DetailSection title="Included recipes" theme={theme}>
-          <div className={recipeBrowserStyles.detailComponentGroups}>
-            {groupComponentsByType(recipe.components).map((group) => (
-              <section className={recipeBrowserStyles.detailComponentGroup(theme)} key={group.recipeType}>
-                <h3 className={recipeBrowserStyles.groupedTagTitle(theme)}>
-                  {formatLabel(group.recipeType)}
-                </h3>
-                <div className={recipeBrowserStyles.detailComponentGrid}>
-                  {group.components.map((component) => (
-                    <RecipeThumbnail
-                      className={recipeBrowserStyles.detailComponentThumbnail}
-                      interactiveEffect
-                      key={component.recipeId}
-                      recipe={{
-                        name: component.name,
-                        imageUrl: component.imageUrl,
-                        subtitle: formatLabel(component.recipeType),
-                      }}
-                      textScale="compact"
-                      theme={theme}
-                      onClick={() => onRecipeClick?.(component.recipeId)}
-                    />
-                  ))}
-                </div>
-              </section>
-            ))}
-          </div>
-        </DetailSection>
-      )}
-
-      <DetailSection title="Dietary information" theme={theme}>
+      <DetailSection title={t.cookbook.dietaryInformation} theme={theme}>
         <NutritionGrid nutrition={nutrition} theme={theme} />
       </DetailSection>
     </div>
   );
 }
 
-function groupComponentsByType(components: EnrichedRecipe["components"]) {
-  const groupOrder = ["Sauce", "Dip", "Side", "SpiceMix"];
-  return groupOrder
-    .map((recipeType) => ({
-      recipeType,
-      components: components
-        .filter((component) => component.recipeType === recipeType)
-        .sort((first, second) => first.sortOrder - second.sortOrder),
-    }))
-    .filter((group) => group.components.length > 0);
+type RecipeIngredientSectionProps = {
+  amountMultiplier: number;
+  ingredients: EnrichedRecipe["ingredients"];
+  recipeId?: number;
+  title: string;
+  titleLinkLabel?: string;
+  theme: SiteTheme;
+  onIngredientClick?: (ingredient: IIngredient) => void;
+  onRecipeClick?: (recipeId: number) => void;
+};
+
+function RecipeIngredientSection({
+  amountMultiplier,
+  ingredients,
+  recipeId,
+  title,
+  titleLinkLabel,
+  theme,
+  onIngredientClick,
+  onRecipeClick,
+}: RecipeIngredientSectionProps) {
+  const { t } = useLanguage();
+
+  return (
+    <section className={recipeBrowserStyles.detailIngredientSection}>
+      <h3 className={recipeBrowserStyles.detailIngredientSectionTitle(theme)}>
+        <span>{title}</span>
+        {titleLinkLabel !== undefined && recipeId !== undefined && (
+          <>
+            <span aria-hidden="true"> - </span>
+            <button
+              className={recipeBrowserStyles.detailIngredientSectionTitleButton(theme)}
+              type="button"
+              onClick={() => onRecipeClick?.(recipeId)}
+            >
+              {titleLinkLabel}
+            </button>
+          </>
+        )}
+      </h3>
+      {ingredients.length === 0 ? (
+        <p className={recipeBrowserStyles.helperText(theme)}>{t.cookbook.noIngredientsAdded}</p>
+      ) : (
+        <div className={recipeBrowserStyles.detailRows}>
+          {ingredients.map((recipeIngredient) => (
+            <button
+              className={recipeBrowserStyles.detailIngredientRow(theme)}
+              key={recipeIngredient.recipeIngredientId}
+              type="button"
+              onClick={() => onIngredientClick?.(recipeIngredient.ingredient)}
+            >
+              <IngredientThumbnail
+                className={recipeBrowserStyles.detailIngredientThumbnail}
+                ingredient={recipeIngredient.ingredient}
+                theme={theme}
+              />
+              <span className={recipeBrowserStyles.detailIngredientAmount}>
+                {formatRecipeIngredientAmount(
+                  recipeIngredient.amount,
+                  recipeIngredient.unit,
+                  t.enums.measurementUnits,
+                  amountMultiplier,
+                )}
+              </span>
+              <span className={recipeBrowserStyles.detailIngredientPreparation}>
+                {recipeIngredient.preparation !== "None" ? t.enums.ingredientPreparations[recipeIngredient.preparation] : ""}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+    </section>
+  );
 }
 
 function calculateRecipeNutrition(recipe: EnrichedRecipe): INutritionFacts | null {
@@ -236,13 +277,18 @@ function parseAmountMultiplier(value: string) {
   return Number.isFinite(multiplier) && multiplier >= 0 ? multiplier : 1;
 }
 
-function formatRecipeIngredientAmount(amount: number | null, unit: string, multiplier = 1) {
+function formatRecipeIngredientAmount(
+  amount: number | null,
+  unit: MeasurementUnit,
+  unitLabels: Record<MeasurementUnit, string>,
+  multiplier = 1,
+) {
   if (amount === null) {
-    return formatLabel(unit);
+    return unitLabels[unit];
   }
 
   const scaledAmount = Math.round(amount * multiplier * 100) / 100;
-  return `${scaledAmount} ${formatLabel(unit).toLowerCase()}`;
+  return `${scaledAmount} ${unitLabels[unit].toLowerCase()}`;
 }
 
 export default RecipeDetailContent;

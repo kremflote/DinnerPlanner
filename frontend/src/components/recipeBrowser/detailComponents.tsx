@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
+import { useLanguage } from "../../contexts";
 import type { INutritionFacts } from "../../interfaces/IIngredient";
 import type { SiteTheme } from "../../styles/appStyles";
-import { formatLabel, recipeBrowserStyles } from "./recipeBrowserStyles";
+import { recipeBrowserStyles } from "./recipeBrowserStyles";
 
 type DetailSectionProps = {
   title: string;
@@ -76,12 +77,14 @@ type ChipListProps = {
 };
 
 export function ChipList({ compact = false, label, values, theme }: ChipListProps) {
+  const { t } = useLanguage();
+
   return (
     <section className={compact ? recipeBrowserStyles.detailChipSectionCompact : recipeBrowserStyles.detailChipSection}>
       <span className={recipeBrowserStyles.label(theme)}>{label}</span>
       <div className={recipeBrowserStyles.detailChipList}>
         {values.length === 0 ? (
-          <span className={recipeBrowserStyles.helperText(theme)}>None</span>
+          <span className={recipeBrowserStyles.helperText(theme)}>{t.cookbook.none}</span>
         ) : (
           values.map((value) => (
             <span className={recipeBrowserStyles.filterChip(theme)} key={value}>
@@ -100,21 +103,23 @@ type NutritionGridProps = {
 };
 
 export function NutritionGrid({ nutrition, theme }: NutritionGridProps) {
+  const { t } = useLanguage();
+
   if (nutrition === null) {
-    return <p className={recipeBrowserStyles.helperText(theme)}>No dietary information yet.</p>;
+    return <p className={recipeBrowserStyles.helperText(theme)}>{t.cookbook.noDietaryInformation}</p>;
   }
 
   const rows = [
-    ["Calories", nutrition.calories === null ? null : `${nutrition.calories} kcal`],
-    ["Carbs", formatGrams(nutrition.carbohydrateGrams)],
-    ["Protein", formatGrams(nutrition.proteinGrams)],
-    ["Salt", formatGrams(nutrition.saltGrams)],
-    ["Fiber", formatGrams(nutrition.dietaryFiberGrams)],
-    ["Saturated fats", formatGrams(nutrition.saturatedFatGrams)],
-    ["Unsaturated fats", formatGrams(nutrition.unsaturatedFatGrams)],
-    ["Monounsaturated fats", formatGrams(nutrition.monounsaturatedFatGrams)],
-    ["Polyunsaturated fats", formatGrams(nutrition.polyunsaturatedFatGrams)],
-    ["Vitamins", nutrition.vitamins.length === 0 ? null : nutrition.vitamins.map(formatLabel).join(", ")],
+    [t.cookbook.calories, nutrition.calories === null ? null : `${nutrition.calories} kcal`],
+    [t.cookbook.carbs, formatGrams(nutrition.carbohydrateGrams)],
+    [t.cookbook.protein, formatGrams(nutrition.proteinGrams)],
+    [t.cookbook.salt, formatGrams(nutrition.saltGrams)],
+    [t.cookbook.fiber, formatGrams(nutrition.dietaryFiberGrams)],
+    [t.cookbook.saturatedFats, formatGrams(nutrition.saturatedFatGrams)],
+    [t.cookbook.unsaturatedFats, formatGrams(nutrition.unsaturatedFatGrams)],
+    [t.cookbook.monounsaturatedFats, formatGrams(nutrition.monounsaturatedFatGrams)],
+    [t.cookbook.polyunsaturatedFats, formatGrams(nutrition.polyunsaturatedFatGrams)],
+    [t.cookbook.vitamins, nutrition.vitamins.length === 0 ? null : nutrition.vitamins.map((vitamin) => t.enums.vitamins[vitamin]).join(", ")],
   ];
 
   return (
@@ -122,7 +127,7 @@ export function NutritionGrid({ nutrition, theme }: NutritionGridProps) {
       {rows.map(([label, value]) => (
         <div className={recipeBrowserStyles.detailRow(theme)} key={label}>
           <span className={recipeBrowserStyles.detailRowLabel}>{label}</span>
-          <span>{value ?? "Not set"}</span>
+          <span>{value ?? t.cookbook.notSet}</span>
         </div>
       ))}
     </div>

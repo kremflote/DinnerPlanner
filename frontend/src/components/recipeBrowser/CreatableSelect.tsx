@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import ConfirmationDialog from "../ConfirmationDialog";
+import { useLanguage } from "../../contexts";
 import type { SiteTheme } from "../../styles/appStyles";
 import { recipeBrowserStyles } from "./recipeBrowserStyles";
 
@@ -35,6 +36,7 @@ function CreatableSelect({
   onCreate,
   onDeleteOption,
 }: CreatableSelectProps) {
+  const { t } = useLanguage();
   const selectRef = useRef<HTMLDivElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
@@ -71,7 +73,7 @@ function CreatableSelect({
   const saveNewOption = async () => {
     const trimmedName = name.trim();
     if (trimmedName.length === 0) {
-      setError("Name is required.");
+      setError(t.common.nameRequired);
       return;
     }
 
@@ -85,7 +87,7 @@ function CreatableSelect({
       setIsCreating(false);
       setIsOpen(false);
     } catch (caughtError) {
-      setError(caughtError instanceof Error ? caughtError.message : "Could not create option.");
+      setError(caughtError instanceof Error ? caughtError.message : t.common.couldNotCreateOption);
     } finally {
       setIsSaving(false);
     }
@@ -105,7 +107,7 @@ function CreatableSelect({
         onChange(null);
       }
     } catch (caughtError) {
-      setError(caughtError instanceof Error ? caughtError.message : "Could not delete option.");
+      setError(caughtError instanceof Error ? caughtError.message : t.common.couldNotDeleteOption);
     } finally {
       setDeletingOptionId(null);
       setOptionPendingDelete(null);
@@ -200,6 +202,9 @@ function CreatableSelect({
             name={name}
             theme={theme}
             setName={setName}
+            cancelLabel={t.common.cancel}
+            createLabel={t.cookbook.create}
+            savingLabel={t.common.saving}
             onCancel={() => {
               setIsCreating(false);
               setError(null);
@@ -210,11 +215,11 @@ function CreatableSelect({
         )}
         {optionPendingDelete !== null && (
           <ConfirmationDialog
-            body={`This will delete ${optionPendingDelete.name}.`}
-            confirmLabel="Remove"
+            body={t.common.deleteNamed(optionPendingDelete.name)}
+            confirmLabel={t.common.remove}
             isBusy={deletingOptionId === optionPendingDelete.id}
             theme={theme}
-            title={`Remove ${optionPendingDelete.name}?`}
+            title={t.common.removeNamed(optionPendingDelete.name)}
             onCancel={() => setOptionPendingDelete(null)}
             onConfirm={() => void deleteOption(optionPendingDelete)}
           />
@@ -256,6 +261,9 @@ function CreatableSelect({
           name={name}
           theme={theme}
           setName={setName}
+          cancelLabel={t.common.cancel}
+          createLabel={t.cookbook.create}
+          savingLabel={t.common.saving}
           onCancel={() => {
             setIsCreating(false);
             setError(null);
@@ -273,6 +281,9 @@ type CreateOptionPanelProps = {
   isSaving: boolean;
   label: string;
   name: string;
+  cancelLabel: string;
+  createLabel: string;
+  savingLabel: string;
   theme: SiteTheme;
   setName: (name: string) => void;
   onCancel: () => void;
@@ -284,6 +295,9 @@ function CreateOptionPanel({
   isSaving,
   label,
   name,
+  cancelLabel,
+  createLabel,
+  savingLabel,
   theme,
   setName,
   onCancel,
@@ -307,7 +321,7 @@ function CreateOptionPanel({
           type="button"
           onClick={onCancel}
         >
-          Cancel
+          {cancelLabel}
         </button>
         <button
           className={recipeBrowserStyles.primaryButton(theme)}
@@ -315,7 +329,7 @@ function CreateOptionPanel({
           type="button"
           onClick={onSave}
         >
-          {isSaving ? "Saving..." : "Create"}
+          {isSaving ? savingLabel : createLabel}
         </button>
       </div>
     </div>

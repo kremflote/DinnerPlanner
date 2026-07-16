@@ -252,13 +252,18 @@ export const thumbnailStyles = {
     theme === "paletteLight" ? "bg-[#7A8864]/95" : "bg-neutral-700/95",
   recipeTitleBandLayout:
     "absolute inset-x-0 bottom-0 flex h-1/4 min-h-14 flex-col justify-center px-3",
+  recipeTitleBandLayoutMicro:
+    "absolute inset-x-0 bottom-0 flex h-[38%] min-h-0 flex-col justify-center px-1.5",
   recipeTitle: "truncate text-base font-bold leading-tight text-[#FAF7F2]",
   recipeTitleCompact: "truncate text-sm font-bold leading-tight text-[#FAF7F2]",
+  recipeTitleMicro: "truncate text-[10px] font-bold leading-tight text-[#FAF7F2]",
   recipeSubtitle: (theme: SiteTheme) =>
     theme === "paletteLight" ? "text-[#FAF7F2]/75" : "text-neutral-300",
   recipeSubtitleLayout: "mt-1 truncate text-xs font-semibold leading-tight",
   recipeSubtitleLayoutCompact:
     "mt-0.5 truncate text-[10px] font-semibold leading-tight",
+  recipeSubtitleLayoutMicro:
+    "mt-0 truncate text-[8px] font-semibold leading-tight",
   ingredientShell: (theme: SiteTheme) =>
     `grid h-12 w-full grid-cols-[2.25rem_minmax(0,1fr)] items-center gap-2 rounded-md border p-1.5 text-left ${shadowClasses.subtle} transition ${
       theme === "dark"

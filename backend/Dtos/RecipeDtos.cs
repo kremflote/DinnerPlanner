@@ -72,5 +72,6 @@ public record RecipeComponentDto(
     RecipeType RecipeType,
     string Name,
     string? ImageUrl,
-    int SortOrder
+    int SortOrder,
+    IReadOnlyCollection<RecipeIngredientDto> Ingredients
 );

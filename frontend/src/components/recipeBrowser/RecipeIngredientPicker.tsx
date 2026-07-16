@@ -1,10 +1,11 @@
 import IngredientThumbnail from "../IngredientThumbnail";
 import Modal from "../Modal";
+import { useLanguage } from "../../contexts";
 import type { IIngredient, MeasurementUnit } from "../../interfaces/IIngredient";
 import type { IngredientPreparation } from "../../interfaces/IRecipe";
 import type { SiteTheme } from "../../styles/appStyles";
 import { ingredientPreparations, measurementUnits } from "./formOptions";
-import { formatLabel, recipeBrowserStyles } from "./recipeBrowserStyles";
+import { recipeBrowserStyles } from "./recipeBrowserStyles";
 import {
   getSelectedIngredient,
   type SelectedRecipeIngredient,
@@ -37,18 +38,20 @@ export function RecipeIngredientPickerContent({
   onToggle,
   onUnitChange,
 }: RecipeIngredientPickerContentProps) {
+  const { t } = useLanguage();
+
   return (
     <>
       <input
         className={recipeBrowserStyles.textField(theme)}
-        placeholder="search ingredients..."
+        placeholder={t.cookbook.searchIngredientsPlaceholder}
         type="search"
         value={ingredientSearch}
         onChange={(event) => onSearchChange(event.target.value)}
       />
       <div className={`${recipeBrowserStyles.recipeIngredientPickerGrid} ${recipeBrowserStyles.checkboxGridPanel(theme)}`}>
         {ingredients.length === 0 ? (
-          <p className={recipeBrowserStyles.helperText(theme)}>No ingredients found.</p>
+          <p className={recipeBrowserStyles.helperText(theme)}>{t.cookbook.noIngredientsFound}</p>
         ) : (
           ingredients.map((ingredient) => (
             <RecipeIngredientPickerRow
@@ -60,6 +63,8 @@ export function RecipeIngredientPickerContent({
               unit={getSelectedIngredient(selectedIngredients, ingredient.ingredientId)?.unit ?? "Gram"}
               preparation={getSelectedIngredient(selectedIngredients, ingredient.ingredientId)?.preparation ?? "None"}
               preparationLabels={preparationLabels}
+              measurementLabels={t.enums.measurementUnits}
+              amountPlaceholder={t.cookbook.amount}
               onAmountChange={(amount) => onAmountChange(ingredient.ingredientId, amount)}
               onPreparationChange={(preparation) => onPreparationChange(ingredient.ingredientId, preparation)}
               onToggle={() => onToggle(ingredient.ingredientId)}
@@ -78,6 +83,8 @@ type RecipeIngredientPickerRowProps = {
   selected: boolean;
   preparation: IngredientPreparation;
   preparationLabels: Record<IngredientPreparation, string>;
+  measurementLabels: Record<MeasurementUnit, string>;
+  amountPlaceholder: string;
   theme: SiteTheme;
   unit: MeasurementUnit;
   onAmountChange: (value: string) => void;
@@ -91,6 +98,8 @@ function RecipeIngredientPickerRow({
   ingredient,
   preparation,
   preparationLabels,
+  measurementLabels,
+  amountPlaceholder,
   selected,
   theme,
   unit,
@@ -123,7 +132,7 @@ function RecipeIngredientPickerRow({
           className={recipeBrowserStyles.compactTextField(theme)}
           disabled={!selected}
           min="0"
-          placeholder="amount"
+          placeholder={amountPlaceholder}
           step="0.01"
           type="number"
           value={amount}
@@ -138,7 +147,7 @@ function RecipeIngredientPickerRow({
         >
           {measurementUnits.map((value) => (
             <option key={value} value={value}>
-              {formatLabel(value)}
+              {measurementLabels[value]}
             </option>
           ))}
         </select>
@@ -167,8 +176,10 @@ type SelectedIngredientCapsulesProps = {
 };
 
 export function SelectedIngredientCapsules({ ingredients, selectedIngredients, theme }: SelectedIngredientCapsulesProps) {
+  const { t } = useLanguage();
+
   if (selectedIngredients.length === 0) {
-    return <p className={recipeBrowserStyles.helperText(theme)}>No ingredients selected.</p>;
+    return <p className={recipeBrowserStyles.helperText(theme)}>{t.cookbook.noIngredientsSelected}</p>;
   }
 
   return (
@@ -182,21 +193,40 @@ export function SelectedIngredientCapsules({ ingredients, selectedIngredients, t
               className={recipeBrowserStyles.selectedIngredientCapsule(theme)}
               key={selectedIngredient.ingredientId}
             >
-              Ingredient
+              {t.cookbook.ingredientSingular}
             </span>
           ) : (
-            <IngredientThumbnail
-              className={recipeBrowserStyles.selectedIngredientThumbnail}
-              ingredient={ingredient}
-              mode="compact"
+            <div
+              className={recipeBrowserStyles.selectedIngredientSummaryItem(theme)}
               key={selectedIngredient.ingredientId}
-              theme={theme}
-            />
+            >
+              <IngredientThumbnail
+                className={recipeBrowserStyles.selectedIngredientThumbnail}
+                ingredient={ingredient}
+                mode="compact"
+                theme={theme}
+              />
+              <span className={recipeBrowserStyles.selectedIngredientMeta(theme)}>
+                <span>{formatSelectedIngredientAmount(selectedIngredient.amount, selectedIngredient.unit, t.enums.measurementUnits)}</span>
+                {selectedIngredient.preparation !== "None" && (
+                  <span>{t.enums.ingredientPreparations[selectedIngredient.preparation]}</span>
+                )}
+              </span>
+            </div>
           )
         );
       })}
     </div>
   );
+}
+
+function formatSelectedIngredientAmount(
+  amount: string,
+  unit: MeasurementUnit,
+  unitLabels: Record<MeasurementUnit, string>,
+) {
+  const trimmedAmount = amount.trim();
+  return trimmedAmount.length === 0 ? unitLabels[unit] : `${trimmedAmount} ${unitLabels[unit].toLowerCase()}`;
 }
 
 type RecipeIngredientPickerDialogProps = RecipeIngredientPickerContentProps & {
@@ -212,6 +242,8 @@ export function RecipeIngredientPickerDialog({
   onConfirm,
   ...contentProps
 }: RecipeIngredientPickerDialogProps) {
+  const { t } = useLanguage();
+
   return (
     <Modal
       backdropClassName={recipeBrowserStyles.nestedModalBackdrop}
@@ -221,17 +253,17 @@ export function RecipeIngredientPickerDialog({
       footer={
         <>
           <button className={`${recipeBrowserStyles.secondaryButton(theme)} ${recipeBrowserStyles.formActionButton}`} type="button" onClick={onCancel}>
-            Cancel
+            {t.common.cancel}
           </button>
           <button className={`${recipeBrowserStyles.primaryButton(theme)} ${recipeBrowserStyles.formActionButton}`} type="button" onClick={onConfirm}>
-            Confirm
+            {t.common.confirm}
           </button>
         </>
       }
       footerClassName={recipeBrowserStyles.formActions}
       headerClassName={recipeBrowserStyles.modalHeader}
       panelClassName={recipeBrowserStyles.nestedIngredientModalPanel(theme)}
-      title="Ingredients"
+      title={t.cookbook.ingredients}
       titleClassName={recipeBrowserStyles.modalTitle}
       onClose={onCancel}
     >
