@@ -13,6 +13,8 @@ public abstract class Recipe
     public string? Instructions { get; set; }
     public ICollection<RecipeIngredient> Ingredients { get; set; } = [];
     public ICollection<RecipeTagAssignment> Tags { get; set; } = [];
+    public ICollection<RecipeComponent> Components { get; set; } = [];
+    public ICollection<RecipeComponent> UsedInRecipes { get; set; } = [];
 }
 
 public class Dish : Recipe

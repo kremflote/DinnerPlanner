@@ -12,6 +12,7 @@ public class DinnerPlannerContext(DbContextOptions<DinnerPlannerContext> options
     public DbSet<Ingredient> Ingredients => Set<Ingredient>();
     public DbSet<IngredientTagAssignment> IngredientTagAssignments => Set<IngredientTagAssignment>();
     public DbSet<Recipe> Recipes => Set<Recipe>();
+    public DbSet<RecipeComponent> RecipeComponents => Set<RecipeComponent>();
     public DbSet<RecipeIngredient> RecipeIngredients => Set<RecipeIngredient>();
     public DbSet<RecipeTagAssignment> RecipeTagAssignments => Set<RecipeTagAssignment>();
     public DbSet<Dish> Dishes => Set<Dish>();
@@ -111,6 +112,31 @@ public class DinnerPlannerContext(DbContextOptions<DinnerPlannerContext> options
                 .WithOne(recipeIngredient => recipeIngredient.Recipe)
                 .HasForeignKey(recipeIngredient => recipeIngredient.RecipeId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasMany(recipe => recipe.Components)
+                .WithOne(component => component.ParentRecipe)
+                .HasForeignKey(component => component.ParentRecipeId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasMany(recipe => recipe.UsedInRecipes)
+                .WithOne(component => component.ChildRecipe)
+                .HasForeignKey(component => component.ChildRecipeId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<RecipeComponent>(entity =>
+        {
+            entity.HasKey(component => new
+            {
+                component.ParentRecipeId,
+                component.ChildRecipeId
+            });
+
+            entity.HasIndex(component => new
+            {
+                component.ParentRecipeId,
+                component.SortOrder
+            });
         });
 
         modelBuilder.Entity<RecipeIngredient>(entity =>

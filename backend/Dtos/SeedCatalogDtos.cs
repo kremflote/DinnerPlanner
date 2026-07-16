@@ -32,6 +32,7 @@ public record SeedRecipeDto(
     string? Instructions,
     IReadOnlyCollection<SeedRecipeIngredientDto>? Ingredients,
     IReadOnlyCollection<RecipeTag>? Tags,
+    IReadOnlyCollection<SeedRecipeComponentDto>? Components,
     string? CuisineName,
     DessertType? DessertType
 );
@@ -42,4 +43,10 @@ public record SeedRecipeIngredientDto(
     decimal? Amount,
     MeasurementUnit Unit,
     IngredientPreparation Preparation
+);
+
+public record SeedRecipeComponentDto(
+    string RecipeName,
+    RecipeType? RecipeType,
+    int? SortOrder
 );

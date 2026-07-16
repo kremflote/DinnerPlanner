@@ -87,6 +87,8 @@ public class SeedCatalogService(
                     .ThenInclude(ingredient => ingredient.Brand)
             .Include(recipe => (recipe as Dish)!.Cuisine)
             .Include(recipe => recipe.Tags)
+            .Include(recipe => recipe.Components)
+                .ThenInclude(component => component.ChildRecipe)
             .OrderBy(recipe => recipe.Name)
             .ToListAsync(cancellationToken);
 
@@ -238,6 +240,56 @@ public class SeedCatalogService(
         }
 
         await context.SaveChangesAsync(cancellationToken);
+        await UpsertRecipeComponentsAsync(recipes, cancellationToken);
+    }
+
+    private async Task UpsertRecipeComponentsAsync(
+        IReadOnlyCollection<SeedRecipeDto> recipes,
+        CancellationToken cancellationToken)
+    {
+        foreach (var seedRecipe in recipes)
+        {
+            var parentName = CleanName(seedRecipe.Name);
+            if (parentName.Length == 0 || seedRecipe.Components is null)
+            {
+                continue;
+            }
+
+            var parentRecipe = await FindRecipeAsync(parentName, seedRecipe.RecipeType, cancellationToken);
+            if (parentRecipe is null)
+            {
+                continue;
+            }
+
+            await context.Entry(parentRecipe).Collection(recipe => recipe.Components).LoadAsync(cancellationToken);
+            context.RecipeComponents.RemoveRange(parentRecipe.Components);
+            parentRecipe.Components.Clear();
+
+            foreach (var seedComponent in seedRecipe.Components)
+            {
+                var childName = CleanName(seedComponent.RecipeName);
+                if (childName.Length == 0)
+                {
+                    continue;
+                }
+
+                var childRecipe = await FindRecipeAsync(childName, seedComponent.RecipeType, cancellationToken)
+                    ?? await FindRecipeByNameAsync(childName, cancellationToken);
+                if (childRecipe is null || childRecipe.RecipeId == parentRecipe.RecipeId || childRecipe is Dish or Dessert)
+                {
+                    continue;
+                }
+
+                parentRecipe.Components.Add(new RecipeComponent
+                {
+                    ParentRecipeId = parentRecipe.RecipeId,
+                    ChildRecipeId = childRecipe.RecipeId,
+                    SortOrder = seedComponent.SortOrder ?? parentRecipe.Components.Count + 1
+                });
+            }
+        }
+
+        await context.SaveChangesAsync(cancellationToken);
     }
 
     private async Task<Brand?> GetOrCreateBrandAsync(string? name, CancellationToken cancellationToken)
@@ -314,6 +366,28 @@ public class SeedCatalogService(
         return matchingRecipes.Any(recipe => ToRecipeType(recipe) == recipeType);
     }
 
+    private async Task<Recipe?> FindRecipeAsync(
+        string name,
+        RecipeType? recipeType,
+        CancellationToken cancellationToken)
+    {
+        var cleanName = CleanName(name);
+        var matchingRecipes = await context.Recipes
+            .Where(recipe => recipe.Name.ToLower() == cleanName.ToLower())
+            .ToListAsync(cancellationToken);
+
+        return recipeType is null
+            ? matchingRecipes.FirstOrDefault()
+            : matchingRecipes.FirstOrDefault(recipe => ToRecipeType(recipe) == recipeType.Value);
+    }
+
+    private Task<Recipe?> FindRecipeByNameAsync(string name, CancellationToken cancellationToken)
+    {
+        var cleanName = CleanName(name);
+        return context.Recipes
+            .FirstOrDefaultAsync(recipe => recipe.Name.ToLower() == cleanName.ToLower(), cancellationToken);
+    }
+
     private static Recipe CreateRecipe(SeedRecipeDto seedRecipe, string name)
     {
         Recipe recipe = seedRecipe.RecipeType switch
@@ -351,6 +425,14 @@ public class SeedCatalogService(
             ))
             .ToList(),
         recipe.Tags.Select(recipeTag => recipeTag.Tag).OrderBy(tag => tag).ToList(),
+        recipe.Components
+            .OrderBy(component => component.SortOrder)
+            .Select(component => new SeedRecipeComponentDto(
+                component.ChildRecipe.Name,
+                ToRecipeType(component.ChildRecipe),
+                component.SortOrder
+            ))
+            .ToList(),
         recipe is Dish dish ? dish.Cuisine?.Name : null,
         recipe is Dessert dessert ? dessert.Type : null
     );

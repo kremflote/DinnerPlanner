@@ -10,6 +10,7 @@ export interface RecipeRequest {
   instructions: string | null;
   ingredients: RecipeIngredientRequest[];
   tags: RecipeTag[];
+  components: RecipeComponentRequest[];
   cuisineId: number | null;
   dessertType: DessertType | null;
 }
@@ -19,6 +20,11 @@ export interface RecipeIngredientRequest {
   amount: number | null;
   unit: MeasurementUnit;
   preparation: IngredientPreparation;
+}
+
+export interface RecipeComponentRequest {
+  recipeId: number;
+  sortOrder: number;
 }
 
 export const recipeService = {

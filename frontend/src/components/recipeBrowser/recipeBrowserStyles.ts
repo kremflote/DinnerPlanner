@@ -142,8 +142,12 @@ export const recipeBrowserStyles = {
     }`,
   recipeCreateTopGrid:
     "grid grid-cols-[minmax(0,1fr)_minmax(220px,280px)] gap-4 max-md:grid-cols-1",
-  recipePrimaryFields: "grid min-w-0 content-start gap-4 max-sm:gap-3",
-  recipeImageField: "relative mt-6 grid min-w-0 content-start max-sm:mt-0",
+  recipePrimaryFields: "grid min-w-0 content-start gap-4",
+  recipeTypeFieldMobile: "md:hidden",
+  recipeTypeFieldDesktop: "hidden md:grid",
+  recipeImageField: "relative mt-6 grid min-w-0 content-start max-sm:mt-0 max-sm:gap-2",
+  recipeImageLabel: "absolute -top-6 left-0 max-sm:static",
+  recipeImageControl: "max-sm:mt-0",
   field: "grid gap-2",
   label: (theme: SiteTheme) =>
     `text-xs font-bold ${
@@ -274,6 +278,14 @@ export const recipeBrowserStyles = {
           : "border-neutral-300 bg-white"
     }`,
   selectedIngredientThumbnail: "max-w-56",
+  componentRecipeGrid:
+    "grid max-h-56 grid-cols-3 gap-2 overflow-y-auto rounded-md p-2 max-md:grid-cols-2 max-sm:grid-cols-2",
+  componentRecipeBrowserGrid:
+    "grid grid-cols-3 gap-2 rounded-md p-2 max-md:grid-cols-2 max-sm:grid-cols-2",
+  selectedComponentThumbnails: "flex flex-wrap gap-2",
+  selectedComponentThumbnail: "w-20 max-sm:w-16",
+  componentRecipeSelected:
+    "outline outline-2 outline-offset-[-2px] outline-current",
   recipeIngredientPickerRow:
     "grid grid-cols-[auto_minmax(0,1fr)_6rem_8rem_10rem] items-center gap-2 max-lg:grid-cols-[auto_minmax(0,1fr)_6rem] max-md:grid-cols-[auto_minmax(0,1fr)] max-sm:gap-y-2",
   recipeIngredientControlGrid:
@@ -514,6 +526,17 @@ export const recipeBrowserStyles = {
           : "bg-neutral-100 text-neutral-700"
     }`,
   detailRows: "grid gap-2",
+  detailComponentGroups: "grid gap-3",
+  detailComponentGroup: (theme: SiteTheme) =>
+    `grid gap-2 border-b pb-3 last:border-b-0 last:pb-0 ${
+      theme === "dark"
+        ? "border-white/[0.08]"
+        : theme === "paletteLight"
+          ? "border-[#C8C0B5]"
+          : "border-neutral-200"
+    }`,
+  detailComponentGrid: "grid grid-cols-3 gap-2 max-sm:grid-cols-2",
+  detailComponentThumbnail: "min-w-0",
   detailRowLabel: "font-bold",
   detailRowValue: "shrink-0",
   detailIngredientRow: (theme: SiteTheme) =>

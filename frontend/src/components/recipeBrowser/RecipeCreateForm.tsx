@@ -3,6 +3,7 @@ import { useCuisines, useIngredients, useLanguage, useRecipes } from "../../cont
 import type { DessertType, IRecipe, RecipeTag, RecipeType } from "../../interfaces/IRecipe";
 import { cuisineService, imageUploadService, recipeService } from "../../services";
 import type { SiteTheme } from "../../styles/appStyles";
+import RecipeThumbnail from "../RecipeThumbnail";
 import {
   dessertTypes,
   recipeTagGroups,
@@ -12,6 +13,7 @@ import {
 import { GroupedCheckboxPanel } from "./BrowserFilterGroups";
 import CreatableSelect from "./CreatableSelect";
 import ImageCropPicker from "./ImageCropPicker";
+import Modal from "../Modal";
 import {
   RecipeIngredientPickerContent,
   RecipeIngredientPickerDialog,
@@ -49,7 +51,7 @@ function RecipeCreateForm({
   const { t } = useLanguage();
   const { cuisines, refreshCuisines } = useCuisines();
   const { ingredients } = useIngredients();
-  const { refreshRecipes } = useRecipes();
+  const { recipes, refreshRecipes } = useRecipes();
   const [recipeType, setRecipeType] = useState<RecipeType>(initialRecipe?.recipeType ?? "Dish");
   const [name, setName] = useState(initialRecipe?.name ?? "");
   const [description, setDescription] = useState(initialRecipe?.description ?? "");
@@ -62,6 +64,12 @@ function RecipeCreateForm({
       preparation: recipeIngredient.preparation,
     })) ?? [],
   );
+  const [selectedComponentIds, setSelectedComponentIds] = useState<number[]>(
+    initialRecipe?.components
+      .slice()
+      .sort((first, second) => first.sortOrder - second.sortOrder)
+      .map((component) => component.recipeId) ?? [],
+  );
   const [selectedTags, setSelectedTags] = useState<RecipeTag[]>(
     initialRecipe?.tags.filter((tag) => recipeTags.includes(tag)) ?? [],
   );
@@ -69,6 +77,7 @@ function RecipeCreateForm({
   const [dessertType, setDessertType] = useState<DessertType>(initialRecipe?.dessertType ?? "Other");
   const [ingredientSearch, setIngredientSearch] = useState("");
   const [isIngredientPickerOpen, setIsIngredientPickerOpen] = useState(false);
+  const [isComponentPickerOpen, setIsComponentPickerOpen] = useState(false);
   const [mobileIngredientDraft, setMobileIngredientDraft] = useState<SelectedRecipeIngredient[]>([]);
   const [croppedImageFile, setCroppedImageFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -119,6 +128,27 @@ function RecipeCreateForm({
         return first.ingredientName.localeCompare(second.ingredientName);
       });
   }, [ingredientSearch, ingredients, mobileSelectedIngredientIds]);
+
+  const componentRecipeOptions = useMemo(
+    () =>
+      recipes
+        .filter((recipe) =>
+          recipe.recipeId !== initialRecipe?.recipeId &&
+          (recipe.recipeType === "Sauce" ||
+            recipe.recipeType === "Dip" ||
+            recipe.recipeType === "Side" ||
+            recipe.recipeType === "SpiceMix"),
+        )
+        .sort((first, second) => first.name.localeCompare(second.name)),
+    [initialRecipe?.recipeId, recipes],
+  );
+  const selectedComponentRecipes = useMemo(
+    () =>
+      selectedComponentIds
+        .map((recipeId) => recipes.find((recipe) => recipe.recipeId === recipeId))
+        .filter((recipe): recipe is IRecipe => recipe !== undefined),
+    [recipes, selectedComponentIds],
+  );
 
   const handleCroppedFileChange = useCallback((file: File | null) => {
     setCroppedImageFile(file);
@@ -174,6 +204,10 @@ function RecipeCreateForm({
           preparation: ingredient.preparation,
         })),
         tags: selectedTags,
+        components: selectedComponentIds.map((recipeId, index) => ({
+          recipeId,
+          sortOrder: index + 1,
+        })),
         cuisineId: recipeType === "Dish" ? cuisineId : null,
         dessertType: recipeType === "Dessert" ? dessertType : null,
       };
@@ -193,32 +227,38 @@ function RecipeCreateForm({
     }
   };
 
+  const renderRecipeTypeField = (className: string) => (
+    <label className={`${recipeBrowserStyles.field} ${className}`}>
+      <span className={recipeBrowserStyles.label(theme)}>
+        Recipe type<span className={recipeBrowserStyles.requiredMark(theme)}> *</span>
+      </span>
+      <select
+        className={recipeBrowserStyles.textField(theme)}
+        disabled={isEditing}
+        value={recipeType}
+        onChange={(event) => setRecipeType(event.target.value as RecipeType)}
+      >
+        {recipeTypes.map((type) => (
+          <option key={type} value={type}>
+            {formatLabel(type)}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+
   return (
     <form className={recipeBrowserStyles.form} onSubmit={submitRecipe}>
       <div className={recipeBrowserStyles.formBodyScrollArea}>
         {error !== null && <p className={recipeBrowserStyles.statusError(theme)}>{error}</p>}
 
         <div className={recipeBrowserStyles.recipeCreateScrollArea(theme)}>
-          <label className={recipeBrowserStyles.field}>
-            <span className={recipeBrowserStyles.label(theme)}>
-              Recipe type<span className={recipeBrowserStyles.requiredMark(theme)}> *</span>
-            </span>
-            <select
-              className={recipeBrowserStyles.textField(theme)}
-              disabled={isEditing}
-              value={recipeType}
-              onChange={(event) => setRecipeType(event.target.value as RecipeType)}
-            >
-              {recipeTypes.map((type) => (
-                <option key={type} value={type}>
-                  {formatLabel(type)}
-                </option>
-              ))}
-            </select>
-          </label>
+          {renderRecipeTypeField(recipeBrowserStyles.recipeTypeFieldMobile)}
 
           <div className={recipeBrowserStyles.recipeCreateTopGrid}>
             <div className={recipeBrowserStyles.recipePrimaryFields}>
+              {renderRecipeTypeField(recipeBrowserStyles.recipeTypeFieldDesktop)}
+
               <label className={recipeBrowserStyles.field}>
                 <span className={recipeBrowserStyles.label(theme)}>
                   Name<span className={recipeBrowserStyles.requiredMark(theme)}> *</span>
@@ -271,12 +311,15 @@ function RecipeCreateForm({
               )}
             </div>
             <div className={recipeBrowserStyles.recipeImageField}>
-              <ImageCropPicker
-                inputId={imageInputId}
-                initialImageUrl={initialRecipe?.imageUrl}
-                theme={theme}
-                onCroppedFileChange={handleCroppedFileChange}
-              />
+              <span className={`${recipeBrowserStyles.label(theme)} ${recipeBrowserStyles.recipeImageLabel}`}>Image</span>
+              <div className={recipeBrowserStyles.recipeImageControl}>
+                <ImageCropPicker
+                  inputId={imageInputId}
+                  initialImageUrl={initialRecipe?.imageUrl}
+                  theme={theme}
+                  onCroppedFileChange={handleCroppedFileChange}
+                />
+              </div>
             </div>
           </div>
 
@@ -294,6 +337,47 @@ function RecipeCreateForm({
               theme={theme}
               onToggle={(value) => setSelectedTags((currentTags) => toggleValue(currentTags, value))}
             />
+          </section>
+
+          <section className={recipeBrowserStyles.field}>
+            <span className={recipeBrowserStyles.label(theme)}>
+              Add sides
+              <span className={recipeBrowserStyles.inlineHint(theme)}>
+                Add sauces, dips or similar which already have recipes to this recipe
+              </span>
+            </span>
+            <button
+              className={recipeBrowserStyles.detailsToggleFull(theme)}
+              type="button"
+              onClick={() => setIsComponentPickerOpen(true)}
+            >
+              Add sides
+            </button>
+            {selectedComponentRecipes.length === 0 ? (
+              <p className={recipeBrowserStyles.helperText(theme)}>No sides added.</p>
+            ) : (
+              <div className={recipeBrowserStyles.selectedComponentThumbnails}>
+                {selectedComponentRecipes.map((componentRecipe) => (
+                  <RecipeThumbnail
+                    className={recipeBrowserStyles.selectedComponentThumbnail}
+                    interactiveEffect={false}
+                    key={componentRecipe.recipeId}
+                    recipe={{
+                      name: componentRecipe.name,
+                      imageUrl: componentRecipe.imageUrl,
+                      subtitle: formatLabel(componentRecipe.recipeType),
+                    }}
+                    textScale="compact"
+                    theme={theme}
+                    onClick={() =>
+                      setSelectedComponentIds((currentIds) =>
+                        currentIds.filter((recipeId) => recipeId !== componentRecipe.recipeId),
+                      )
+                    }
+                  />
+                ))}
+              </div>
+            )}
           </section>
 
           <section className={recipeBrowserStyles.field}>
@@ -423,7 +507,93 @@ function RecipeCreateForm({
           }
         />
       )}
+      {isComponentPickerOpen && (
+        <RecipeComponentPickerDialog
+          recipes={componentRecipeOptions}
+          selectedRecipeIds={selectedComponentIds}
+          theme={theme}
+          onCancel={() => setIsComponentPickerOpen(false)}
+          onConfirm={() => setIsComponentPickerOpen(false)}
+          onToggle={(recipeId) =>
+            setSelectedComponentIds((currentIds) =>
+              currentIds.includes(recipeId)
+                ? currentIds.filter((currentId) => currentId !== recipeId)
+                : [...currentIds, recipeId],
+            )
+          }
+        />
+      )}
     </form>
+  );
+}
+
+type RecipeComponentPickerDialogProps = {
+  recipes: IRecipe[];
+  selectedRecipeIds: number[];
+  theme: SiteTheme;
+  onCancel: () => void;
+  onConfirm: () => void;
+  onToggle: (recipeId: number) => void;
+};
+
+function RecipeComponentPickerDialog({
+  recipes,
+  selectedRecipeIds,
+  theme,
+  onCancel,
+  onConfirm,
+  onToggle,
+}: RecipeComponentPickerDialogProps) {
+  return (
+    <Modal
+      backdropClassName={recipeBrowserStyles.nestedModalBackdrop}
+      bodyClassName={recipeBrowserStyles.nestedIngredientModalBody}
+      closeButtonClassName={recipeBrowserStyles.modalCloseAligned(theme)}
+      closeLabel="Close"
+      footer={
+        <>
+          <button className={`${recipeBrowserStyles.secondaryButton(theme)} ${recipeBrowserStyles.formActionButton}`} type="button" onClick={onCancel}>
+            Cancel
+          </button>
+          <button className={`${recipeBrowserStyles.primaryButton(theme)} ${recipeBrowserStyles.formActionButton}`} type="button" onClick={onConfirm}>
+            Confirm
+          </button>
+        </>
+      }
+      footerClassName={recipeBrowserStyles.formActions}
+      headerClassName={recipeBrowserStyles.modalHeader}
+      panelClassName={recipeBrowserStyles.nestedIngredientModalPanel(theme)}
+      title="Add sides"
+      titleClassName={recipeBrowserStyles.modalTitle}
+      onClose={onCancel}
+    >
+      {recipes.length === 0 ? (
+        <p className={recipeBrowserStyles.helperText(theme)}>Create a sauce, dip, side, or spice mix first.</p>
+      ) : (
+        <div className={recipeBrowserStyles.componentRecipeBrowserGrid}>
+          {recipes.map((recipe) => {
+            const selected = selectedRecipeIds.includes(recipe.recipeId);
+
+            return (
+              <RecipeThumbnail
+                ariaPressed={selected}
+                className={selected ? recipeBrowserStyles.componentRecipeSelected : ""}
+                interactiveEffect={false}
+                key={recipe.recipeId}
+                recipe={{
+                  name: recipe.name,
+                  imageUrl: recipe.imageUrl,
+                  subtitle: formatLabel(recipe.recipeType),
+                }}
+                textScale="compact"
+                theme={theme}
+                onClick={() => onToggle(recipe.recipeId)}
+              />
+            );
+          })}
+        </div>
+      )}
+    </Modal>
   );
 }
 

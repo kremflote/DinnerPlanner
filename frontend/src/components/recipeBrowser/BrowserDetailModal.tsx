@@ -24,7 +24,7 @@ function BrowserDetailModal({ detail, theme, onClose, onSelectDetail }: BrowserD
   const editRecipeImageInputId = useId();
   const editTitleId = useId();
   const detailTitleId = useId();
-  const { refreshRecipes } = useRecipes();
+  const { recipes, refreshRecipes } = useRecipes();
   const { refreshIngredients } = useIngredients();
   const [isEditingRecipe, setIsEditingRecipe] = useState(false);
   const [isEditingIngredient, setIsEditingIngredient] = useState(false);
@@ -199,6 +199,12 @@ function BrowserDetailModal({ detail, theme, onClose, onSelectDetail }: BrowserD
               recipe={detail.recipe}
               theme={theme}
               onIngredientClick={(ingredient) => onSelectDetail({ kind: "ingredient", ingredient })}
+              onRecipeClick={(recipeId) => {
+                const recipe = recipes.find((currentRecipe) => currentRecipe.recipeId === recipeId);
+                if (recipe !== undefined) {
+                  onSelectDetail({ kind: "recipe", recipe });
+                }
+              }}
             />
           ) : (
             <IngredientDetailContent ingredient={detail.ingredient} theme={theme} />

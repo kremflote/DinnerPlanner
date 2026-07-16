@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useLanguage } from "../../contexts";
 import IngredientThumbnail from "../IngredientThumbnail";
+import RecipeThumbnail from "../RecipeThumbnail";
 import type { IIngredient, INutritionFacts } from "../../interfaces/IIngredient";
 import { getApiAssetUrl } from "../../services/apiClient";
 import type { SiteTheme } from "../../styles/appStyles";
@@ -12,9 +13,10 @@ type RecipeDetailContentProps = {
   recipe: EnrichedRecipe;
   theme: SiteTheme;
   onIngredientClick?: (ingredient: IIngredient) => void;
+  onRecipeClick?: (recipeId: number) => void;
 };
 
-function RecipeDetailContent({ recipe, theme, onIngredientClick }: RecipeDetailContentProps) {
+function RecipeDetailContent({ recipe, theme, onIngredientClick, onRecipeClick }: RecipeDetailContentProps) {
   const { t } = useLanguage();
   const imageUrl = getApiAssetUrl(recipe.imageUrl);
   const nutrition = calculateRecipeNutrition(recipe);
@@ -107,11 +109,54 @@ function RecipeDetailContent({ recipe, theme, onIngredientClick }: RecipeDetailC
         />
       </div>
 
+      {recipe.components.length > 0 && (
+        <DetailSection title="Included recipes" theme={theme}>
+          <div className={recipeBrowserStyles.detailComponentGroups}>
+            {groupComponentsByType(recipe.components).map((group) => (
+              <section className={recipeBrowserStyles.detailComponentGroup(theme)} key={group.recipeType}>
+                <h3 className={recipeBrowserStyles.groupedTagTitle(theme)}>
+                  {formatLabel(group.recipeType)}
+                </h3>
+                <div className={recipeBrowserStyles.detailComponentGrid}>
+                  {group.components.map((component) => (
+                    <RecipeThumbnail
+                      className={recipeBrowserStyles.detailComponentThumbnail}
+                      interactiveEffect
+                      key={component.recipeId}
+                      recipe={{
+                        name: component.name,
+                        imageUrl: component.imageUrl,
+                        subtitle: formatLabel(component.recipeType),
+                      }}
+                      textScale="compact"
+                      theme={theme}
+                      onClick={() => onRecipeClick?.(component.recipeId)}
+                    />
+                  ))}
+                </div>
+              </section>
+            ))}
+          </div>
+        </DetailSection>
+      )}
+
       <DetailSection title="Dietary information" theme={theme}>
         <NutritionGrid nutrition={nutrition} theme={theme} />
       </DetailSection>
     </div>
   );
+}
+
+function groupComponentsByType(components: EnrichedRecipe["components"]) {
+  const groupOrder = ["Sauce", "Dip", "Side", "SpiceMix"];
+  return groupOrder
+    .map((recipeType) => ({
+      recipeType,
+      components: components
+        .filter((component) => component.recipeType === recipeType)
+        .sort((first, second) => first.sortOrder - second.sortOrder),
+    }))
+    .filter((group) => group.components.length > 0);
 }
 
 function calculateRecipeNutrition(recipe: EnrichedRecipe): INutritionFacts | null {

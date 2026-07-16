@@ -74,19 +74,15 @@ export function buildPrepHelperItems(
           return [];
         }
 
-        return recipe.ingredients
-          .filter((recipeIngredient) => shouldPrepIngredient(recipeIngredient.ingredient.tags))
-          .map((recipeIngredient): PrepIngredientRow => ({
-            ingredientId: recipeIngredient.ingredient.ingredientId,
-            ingredientName: recipeIngredient.ingredient.ingredientName,
-            amount: recipeIngredient.amount,
-            unit: recipeIngredient.unit,
-            actions: recipeIngredient.preparation === "None"
-              ? inferPrepActions(recipe.instructions, recipeIngredient.ingredient.ingredientName)
-                  .map((actionKey) => actionLabels[actionKey] ?? actionKey)
-              : [preparationLabels[recipeIngredient.preparation]],
-            sourceRecipe: recipe.name,
-          }));
+        return buildRecipePrepRows(
+          recipe,
+          recipe.name,
+          recipe.name,
+          recipesById,
+          preparationLabels,
+          actionLabels,
+          new Set<number>(),
+        );
       }),
     );
 
@@ -129,6 +125,56 @@ export function buildPrepHelperItems(
       sources: Array.from(item.sourceRecipes).sort((left, right) => left.localeCompare(right)),
     }))
     .sort((left, right) => left.ingredientName.localeCompare(right.ingredientName));
+}
+
+function buildRecipePrepRows(
+  recipe: IRecipe,
+  rootRecipeName: string,
+  sourceRecipeName: string,
+  recipesById: Map<number, IRecipe>,
+  preparationLabels: Record<IRecipe["ingredients"][number]["preparation"], string>,
+  actionLabels: Record<string, string>,
+  visitedRecipeIds: Set<number>,
+): PrepIngredientRow[] {
+  if (visitedRecipeIds.has(recipe.recipeId)) {
+    return [];
+  }
+
+  visitedRecipeIds.add(recipe.recipeId);
+
+  const directRows = recipe.ingredients
+    .filter((recipeIngredient) => shouldPrepIngredient(recipeIngredient.ingredient.tags))
+    .map((recipeIngredient): PrepIngredientRow => ({
+      ingredientId: recipeIngredient.ingredient.ingredientId,
+      ingredientName: recipeIngredient.ingredient.ingredientName,
+      amount: recipeIngredient.amount,
+      unit: recipeIngredient.unit,
+      actions: recipeIngredient.preparation === "None"
+        ? inferPrepActions(recipe.instructions, recipeIngredient.ingredient.ingredientName)
+            .map((actionKey) => actionLabels[actionKey] ?? actionKey)
+        : [preparationLabels[recipeIngredient.preparation]],
+      sourceRecipe: sourceRecipeName,
+    }));
+
+  const componentRows = recipe.components.flatMap((component) => {
+    const componentRecipe = recipesById.get(component.recipeId);
+    if (componentRecipe === undefined) {
+      return [];
+    }
+
+    return buildRecipePrepRows(
+      componentRecipe,
+      rootRecipeName,
+      `${componentRecipe.name} via ${rootRecipeName}`,
+      recipesById,
+      preparationLabels,
+      actionLabels,
+      visitedRecipeIds,
+    );
+  });
+
+  visitedRecipeIds.delete(recipe.recipeId);
+  return [...directRows, ...componentRows];
 }
 
 function shouldPrepIngredient(tags: IngredientTag[]) {

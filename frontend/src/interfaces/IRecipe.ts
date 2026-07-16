@@ -10,9 +10,18 @@ export interface IRecipe {
   instructions: string | null;
   ingredients: IRecipeIngredient[];
   tags: RecipeTag[];
+  components: IRecipeComponent[];
   cuisineId: number | null;
   cuisine: ICuisine | null;
   dessertType: DessertType | null;
+}
+
+export interface IRecipeComponent {
+  recipeId: number;
+  recipeType: RecipeType;
+  name: string;
+  imageUrl: string | null;
+  sortOrder: number;
 }
 
 export interface IRecipeIngredient {

@@ -23,29 +23,27 @@ public class GroceryListService(DinnerPlannerContext context)
         var entries = await context.MealPlanEntries
             .AsNoTracking()
             .Include(entry => entry.Recipes)
-                .ThenInclude(mealPlanRecipe => mealPlanRecipe.Recipe)
-                    .ThenInclude(recipe => recipe.Ingredients)
-                        .ThenInclude(recipeIngredient => recipeIngredient.Ingredient)
-                            .ThenInclude(ingredient => ingredient.Tags)
-            .Include(entry => entry.Recipes)
-                .ThenInclude(mealPlanRecipe => mealPlanRecipe.Recipe)
-                    .ThenInclude(recipe => recipe.Ingredients)
-                        .ThenInclude(recipeIngredient => recipeIngredient.Ingredient)
-                            .ThenInclude(ingredient => ingredient.Brand)
             .Where(entry => entry.Date >= from && entry.Date <= to)
             .ToListAsync(cancellationToken);
 
+        var allRecipes = await context.Recipes
+            .AsNoTracking()
+            .Include(recipe => recipe.Ingredients)
+                .ThenInclude(recipeIngredient => recipeIngredient.Ingredient)
+                    .ThenInclude(ingredient => ingredient.Tags)
+            .Include(recipe => recipe.Ingredients)
+                .ThenInclude(recipeIngredient => recipeIngredient.Ingredient)
+                    .ThenInclude(ingredient => ingredient.Brand)
+            .Include(recipe => recipe.Components)
+            .ToListAsync(cancellationToken);
+        var recipesById = allRecipes.ToDictionary(recipe => recipe.RecipeId);
+
         var groceryRows = entries
             .SelectMany(entry => entry.Recipes)
-            .SelectMany(mealPlanRecipe => mealPlanRecipe.Recipe.Ingredients.Select(recipeIngredient => new GroceryIngredientRow(
-                recipeIngredient.IngredientId,
-                recipeIngredient.Ingredient.IngredientName,
-                recipeIngredient.Ingredient.Brand?.Name,
-                recipeIngredient.Amount,
-                recipeIngredient.Unit,
-                mealPlanRecipe.Recipe.Name,
-                recipeIngredient.Ingredient.Tags.Select(tag => tag.Tag).ToList()
-            )))
+            .SelectMany(mealPlanRecipe =>
+                recipesById.TryGetValue(mealPlanRecipe.RecipeId, out var recipe)
+                    ? BuildGroceryRows(recipe, recipesById)
+                    : [])
             .ToList();
 
         var items = groceryRows
@@ -161,6 +159,60 @@ public class GroceryListService(DinnerPlannerContext context)
         MeasurementUnit.ToTaste => "to taste",
         _ => unit.ToString()
     };
+
+    private static List<GroceryIngredientRow> BuildGroceryRows(
+        Recipe recipe,
+        IReadOnlyDictionary<int, Recipe> recipesById
+    )
+    {
+        var rows = new List<GroceryIngredientRow>();
+        AddRecipeRows(recipe, recipe.Name, recipe.Name, recipesById, rows, []);
+        return rows;
+    }
+
+    private static void AddRecipeRows(
+        Recipe recipe,
+        string rootRecipeName,
+        string sourceRecipeName,
+        IReadOnlyDictionary<int, Recipe> recipesById,
+        List<GroceryIngredientRow> rows,
+        HashSet<int> visitedRecipeIds
+    )
+    {
+        if (!visitedRecipeIds.Add(recipe.RecipeId))
+        {
+            return;
+        }
+
+        rows.AddRange(recipe.Ingredients.Select(recipeIngredient => new GroceryIngredientRow(
+            recipeIngredient.IngredientId,
+            recipeIngredient.Ingredient.IngredientName,
+            recipeIngredient.Ingredient.Brand?.Name,
+            recipeIngredient.Amount,
+            recipeIngredient.Unit,
+            sourceRecipeName,
+            recipeIngredient.Ingredient.Tags.Select(tag => tag.Tag).ToList()
+        )));
+
+        foreach (var component in recipe.Components.OrderBy(component => component.SortOrder))
+        {
+            if (!recipesById.TryGetValue(component.ChildRecipeId, out var childRecipe))
+            {
+                continue;
+            }
+
+            AddRecipeRows(
+                childRecipe,
+                rootRecipeName,
+                $"{childRecipe.Name} via {rootRecipeName}",
+                recipesById,
+                rows,
+                visitedRecipeIds
+            );
+        }
+
+        visitedRecipeIds.Remove(recipe.RecipeId);
+    }
 
     private record GroceryIngredientRow(
         int IngredientId,
