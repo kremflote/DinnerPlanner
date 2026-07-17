@@ -8,6 +8,9 @@ namespace DinnerPlanner.Api.Controllers;
 [Route("api/[controller]")]
 public class ImageUploadsController(ImageStoragePathProvider imageStorage) : ControllerBase
 {
+    private const long MaxStoredImageBytes = 5 * 1024 * 1024;
+    private const long MaxIncomingImageBytes = 20 * 1024 * 1024;
+
     private static readonly HashSet<string> AllowedExtensions = new(StringComparer.OrdinalIgnoreCase)
     {
         ".jpg",
@@ -24,12 +27,18 @@ public class ImageUploadsController(ImageStoragePathProvider imageStorage) : Con
     };
 
     [HttpPost]
-    [RequestSizeLimit(5 * 1024 * 1024)]
+    [RequestSizeLimit(MaxIncomingImageBytes)]
+    [RequestFormLimits(MultipartBodyLengthLimit = MaxIncomingImageBytes)]
     public async Task<ActionResult<ImageUploadDto>> UploadImage(IFormFile file, [FromForm] string folder = "general")
     {
         if (file.Length == 0)
         {
             return BadRequest("No image file was uploaded.");
+        }
+
+        if (file.Length > MaxStoredImageBytes)
+        {
+            return BadRequest("Image is too large. Choose a smaller image or try again after compression.");
         }
 
         var extension = Path.GetExtension(file.FileName);
