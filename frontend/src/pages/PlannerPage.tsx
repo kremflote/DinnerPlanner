@@ -53,7 +53,6 @@ const PlannerPage = ({ theme }: PlannerPageProps) => {
     mealPlanIsLoading,
     initError,
     clearMealPlanRange,
-    deleteMealPlanEntry,
     loadMealPlan,
     saveMealPlanEntry,
   } = useMealPlan();
@@ -288,7 +287,6 @@ const PlannerPage = ({ theme }: PlannerPageProps) => {
           slot={selectedSlot.slot}
           theme={theme}
           onClose={() => setSelectedSlot(null)}
-          onDelete={deleteMealPlanEntry}
           onSave={saveMealPlanEntry}
         />
       )}

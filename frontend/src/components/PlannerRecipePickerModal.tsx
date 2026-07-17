@@ -38,7 +38,6 @@ import type {
   PickerPhase,
   SupplementaryFilter,
 } from "./plannerRecipePicker/plannerRecipePickerTypes";
-import ConfirmationDialog from "./ConfirmationDialog";
 import Modal from "./Modal";
 
 type PlannerRecipePickerModalProps = {
@@ -48,7 +47,6 @@ type PlannerRecipePickerModalProps = {
   slot: MealSlot;
   theme: SiteTheme;
   onClose: () => void;
-  onDelete: (entryId: number) => Promise<void>;
   onSave: (entryId: number | null, request: MealPlanEntryRequest) => Promise<void>;
 };
 
@@ -59,7 +57,6 @@ function PlannerRecipePickerModal({
   slot,
   theme,
   onClose,
-  onDelete,
   onSave,
 }: PlannerRecipePickerModalProps) {
   const { t } = useLanguage();
@@ -91,8 +88,6 @@ function PlannerRecipePickerModal({
   const [ingredientPickerPosition, setIngredientPickerPosition] = useState<{ x: number; y: number } | null>(null);
   const [isCategoryFilterOpen, setIsCategoryFilterOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [isRemoving, setIsRemoving] = useState(false);
-  const [isConfirmingRemove, setIsConfirmingRemove] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const modalPanelRef = useRef<HTMLElement | null>(null);
   const ingredientFilterButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -255,10 +250,6 @@ function PlannerRecipePickerModal({
   }, [ingredientPickerPosition]);
 
   useEffect(() => {
-    if (isConfirmingRemove) {
-      return;
-    }
-
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
@@ -279,7 +270,7 @@ function PlannerRecipePickerModal({
     document.addEventListener("keydown", handleKeyDown);
 
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isCategoryFilterOpen, isConfirmingRemove, onClose]);
+  }, [isCategoryFilterOpen, onClose]);
 
   const highlightMainRecipe = (recipe: IRecipe) => {
     if (mainRecipeId === recipe.recipeId) {
@@ -318,27 +309,8 @@ function PlannerRecipePickerModal({
     });
   };
 
-  const removeMealSlot = async () => {
-    if (entry === undefined) {
-      return;
-    }
-
-    setIsRemoving(true);
-    setSaveError(null);
-
-    try {
-      await onDelete(entry.mealPlanEntryId);
-      onClose();
-    } catch {
-      setSaveError(t.planner.couldNotRemoveMeal);
-    } finally {
-      setIsRemoving(false);
-      setIsConfirmingRemove(false);
-    }
-  };
-
   const saveMealSlot = async () => {
-    if (mainRecipe === null) {
+    if (mainRecipe === null && entry === undefined) {
       return;
     }
 
@@ -346,22 +318,27 @@ function PlannerRecipePickerModal({
     setSaveError(null);
 
     try {
+      const recipesToSave =
+        mainRecipe === null
+          ? []
+          : [
+              {
+                recipeId: mainRecipe.recipeId,
+                role: "Main" as const,
+                sortOrder: 0,
+              },
+              ...supplementaryRecipes.map((recipe, index) => ({
+                recipeId: recipe.recipeId,
+                role: getSupplementaryRole(recipe),
+                sortOrder: index + 1,
+              })),
+            ];
+
       await onSave(entry?.mealPlanEntryId ?? null, {
         date,
         slot,
         notes: entry?.notes ?? null,
-        recipes: [
-          {
-            recipeId: mainRecipe.recipeId,
-            role: "Main",
-            sortOrder: 0,
-          },
-          ...supplementaryRecipes.map((recipe, index) => ({
-            recipeId: recipe.recipeId,
-            role: getSupplementaryRole(recipe),
-            sortOrder: index + 1,
-          })),
-        ],
+        recipes: recipesToSave,
       });
       onClose();
     } catch {
@@ -449,20 +426,10 @@ function PlannerRecipePickerModal({
             onToggleSupplementaryRecipe={toggleSupplementaryRecipe}
           />
           <div className={plannerPickerStyles.footerActions}>
-            {entry !== undefined && (
-              <button
-                className={plannerPickerStyles.removeButton(theme)}
-                disabled={isSaving || isRemoving}
-                type="button"
-                onClick={() => setIsConfirmingRemove(true)}
-              >
-                {isRemoving ? t.planner.removing : t.planner.removeMeal}
-              </button>
-            )}
             {phase === "main" ? (
               <button
                 className={plannerPickerStyles.primaryButton(theme)}
-                disabled={mainRecipeId === null || isSaving || isRemoving}
+                disabled={mainRecipeId === null || isSaving}
                 type="button"
                 onClick={confirmHighlightedMainRecipe}
               >
@@ -471,7 +438,7 @@ function PlannerRecipePickerModal({
             ) : (
               <button
                 className={plannerPickerStyles.secondaryButton(theme)}
-                disabled={isSaving || isRemoving}
+                disabled={isSaving}
                 type="button"
                 onClick={() => {
                   setHighlightedMainRecipeId(mainRecipeId);
@@ -483,7 +450,7 @@ function PlannerRecipePickerModal({
             )}
             <button
               className={plannerPickerStyles.primaryButton(theme)}
-              disabled={mainRecipe === null || isSaving || isRemoving}
+              disabled={(mainRecipe === null && entry === undefined) || isSaving}
               type="button"
               onClick={saveMealSlot}
             >
@@ -527,16 +494,17 @@ function PlannerRecipePickerModal({
             className={recipeBrowserStyles.filterButton(theme)}
             ref={ingredientFilterButtonRef}
             type="button"
-            onClick={(event) =>
+            onClick={(event) => {
+              const buttonRect = event.currentTarget.getBoundingClientRect();
               setIngredientPickerPosition((currentPosition) =>
                 currentPosition === null
                   ? {
-                      x: event.clientX,
-                      y: event.clientY,
+                      x: buttonRect.left,
+                      y: buttonRect.top,
                     }
                   : null,
-              )
-            }
+              );
+            }}
           >
             <FilterIcon />
           </button>
@@ -605,17 +573,6 @@ function PlannerRecipePickerModal({
           <p className={plannerPickerStyles.statusErrorWithOffset(theme)}>{saveError}</p>
         )}
 
-        {isConfirmingRemove && (
-          <ConfirmationDialog
-            body={t.planner.removeMealBody}
-            confirmLabel={t.common.remove}
-            isBusy={isRemoving}
-            theme={theme}
-            title={t.planner.removeMealTitle}
-            onCancel={() => setIsConfirmingRemove(false)}
-            onConfirm={() => void removeMealSlot()}
-          />
-        )}
     </Modal>
   );
 }

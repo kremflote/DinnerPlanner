@@ -97,7 +97,8 @@ function getClampedPopoverPosition(x: number, y: number) {
   const viewportHeight = window.innerHeight;
   const effectivePopoverWidth = Math.min(popoverWidth, viewportWidth - viewportMargin * 2);
   const left = Math.max(viewportMargin, Math.min(x, viewportWidth - effectivePopoverWidth - viewportMargin));
-  const top = Math.max(viewportMargin, Math.min(y + 8, viewportHeight - popoverHeight - viewportMargin));
+  const preferredTop = viewportWidth <= 1100 ? y - popoverHeight - 8 : y + 8;
+  const top = Math.max(viewportMargin, Math.min(preferredTop, viewportHeight - popoverHeight - viewportMargin));
 
   return { left, top };
 }

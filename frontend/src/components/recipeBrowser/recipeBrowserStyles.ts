@@ -71,7 +71,7 @@ export const recipeBrowserStyles = {
           : "text-neutral-500 hover:text-neutral-900"
     }`,
   ingredientPicker: (theme: SiteTheme) =>
-    `fixed z-50 w-72 max-w-[calc(100vw_-_24px)] rounded-md border p-3 ${shadowClasses.overlay} ${surfaceClasses.modal(theme)}`,
+    `fixed z-[70] w-72 max-w-[calc(100vw_-_24px)] rounded-md border p-3 ${shadowClasses.overlay} ${surfaceClasses.modal(theme)}`,
   ingredientPickerSearch: (theme: SiteTheme) =>
     `h-9 w-full rounded-md border px-3 text-sm font-semibold outline-none placeholder:text-neutral-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${surfaceClasses.field(theme)}`,
   ingredientPickerEmpty: (theme: SiteTheme) =>

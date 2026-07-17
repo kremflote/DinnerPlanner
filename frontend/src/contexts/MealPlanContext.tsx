@@ -43,6 +43,8 @@ export function MealPlanProvider({ children }: IProviderProps) {
       try {
         if (id === null) {
           await mealPlanService.create(entry);
+        } else if (entry.recipes.length === 0) {
+          await mealPlanService.delete(id);
         } else {
           await mealPlanService.update(id, entry);
         }

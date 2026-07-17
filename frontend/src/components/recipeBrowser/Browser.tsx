@@ -242,16 +242,17 @@ function Browser({ mode, theme, headerActions, modeToggle }: BrowserProps) {
                   className={recipeBrowserStyles.filterButton(theme)}
                   ref={ingredientFilterButtonRef}
                   type="button"
-                  onClick={(event) =>
+                  onClick={(event) => {
+                    const buttonRect = event.currentTarget.getBoundingClientRect();
                     setIngredientPickerPosition((currentPosition) =>
                       currentPosition === null
                         ? {
-                            x: event.clientX,
-                            y: event.clientY,
+                            x: buttonRect.left,
+                            y: buttonRect.top,
                           }
                         : null,
-                    )
-                  }
+                    );
+                  }}
                 >
                   <FilterIcon />
                 </button>
