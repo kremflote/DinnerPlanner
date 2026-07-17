@@ -331,6 +331,7 @@ export type TranslationDictionary = {
     saveMeal: string;
     selectMainDescription: string;
     selectedCount: (count: number, max: number) => string;
+    selectedMealSummary: (main: string | null, supplements: string[]) => string;
     switchToView: (view: string) => string;
     weekLabel: (week: number) => string;
     yearLabel: (year: string) => string;

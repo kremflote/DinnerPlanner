@@ -403,6 +403,7 @@ export const headerStyles = {
 
 export const pageStyles = {
   shell: `${layoutClasses.contentWidth} ${responsiveClasses.portablePagePadding} ${sizeClasses.portableBottomNavOffset} relative py-12`,
+  contentShell: "grid w-full gap-6 max-[1100px]:pb-20",
   showColumnDebugOverlay: false,
   columnDebugOverlay:
     "pointer-events-none absolute inset-y-0 left-0 right-0 grid grid-cols-12 gap-6 opacity-100",
@@ -410,7 +411,7 @@ export const pageStyles = {
 };
 
 export const settingsStyles = {
-  shell: "mx-auto grid w-full max-w-2xl gap-6 max-[1100px]:pb-20",
+  shell: pageStyles.contentShell,
   quickSettingsRow:
     "flex flex-wrap items-start justify-between gap-4 max-sm:grid max-sm:w-full max-sm:grid-cols-1",
   title: (theme: SiteTheme) =>
@@ -503,7 +504,7 @@ export const settingsStyles = {
 } as const;
 
 export const scannerStyles = {
-  shell: "mx-auto grid w-full max-w-4xl gap-6 max-[1100px]:pb-20",
+  shell: pageStyles.contentShell,
   header: "grid gap-2",
   title: (theme: SiteTheme) =>
     `text-3xl font-bold leading-tight ${theme === "paletteLight" ? "text-[#556145]" : siteColorClasses[theme].plannerCounterAccent}`,
@@ -731,7 +732,7 @@ export const scannerStyles = {
 } as const;
 
 export const priceStyles = {
-  shell: "mx-auto grid w-full max-w-5xl gap-6 max-[1100px]:pb-20",
+  shell: pageStyles.contentShell,
   header: "grid gap-2",
   title: (theme: SiteTheme) =>
     `text-3xl font-bold leading-tight ${theme === "paletteLight" ? "text-[#556145]" : siteColorClasses[theme].plannerCounterAccent}`,
@@ -796,7 +797,7 @@ export const priceStyles = {
 export const plannerControlsStyles = {
   viewport: "mx-auto w-full max-[1100px]:w-[min(100%,36rem)] max-sm:w-full",
   /* Keep the planner content aligned with the cookbook grid using the shared spacing scale. */
-  shell: `mb-8 mt-3 grid w-full grid-cols-12 ${layoutClasses.gridGap} max-[1100px]:mb-4 max-[1100px]:grid-cols-1 max-[1100px]:gap-3`,
+  shell: `mb-8 grid w-full grid-cols-12 ${layoutClasses.gridGap} max-[1100px]:mb-6 max-[1100px]:grid-cols-1 max-[1100px]:gap-3`,
   datePrimaryRow: `flex w-full items-center justify-center ${layoutClasses.controlGap}`,
   // The year floats above the range label without increasing the top-control row height.
   dateYearRow: (theme: SiteTheme) =>
@@ -808,7 +809,7 @@ export const plannerControlsStyles = {
           : "text-neutral-500"
     }`,
   datePrimary: (theme: SiteTheme) =>
-    `min-w-52 whitespace-nowrap text-center text-[40px] font-semibold leading-[1.15] max-[1100px]:min-w-0 max-[1100px]:text-[34px] max-sm:text-[32px] ${siteColorClasses[theme].plannerCounterAccent}`,
+    `min-w-52 whitespace-nowrap text-center text-3xl font-bold leading-tight max-[1100px]:min-w-0 ${siteColorClasses[theme].plannerCounterAccent}`,
   leftCell:
     "order-2 col-span-8 flex items-center justify-start max-[1100px]:hidden",
   centerCell:
@@ -1096,10 +1097,18 @@ export const plannerPickerStyles = {
   bodyFrame: "grid min-h-0 gap-4",
   bodyScrollFrame: "grid min-h-0 overflow-y-auto pr-1",
   controls:
-    "mt-4 grid grid-cols-[13rem_auto_auto_minmax(0,1fr)] items-start gap-3 max-md:grid-cols-[13rem_auto_auto_minmax(0,1fr)] max-sm:grid-cols-[minmax(0,1fr)_auto_auto]",
+    "mt-2 grid grid-cols-[13rem_auto_auto_minmax(0,1fr)] items-start gap-3 max-md:grid-cols-[13rem_auto_auto_minmax(0,1fr)] max-sm:grid-cols-[minmax(0,1fr)_auto_auto]",
   searchInput: controlStyles.compactSearchInput,
   categoryButton: (theme: SiteTheme) =>
     `inline-flex h-9 w-auto items-center justify-center rounded-md border px-3 text-xs font-extrabold max-[1100px]:w-9 max-[1100px]:px-0 ${shadowClasses.subtle} transition-colors ${
+      theme === "dark"
+        ? "border-white/[0.10] bg-neutral-500 text-neutral-950 hover:bg-neutral-400"
+        : theme === "paletteLight"
+          ? "border-[#7A8864]/35 bg-[#C8C0B5] text-[#556145] hover:bg-[#A9BDD1]/40"
+          : "border-neutral-300 bg-neutral-200 text-neutral-900 hover:bg-neutral-300"
+    }`,
+  filterButton: (theme: SiteTheme) =>
+    `inline-flex h-9 w-9 items-center justify-center rounded-md border p-0 text-xs font-extrabold ${shadowClasses.subtle} transition-colors ${
       theme === "dark"
         ? "border-white/[0.10] bg-neutral-500 text-neutral-950 hover:bg-neutral-400"
         : theme === "paletteLight"
@@ -1110,12 +1119,20 @@ export const plannerPickerStyles = {
   ingredientFilterChips:
     "flex min-h-9 flex-wrap items-start gap-2 max-sm:col-span-3",
   emptyIngredientChipSlot: "min-h-9 max-sm:hidden",
-  selectedSection: "max-sm:hidden",
+  selectedSection: "max-[1100px]:hidden",
+  selectedSummary: (theme: SiteTheme) =>
+    `hidden min-h-9 items-center rounded-md px-3 py-2 text-sm font-bold leading-tight max-[1100px]:flex ${
+      theme === "dark"
+        ? "bg-white/[0.06] text-neutral-200"
+        : theme === "paletteLight"
+          ? "bg-[#E5D5BC]/45 text-[#556145]"
+          : "bg-neutral-100 text-neutral-800"
+    }`,
   selectedSectionBorder: (_theme: SiteTheme) => "",
   selectedStrip: "grid grid-cols-2 content-start gap-2 max-sm:grid-cols-1",
   selectedMainGrid:
-    "grid grid-cols-[9rem_minmax(12rem,22rem)] items-start gap-3 max-sm:grid-cols-1",
-  selectedMainThumbnail: "h-36 w-36",
+    "grid grid-cols-[9rem_minmax(12rem,22rem)] items-start gap-3 min-[641px]:max-[1100px]:grid-cols-[minmax(0,1fr)_minmax(0,3fr)] max-sm:grid-cols-1",
+  selectedMainThumbnail: "h-36 w-36 min-[641px]:max-[1100px]:h-auto min-[641px]:max-[1100px]:w-full",
   selectedItem: (theme: SiteTheme) =>
     `inline-flex h-8 items-center gap-2 rounded-md border px-3 text-xs font-bold ${siteColorClasses[theme].plannerControl}`,
   bodyGrid: `mt-4 grid ${sizeClasses.plannerPickerBrowserHeight} overflow-y-auto pr-1`,
@@ -1127,7 +1144,7 @@ export const plannerPickerStyles = {
           ? "bg-[#E5D5BC]/45"
           : "bg-neutral-100"
     }`,
-  recipeGrid: "grid grid-cols-4 gap-3 max-xl:grid-cols-3 max-md:grid-cols-2",
+  recipeGrid: "grid grid-cols-4 gap-3 max-sm:grid-cols-2",
   recipeCard: (theme: SiteTheme, selected: boolean) =>
     `${shadowClasses.subtle} ${
       selected

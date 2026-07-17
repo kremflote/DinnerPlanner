@@ -13,7 +13,7 @@ type RecipeBrowserProps = {
 
 function RecipeBrowser({ mode, theme, onModeChange }: RecipeBrowserProps) {
   return (
-    <main className={`${pageStyles.shell} ${recipeBrowserStyles.mobileFlushToHeader}`}>
+    <main className={pageStyles.shell}>
       <Browser
         mode={mode}
         theme={theme}

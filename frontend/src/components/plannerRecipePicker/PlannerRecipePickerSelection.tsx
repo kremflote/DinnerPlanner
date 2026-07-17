@@ -18,41 +18,48 @@ function PlannerRecipePickerSelection({
   onToggleSupplementaryRecipe,
 }: PlannerRecipePickerSelectionProps) {
   const { t } = useLanguage();
+  const summary = t.planner.selectedMealSummary(
+    mainRecipe?.name ?? null,
+    supplementaryRecipes.map((recipe) => recipe.name),
+  );
 
   if (mainRecipe === null && supplementaryRecipes.length === 0) {
-    return null;
+    return <p className={plannerPickerStyles.selectedSummary(theme)}>{summary}</p>;
   }
 
   return (
-    <section className={`${plannerPickerStyles.selectedSection} ${plannerPickerStyles.selectedSectionBorder(theme)}`}>
-      {mainRecipe !== null && (
-        <div className={plannerPickerStyles.selectedMainGrid}>
-          <RecipeThumbnail
-            className={plannerPickerStyles.selectedMainThumbnail}
-            recipe={{
-              imageUrl: mainRecipe.imageUrl,
-              name: mainRecipe.name,
-              subtitle: mainRecipe.cuisine?.name ?? t.enums.recipeTypes[mainRecipe.recipeType],
-            }}
-            theme={theme}
-          />
-          {supplementaryRecipes.length > 0 && (
-            <SupplementaryStrip
-              recipes={supplementaryRecipes}
+    <>
+      <p className={plannerPickerStyles.selectedSummary(theme)}>{summary}</p>
+      <section className={`${plannerPickerStyles.selectedSection} ${plannerPickerStyles.selectedSectionBorder(theme)}`}>
+        {mainRecipe !== null && (
+          <div className={plannerPickerStyles.selectedMainGrid}>
+            <RecipeThumbnail
+              className={plannerPickerStyles.selectedMainThumbnail}
+              recipe={{
+                imageUrl: mainRecipe.imageUrl,
+                name: mainRecipe.name,
+                subtitle: mainRecipe.cuisine?.name ?? t.enums.recipeTypes[mainRecipe.recipeType],
+              }}
               theme={theme}
-              onToggleSupplementaryRecipe={onToggleSupplementaryRecipe}
             />
-          )}
-        </div>
-      )}
-      {mainRecipe === null && supplementaryRecipes.length > 0 && (
-        <SupplementaryStrip
-          recipes={supplementaryRecipes}
-          theme={theme}
-          onToggleSupplementaryRecipe={onToggleSupplementaryRecipe}
-        />
-      )}
-    </section>
+            {supplementaryRecipes.length > 0 && (
+              <SupplementaryStrip
+                recipes={supplementaryRecipes}
+                theme={theme}
+                onToggleSupplementaryRecipe={onToggleSupplementaryRecipe}
+              />
+            )}
+          </div>
+        )}
+        {mainRecipe === null && supplementaryRecipes.length > 0 && (
+          <SupplementaryStrip
+            recipes={supplementaryRecipes}
+            theme={theme}
+            onToggleSupplementaryRecipe={onToggleSupplementaryRecipe}
+          />
+        )}
+      </section>
+    </>
   );
 }
 

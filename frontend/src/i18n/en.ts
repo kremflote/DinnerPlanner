@@ -379,6 +379,14 @@ export const en: TranslationDictionary = {
       saveMeal: "Save meal",
       selectMainDescription: "Select one dish for this meal slot.",
       selectedCount: (count, max) => `${count}/${max} selected`,
+      selectedMealSummary: (main, supplements) => {
+        if (main === null && supplements.length === 0) {
+          return "No meal selected.";
+        }
+
+        const selected = [main, ...supplements].filter((value): value is string => value !== null);
+        return `Selected: ${selected.join(" + ")}`;
+      },
       switchToView: (view) => `Switch to ${view}`,
       weekLabel: (week) => `Week ${week}`,
       yearLabel: (year) => `Year ${year}`,

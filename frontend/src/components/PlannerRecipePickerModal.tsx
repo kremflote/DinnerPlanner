@@ -491,7 +491,7 @@ function PlannerRecipePickerModal({
           </button>
           <button
             aria-label={t.browser.openIngredientFilter}
-            className={recipeBrowserStyles.filterButton(theme)}
+            className={plannerPickerStyles.filterButton(theme)}
             ref={ingredientFilterButtonRef}
             type="button"
             onClick={(event) => {

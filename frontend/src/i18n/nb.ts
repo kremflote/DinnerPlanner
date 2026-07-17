@@ -453,6 +453,14 @@ export const nb: TranslationDictionary = {
       saveMeal: "Lagre måltid",
       selectMainDescription: "Velg én rett for denne måltidsplassen.",
       selectedCount: (count, max) => `${count}/${max} valgt`,
+      selectedMealSummary: (main, supplements) => {
+        if (main === null && supplements.length === 0) {
+          return "Ingen måltid valgt.";
+        }
+
+        const selected = [main, ...supplements].filter((value): value is string => value !== null);
+        return `Valgt: ${selected.join(" + ")}`;
+      },
       switchToView: (view) => `Bytt til ${view}`,
       weekLabel: (week) => `Uke ${week}`,
       yearLabel: (year) => `År ${year}`,

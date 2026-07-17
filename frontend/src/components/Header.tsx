@@ -8,11 +8,11 @@ const navItems: Array<{
   labelKey: "settings" | "planner" | "cookbook" | "scanner" | "prices";
   icon: "settings" | "calendar" | "book" | "barcode" | "price";
 }> = [
-  { id: "settings", labelKey: "settings", icon: "settings" },
+  { id: "prices", labelKey: "prices", icon: "price" },
+  { id: "scanner", labelKey: "scanner", icon: "barcode" },
   { id: "weekPlanner", labelKey: "planner", icon: "calendar" },
   { id: "cookbook", labelKey: "cookbook", icon: "book" },
-  { id: "scanner", labelKey: "scanner", icon: "barcode" },
-  { id: "prices", labelKey: "prices", icon: "price" },
+  { id: "settings", labelKey: "settings", icon: "settings" },
 ];
 
 type HeaderProps = {

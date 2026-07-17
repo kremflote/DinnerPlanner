@@ -11,14 +11,13 @@ import {
 
 export const recipeBrowserStyles = {
   title: (theme: SiteTheme) =>
-    `whitespace-nowrap text-[32px] font-bold leading-[1.15] max-sm:text-2xl ${theme === "paletteLight" ? "text-[#556145]" : siteColorClasses[theme].plannerCounterAccent}`,
+    `whitespace-nowrap text-3xl font-bold leading-tight ${theme === "paletteLight" ? "text-[#556145]" : siteColorClasses[theme].plannerCounterAccent}`,
   headerTitle:
-    "col-span-2 flex items-center max-[1100px]:order-2 max-[1100px]:col-span-12 max-[1100px]:justify-start min-[641px]:max-[1100px]:mt-6 max-sm:my-4",
+    "col-span-2 flex items-center max-[1100px]:order-2 max-[1100px]:col-span-12 max-[1100px]:justify-start",
   searchInput: controlStyles.compactSearchInput,
-  mobileFlushToHeader: "min-[641px]:max-[1100px]:!pt-8 max-sm:!pt-0",
   headerControlsRow: "grid grid-cols-12 items-center max-[1100px]:mt-0 max-[1100px]:gap-0",
   searchControls:
-    "relative col-span-2 max-[1100px]:col-span-12 max-[1100px]:grid max-[1100px]:w-full max-[1100px]:grid-cols-[auto_minmax(0,1fr)] max-[1100px]:items-center max-[1100px]:gap-2",
+    "relative col-span-2 max-[1100px]:order-2 max-[1100px]:col-span-12 max-[1100px]:grid max-[1100px]:w-full max-[1100px]:grid-cols-[auto_minmax(0,1fr)] max-[1100px]:items-center max-[1100px]:gap-2",
   searchFieldShell: "relative w-full max-[1100px]:col-start-2 max-[1100px]:row-start-1",
   searchInputWithClear:
     "pr-9 min-[641px]:max-[1100px]:h-11 min-[641px]:max-[1100px]:pr-10 min-[641px]:max-[1100px]:text-base",
@@ -41,12 +40,12 @@ export const recipeBrowserStyles = {
   filterButtonSlot:
     "absolute left-[calc(100%+0.75rem)] top-0 flex h-9 w-9 shrink-0 items-center gap-2 max-[1100px]:static max-[1100px]:col-start-1 max-[1100px]:row-start-1 max-[1100px]:w-auto max-sm:h-9 max-sm:w-auto",
   searchFilterRow:
-    "mt-3 grid grid-cols-12 items-start gap-3 max-[1100px]:fixed max-[1100px]:left-6 max-[1100px]:right-[5.25rem] max-[1100px]:bottom-30 max-[1100px]:z-[55] max-[1100px]:m-0 max-[1100px]:block max-sm:left-4 max-sm:right-[3.75rem]",
+    "mt-3 grid grid-cols-12 items-start gap-3 max-[1100px]:fixed max-[1100px]:left-6 max-[1100px]:right-[5.25rem] max-[1100px]:bottom-30 max-[1100px]:z-[55] max-[1100px]:m-0 max-[1100px]:flex max-[1100px]:flex-col max-[1100px]:gap-2 max-sm:left-4 max-sm:right-[3.75rem]",
   activeFilterChips: (
     mode: "recipes" | "ingredients",
     hasVisibleFilters: boolean,
   ) =>
-    `col-span-10 flex min-h-9 flex-wrap items-start gap-2 max-[1100px]:col-span-12 max-sm:mt-3 ${
+    `col-span-10 flex min-h-9 flex-wrap items-start gap-2 max-[1100px]:order-1 max-[1100px]:col-span-12 ${
       mode === "recipes" ? "pl-12 max-[1100px]:pl-0" : ""
     } ${hasVisibleFilters ? "" : "max-[1100px]:hidden"}`,
   browserBodyGrid: "mt-3 grid grid-cols-12 gap-3 max-sm:mt-3",
@@ -454,8 +453,12 @@ export const recipeBrowserStyles = {
           : "border-neutral-300 bg-neutral-100"
     }`,
   tabs: (theme: SiteTheme) =>
-    `${segmentedToggleStyles.shell(theme)} max-md:rounded-none ${
-      theme === "paletteLight" ? "!border-[#556145] !bg-[#556145]" : ""
+    `${segmentedToggleStyles.shell(theme)} max-[1100px]:!rounded-none ${
+      theme === "dark"
+        ? "max-[1100px]:!border-neutral-800 max-[1100px]:!bg-neutral-950"
+        : theme === "paletteLight"
+          ? "!border-[#556145] !bg-[#556145]"
+          : "max-[1100px]:!border-neutral-300 max-[1100px]:!bg-neutral-200"
     }`,
   tab: (theme: SiteTheme, selected: boolean) =>
     segmentedToggleStyles.option(theme, selected),
@@ -515,9 +518,9 @@ export const recipeBrowserStyles = {
   checkbox: "h-4 w-4 rounded border-neutral-400 accent-neutral-500",
   resultsWithFilters: "col-span-10 max-[1100px]:col-span-12",
   recipeGrid:
-    "grid grid-cols-3 gap-3 min-[641px]:max-[1100px]:grid-cols-4 max-[1100px]:pb-28 max-md:grid-cols-2 max-[380px]:grid-cols-1",
+    `grid grid-cols-3 gap-3 min-[641px]:max-[1100px]:grid-cols-4 ${sizeClasses.portableBottomNavOffset} max-md:grid-cols-2 max-[380px]:grid-cols-1`,
   ingredientGridPanel: (theme: SiteTheme) =>
-    `rounded-md border p-3 max-sm:p-2 ${
+    `rounded-md border p-3 max-[1100px]:border-0 max-[1100px]:p-0 ${
       theme === "dark"
         ? "border-white/[0.10]"
         : theme === "paletteLight"
@@ -525,7 +528,7 @@ export const recipeBrowserStyles = {
           : "border-neutral-200"
     }`,
   ingredientGrid:
-    "grid grid-cols-3 items-start gap-3 max-[1100px]:grid-cols-2 max-[1100px]:pb-28 max-sm:grid-cols-1",
+    `grid grid-cols-3 items-start gap-3 max-[1100px]:grid-cols-2 ${sizeClasses.portableBottomNavOffset} max-sm:grid-cols-1`,
   emptyFilterChipSlot: "h-9",
   recipeCard: (theme: SiteTheme) =>
     `${shadowClasses.subtle} ${
