@@ -36,7 +36,7 @@ type RecipeCreateFormProps = {
   onCancel: () => void;
 };
 
-const RECIPE_NAME_MAX_LENGTH = 20;
+const RECIPE_NAME_MAX_LENGTH = 30;
 
 function RecipeCreateForm({
   imageInputId,

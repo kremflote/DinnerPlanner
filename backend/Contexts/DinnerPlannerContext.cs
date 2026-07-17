@@ -127,7 +127,7 @@ public class DinnerPlannerContext(DbContextOptions<DinnerPlannerContext> options
 
         modelBuilder.Entity<Recipe>(entity =>
         {
-            entity.Property(recipe => recipe.Name).HasMaxLength(20);
+            entity.Property(recipe => recipe.Name).HasMaxLength(30);
             entity.Property(recipe => recipe.Description).HasMaxLength(600);
 
             entity.HasDiscriminator<string>("RecipeType")
@@ -207,7 +207,7 @@ public class DinnerPlannerContext(DbContextOptions<DinnerPlannerContext> options
 
         modelBuilder.Entity<Dish>(entity =>
         {
-            entity.Property(dish => dish.Name).HasMaxLength(20);
+            entity.Property(dish => dish.Name).HasMaxLength(30);
             entity.HasOne(dish => dish.Cuisine)
                 .WithMany()
                 .HasForeignKey(dish => dish.CuisineId)
@@ -216,7 +216,7 @@ public class DinnerPlannerContext(DbContextOptions<DinnerPlannerContext> options
 
         modelBuilder.Entity<Dessert>(entity =>
         {
-            entity.Property(dessert => dessert.Name).HasMaxLength(20);
+            entity.Property(dessert => dessert.Name).HasMaxLength(30);
             entity.Property(dessert => dessert.Type).HasConversion<string>().HasMaxLength(64);
         });
 

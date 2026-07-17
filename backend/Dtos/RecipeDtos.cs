@@ -16,7 +16,7 @@ public enum RecipeType
 public record RecipeRequest(
     RecipeType RecipeType,
     [Required]
-    [StringLength(20, MinimumLength = 1)]
+    [StringLength(30, MinimumLength = 1)]
     string Name,
     string? ImageUrl,
     [StringLength(600)]
