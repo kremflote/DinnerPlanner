@@ -1,8 +1,7 @@
-import { useCallback, useEffect, useId, useState, type FormEvent } from "react";
+import { useCallback, useId, useState, type FormEvent } from "react";
 import { useBrands, useIngredientTagCategories, useIngredients, useLanguage, useRecipes, useStores } from "../../contexts";
 import type { IIngredient, IngredientTag, Vitamin } from "../../interfaces/IIngredient";
 import { brandService, imageUploadService, ingredientPriceService, ingredientService, ingredientTagCategoryService, storeService } from "../../services";
-import { getApiAssetUrl } from "../../services/apiClient";
 import type { SiteTheme } from "../../styles/appStyles";
 import { normalizePriceInput, todayInputValue } from "../../utils/priceFormatting";
 import {
@@ -13,6 +12,7 @@ import {
 } from "./formOptions";
 import { GroupedCheckboxPanel } from "./BrowserFilterGroups";
 import CreatableSelect from "./CreatableSelect";
+import ImageCropPicker from "./ImageCropPicker";
 import IngredientTagCreateDialog from "./IngredientTagCreateDialog";
 import { formatLabel, recipeBrowserStyles } from "./recipeBrowserStyles";
 
@@ -62,80 +62,6 @@ function NutritionNumberField({
   );
 }
 
-type CompactIngredientImagePickerProps = {
-  inputId: string;
-  initialImageUrl?: string | null;
-  previewUrl: string | null;
-  theme: SiteTheme;
-  onFileChange: (file: File | null) => void;
-};
-
-function CompactIngredientImagePicker({
-  inputId,
-  initialImageUrl = null,
-  previewUrl,
-  theme,
-  onFileChange,
-}: CompactIngredientImagePickerProps) {
-  const { t } = useLanguage();
-  const imageUrl = previewUrl ?? getApiAssetUrl(initialImageUrl);
-
-  return (
-    <div className={recipeBrowserStyles.compactIngredientImageControl}>
-      <input
-        accept="image/jpeg,image/png,image/webp"
-        className={recipeBrowserStyles.hiddenFileInput}
-        id={inputId}
-        type="file"
-        onChange={(event) => onFileChange(event.target.files?.[0] ?? null)}
-      />
-      <div className={recipeBrowserStyles.compactIngredientImagePreview(theme)}>
-        {imageUrl === null ? (
-          <div className={recipeBrowserStyles.compactIngredientImageFallback}>IMG</div>
-        ) : (
-          <img className={recipeBrowserStyles.compactIngredientImage} src={imageUrl} alt="" />
-        )}
-      </div>
-      <label className={recipeBrowserStyles.compactIngredientImageButton(theme)} htmlFor={inputId}>
-        <IngredientImageUploadIcon />
-        {t.cookbook.chooseFile}
-      </label>
-    </div>
-  );
-}
-
-function IngredientImageUploadIcon() {
-  return (
-    <svg
-      aria-hidden="true"
-      className={recipeBrowserStyles.imageUploadIcon}
-      fill="none"
-      viewBox="0 0 24 24"
-    >
-      <path
-        d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v11a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 17.5v-11Z"
-        stroke="currentColor"
-        strokeWidth="2"
-      />
-      <path
-        d="m7 16 3.2-3.2a1.1 1.1 0 0 1 1.6 0L14 15l1.2-1.2a1.1 1.1 0 0 1 1.6 0L20 17"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="2"
-      />
-      <path
-        d="M15 4v6m0-6 2 2m-2-2-2 2"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="2"
-      />
-      <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" />
-    </svg>
-  );
-}
-
 function IngredientCreateForm({
   initialIngredient = null,
   theme,
@@ -153,7 +79,6 @@ function IngredientCreateForm({
   const [ingredientName, setIngredientName] = useState(initialIngredient?.ingredientName ?? "");
   const [brandId, setBrandId] = useState<number | null>(initialIngredient?.brandId ?? null);
   const [croppedImageFile, setCroppedImageFile] = useState<File | null>(null);
-  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
   const [selectedTags, setSelectedTags] = useState<IngredientTag[]>(
     initialIngredient && initialIngredient.tags.length > 0 ? [...initialIngredient.tags] : ["Vegetable"],
   );
@@ -212,18 +137,6 @@ function IngredientCreateForm({
   const handleCroppedFileChange = useCallback((file: File | null) => {
     setCroppedImageFile(file);
   }, []);
-
-  useEffect(() => {
-    if (croppedImageFile === null) {
-      setImagePreviewUrl(null);
-      return;
-    }
-
-    const objectUrl = URL.createObjectURL(croppedImageFile);
-    setImagePreviewUrl(objectUrl);
-
-    return () => URL.revokeObjectURL(objectUrl);
-  }, [croppedImageFile]);
 
   const submitIngredient = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -420,7 +333,10 @@ function IngredientCreateForm({
             value={priceValue}
             onChange={(event) => setPriceValue(normalizePriceInput(event.target.value))}
           />
+          <span className={recipeBrowserStyles.labelSubtitle(theme)}>{t.prices.priceUnitSubtitle}</span>
         </label>
+      </div>
+      <div className={recipeBrowserStyles.ingredientPriceSecondaryGrid}>
         <label className={recipeBrowserStyles.field}>
           <span className={recipeBrowserStyles.label(theme)}>{t.prices.date}</span>
           <input
@@ -430,17 +346,17 @@ function IngredientCreateForm({
             onChange={(event) => setPriceDate(event.target.value)}
           />
         </label>
+        <label className={recipeBrowserStyles.field}>
+          <span className={recipeBrowserStyles.label(theme)}>{t.prices.note}</span>
+          <input
+            className={recipeBrowserStyles.textField(theme)}
+            maxLength={500}
+            placeholder={t.prices.notePlaceholder}
+            value={priceNote}
+            onChange={(event) => setPriceNote(event.target.value)}
+          />
+        </label>
       </div>
-      <label className={recipeBrowserStyles.field}>
-        <span className={recipeBrowserStyles.label(theme)}>{t.prices.note}</span>
-        <input
-          className={recipeBrowserStyles.textField(theme)}
-          maxLength={500}
-          placeholder={t.prices.notePlaceholder}
-          value={priceNote}
-          onChange={(event) => setPriceNote(event.target.value)}
-        />
-      </label>
     </section>
   );
 
@@ -524,13 +440,14 @@ function IngredientCreateForm({
               <span className={`${recipeBrowserStyles.label(theme)} ${recipeBrowserStyles.createImageLabel}`}>
                 {t.cookbook.image}
               </span>
-              <CompactIngredientImagePicker
-                inputId={imageInputId}
-                initialImageUrl={initialIngredient?.imageUrl}
-                previewUrl={imagePreviewUrl}
-                theme={theme}
-                onFileChange={handleCroppedFileChange}
-              />
+              <div className={recipeBrowserStyles.createImageControl}>
+                <ImageCropPicker
+                  inputId={imageInputId}
+                  initialImageUrl={initialIngredient?.imageUrl}
+                  theme={theme}
+                  onCroppedFileChange={handleCroppedFileChange}
+                />
+              </div>
             </section>
           </div>
 

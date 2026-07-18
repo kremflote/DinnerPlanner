@@ -214,6 +214,7 @@ export type TranslationDictionary = {
     pageTitle: string;
     price: string;
     priceInformation: string;
+    priceUnitSubtitle: string;
     pricePlaceholder: string;
     savePrice: string;
     selectStore: string;

@@ -549,6 +549,7 @@ function IngredientDraftEditor({
             value={draft.price}
             onChange={(event) => onChange({ ...draft, price: normalizePriceInput(event.target.value) })}
           />
+          <span className={scannerStyles.labelSubtitle(theme)}>{t.prices.priceUnitSubtitle}</span>
         </label>
       </div>
 

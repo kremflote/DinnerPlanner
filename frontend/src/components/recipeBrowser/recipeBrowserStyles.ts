@@ -162,8 +162,11 @@ export const recipeBrowserStyles = {
     }`,
   ingredientPricePanel: "grid gap-3 rounded-md border p-3",
   ingredientPriceGrid:
-    "grid grid-cols-[minmax(0,1fr)_8rem_9rem] items-end gap-3 max-md:grid-cols-1",
+    "grid grid-cols-[minmax(0,1fr)_minmax(0,8rem)] items-start gap-3 max-sm:grid-cols-1",
+  ingredientPriceSecondaryGrid:
+    "grid grid-cols-[minmax(0,9rem)_minmax(0,1fr)] items-start gap-3 max-sm:grid-cols-1",
   field: "grid min-w-0 gap-2",
+  labelStack: "grid gap-0.5",
   label: (theme: SiteTheme) =>
     `text-xs font-bold ${
       theme === "dark"
@@ -171,6 +174,14 @@ export const recipeBrowserStyles = {
         : theme === "paletteLight"
           ? "text-[#556145]"
           : "text-neutral-700"
+    }`,
+  labelSubtitle: (theme: SiteTheme) =>
+    `justify-self-end text-right text-[10px] font-semibold leading-tight ${
+      theme === "dark"
+        ? "text-neutral-500"
+        : theme === "paletteLight"
+          ? "text-[#7A8864]"
+          : "text-neutral-500"
     }`,
   requiredMark: (theme: SiteTheme) =>
     theme === "dark"

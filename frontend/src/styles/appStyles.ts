@@ -348,11 +348,11 @@ export const controlStyles = {
           : "border-neutral-300 bg-white text-neutral-900"
     }`,
   formField: (theme: SiteTheme) =>
-    `h-12 rounded-md border px-4 text-base font-normal outline-none placeholder:text-neutral-500 ${focusBase} ${surfaceClasses.field(theme)}`,
+    `h-12 min-w-0 w-full rounded-md border px-4 text-base font-normal outline-none placeholder:text-neutral-500 ${focusBase} ${surfaceClasses.field(theme)}`,
   compactTextField: (theme: SiteTheme) =>
     `h-8 min-w-0 rounded-md border px-2 text-xs font-semibold outline-none placeholder:text-neutral-500 disabled:opacity-45 ${focusBase} ${surfaceClasses.field(theme)}`,
   textArea: (theme: SiteTheme) =>
-    `min-h-32 resize-y rounded-md border px-4 py-3 text-base font-normal leading-[1.5] outline-none placeholder:text-neutral-500 ${focusBase} ${surfaceClasses.field(theme)}`,
+    `min-h-32 min-w-0 w-full resize-y rounded-md border px-4 py-3 text-base font-normal leading-[1.5] outline-none placeholder:text-neutral-500 ${focusBase} ${surfaceClasses.field(theme)}`,
 } as const;
 
 export const segmentedToggleStyles = {
@@ -687,7 +687,16 @@ export const scannerStyles = {
   editorImageButton: (theme: SiteTheme) =>
     `${controlStyles.secondaryButton(theme)} h-12 min-w-0 cursor-pointer px-4 text-sm`,
   hiddenFileInput: "sr-only",
-  compactFormGrid: "grid grid-cols-2 gap-3 max-sm:grid-cols-1",
+  compactFormGrid: "grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-3 max-sm:grid-cols-1",
+  labelStack: "grid gap-0.5",
+  labelSubtitle: (theme: SiteTheme) =>
+    `justify-self-end text-right text-[10px] font-semibold leading-tight ${
+      theme === "dark"
+        ? "text-neutral-500"
+        : theme === "paletteLight"
+          ? "text-[#7A8864]"
+          : "text-neutral-500"
+    }`,
   groupedTagPanel: "grid gap-3",
   groupedTagSection: (theme: SiteTheme) =>
     `grid gap-2 border-b pb-3 last:border-b-0 last:pb-0 ${

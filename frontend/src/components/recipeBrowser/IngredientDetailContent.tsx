@@ -150,40 +150,55 @@ function IngredientDetailContent({ ingredient, theme }: IngredientDetailContentP
             onSubmit={savePricePoint}
           >
             {priceError !== null && <p className={recipeBrowserStyles.statusError(theme)}>{priceError}</p>}
-            <CreatableSelect
-              createLabel={t.common.createNew}
-              label={t.prices.store}
-              options={stores.map((store) => ({ id: store.storeId, name: store.name }))}
-              placeholder={t.prices.selectStore}
-              theme={theme}
-              value={priceForm.storeId}
-              onChange={(storeId) => setPriceForm({ ...priceForm, storeId })}
-              onCreate={async (name) => {
-                const store = await storeService.create({ name });
-                await refreshStores();
-                return { id: store.storeId, name: store.name };
-              }}
-            />
-            <label className={recipeBrowserStyles.field}>
-              <span className={recipeBrowserStyles.label(theme)}>{t.prices.price}</span>
-              <input
-                className={recipeBrowserStyles.textField(theme)}
-                inputMode="decimal"
-                placeholder={t.prices.pricePlaceholder}
-                type="text"
-                value={priceForm.price}
-                onChange={(event) => setPriceForm({ ...priceForm, price: normalizePriceInput(event.target.value) })}
+            <div className={recipeBrowserStyles.ingredientPriceGrid}>
+              <CreatableSelect
+                createLabel={t.common.createNew}
+                label={t.prices.store}
+                options={stores.map((store) => ({ id: store.storeId, name: store.name }))}
+                placeholder={t.prices.selectStore}
+                theme={theme}
+                value={priceForm.storeId}
+                onChange={(storeId) => setPriceForm({ ...priceForm, storeId })}
+                onCreate={async (name) => {
+                  const store = await storeService.create({ name });
+                  await refreshStores();
+                  return { id: store.storeId, name: store.name };
+                }}
               />
-            </label>
-            <label className={recipeBrowserStyles.field}>
-              <span className={recipeBrowserStyles.label(theme)}>{t.prices.date}</span>
-              <input
-                className={recipeBrowserStyles.textField(theme)}
-                type="date"
-                value={priceForm.date}
-                onChange={(event) => setPriceForm({ ...priceForm, date: event.target.value })}
-              />
-            </label>
+              <label className={recipeBrowserStyles.field}>
+                <span className={recipeBrowserStyles.label(theme)}>{t.prices.price}</span>
+                <input
+                  className={recipeBrowserStyles.textField(theme)}
+                  inputMode="decimal"
+                  placeholder={t.prices.pricePlaceholder}
+                  type="text"
+                  value={priceForm.price}
+                  onChange={(event) => setPriceForm({ ...priceForm, price: normalizePriceInput(event.target.value) })}
+                />
+                <span className={recipeBrowserStyles.labelSubtitle(theme)}>{t.prices.priceUnitSubtitle}</span>
+              </label>
+            </div>
+            <div className={recipeBrowserStyles.ingredientPriceSecondaryGrid}>
+              <label className={recipeBrowserStyles.field}>
+                <span className={recipeBrowserStyles.label(theme)}>{t.prices.date}</span>
+                <input
+                  className={recipeBrowserStyles.textField(theme)}
+                  type="date"
+                  value={priceForm.date}
+                  onChange={(event) => setPriceForm({ ...priceForm, date: event.target.value })}
+                />
+              </label>
+              <label className={recipeBrowserStyles.field}>
+                <span className={recipeBrowserStyles.label(theme)}>{t.prices.note}</span>
+                <input
+                  className={recipeBrowserStyles.textField(theme)}
+                  maxLength={500}
+                  placeholder={t.prices.notePlaceholder}
+                  value={priceForm.note}
+                  onChange={(event) => setPriceForm({ ...priceForm, note: event.target.value })}
+                />
+              </label>
+            </div>
           </form>
         </Modal>
       )}

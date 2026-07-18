@@ -230,6 +230,7 @@ export const en: TranslationDictionary = {
       pageTitle: "Prices",
       price: "Price",
       priceInformation: "Price Information",
+      priceUnitSubtitle: "per kg / liter",
       pricePlaceholder: "39.90",
       savePrice: "Save price",
       selectStore: "Select store",

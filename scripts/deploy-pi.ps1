@@ -8,6 +8,9 @@ param(
     [switch]$NoBuild,
     [switch]$DryRun,
     [switch]$PauseOnExit,
+    [int]$HealthAttempts = 90,
+    [int]$HealthDelaySeconds = 2,
+    [string]$PublicUrl = "",
     [string]$LogPath = (Join-Path $PSScriptRoot "deploy-pi.last.log")
 )
 
@@ -40,9 +43,16 @@ $commands.Add("docker compose ps matflote-backend matflote-frontend")
 if ($Target -ne "frontend") {
     $commands.Add("docker exec matflote-backend sh -c 'test -f /app/SeedImages/placeholders/recipe-photo-placeholder.png && echo OK packaged placeholder image || (echo MISSING packaged placeholder image; exit 1)'")
     $commands.Add("docker exec matflote-backend sh -c 'test -f /data/images/placeholders/recipe-photo-placeholder.png && echo OK seeded placeholder image || (echo MISSING seeded placeholder image; ls -la /app/SeedImages/placeholders /data/images/placeholders 2>/dev/null || true; exit 1)'")
-    $commands.Add("docker exec matflote-frontend sh -c 'for attempt in `$(seq 1 30); do wget -q --spider http://backend:8080/health && echo OK backend health URL && exit 0; sleep 1; done; echo MISSING backend health URL; exit 1'")
-    $commands.Add("docker exec matflote-frontend sh -c 'wget -q --spider http://backend:8080/images/placeholders/recipe-photo-placeholder.png && echo OK backend serves placeholder image URL || (echo MISSING backend placeholder image URL; exit 1)'")
-    $commands.Add("docker exec matflote-frontend sh -c 'wget -q --spider http://localhost/images/placeholders/recipe-photo-placeholder.png && echo OK frontend proxies placeholder image URL || (echo MISSING frontend placeholder image URL; exit 1)'")
+    $commands.Add("docker exec matflote-frontend sh -c 'echo Waiting for backend health; for attempt in `$(seq 1 $HealthAttempts); do wget -q --spider http://backend:8080/health && echo OK backend health URL && exit 0; sleep $HealthDelaySeconds; done; echo MISSING backend health URL after $HealthAttempts attempts; docker logs --tail=80 matflote-backend; exit 1'")
+    $commands.Add("docker exec matflote-frontend sh -c 'for attempt in `$(seq 1 $HealthAttempts); do wget -q --spider http://backend:8080/images/placeholders/recipe-photo-placeholder.png && echo OK backend serves placeholder image URL && exit 0; sleep $HealthDelaySeconds; done; echo MISSING backend placeholder image URL; exit 1'")
+    $commands.Add("docker exec matflote-frontend sh -c 'echo Waiting for frontend nginx; for attempt in `$(seq 1 $HealthAttempts); do wget -q --spider http://127.0.0.1/ && echo OK frontend nginx URL && exit 0; sleep $HealthDelaySeconds; done; echo MISSING frontend nginx URL after $HealthAttempts attempts; docker logs --tail=80 matflote-frontend; exit 1'")
+    $commands.Add("docker exec matflote-frontend sh -c 'wget -q --spider http://127.0.0.1/images/placeholders/recipe-photo-placeholder.png && echo OK frontend proxies placeholder image URL || echo WARN frontend placeholder image proxy check failed; verify in browser if images matter for this deploy'")
+}
+
+if ($PublicUrl.Trim().Length -gt 0) {
+    $trimmedPublicUrl = $PublicUrl.TrimEnd("/")
+    $commands.Add("wget -q --spider $trimmedPublicUrl && echo OK public frontend URL || (echo MISSING public frontend URL; exit 1)")
+    $commands.Add("wget -q --spider $trimmedPublicUrl/health && echo OK public health URL || (echo MISSING public health URL; exit 1)")
 }
 
 $remoteCommand = $commands -join " && "

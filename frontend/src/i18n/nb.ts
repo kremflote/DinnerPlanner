@@ -308,6 +308,7 @@ export const nb: TranslationDictionary = {
       pageTitle: "Priser",
       price: "Pris",
       priceInformation: "Prisinformasjon",
+      priceUnitSubtitle: "per kg / liter",
       pricePlaceholder: "39.90",
       savePrice: "Lagre pris",
       selectStore: "Velg butikk",
