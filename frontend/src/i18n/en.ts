@@ -284,7 +284,6 @@ export const en: TranslationDictionary = {
     scanCandidatesTitle: "Suggested ingredients",
     scannerFound: (ean) => `Found barcode ${ean}. Looking it up...`,
     scannerReady: "Point the camera at a barcode.",
-    scanningHint: "Use good light and keep the barcode inside the frame.",
     selectCandidate: "Select",
     searching: "Searching...",
     selectTags: "Select tags",

@@ -282,12 +282,6 @@ function ScannerPage({ theme }: ScannerPageProps) {
                 {cameraStatus}
               </span>
             )}
-            {!isCameraOpen && cameraStatus === null && (
-              <span className={scannerStyles.cameraStatus(theme)}>
-                {t.scanner.scanningHint}
-              </span>
-            )}
-
             <form className={scannerStyles.lookupForm(isManualEntryOpen)} onSubmit={lookupProduct}>
               <label className={scannerStyles.field}>
                 <span className={scannerStyles.label}>{t.scanner.eanLabel}</span>

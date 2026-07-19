@@ -550,15 +550,27 @@ export const recipeBrowserStyles = {
             ? "border-neutral-400 bg-neutral-100"
             : "border-neutral-200 bg-neutral-50"
     }`,
+  manageTagDivider: (theme: SiteTheme, emphasis: "category" | "item" = "item") =>
+    theme === "dark"
+      ? emphasis === "category"
+        ? "border-white/[0.16]"
+        : "border-white/[0.08]"
+      : theme === "paletteLight"
+        ? emphasis === "category"
+          ? "border-[#7A8864]/35"
+          : "border-[#7A8864]/18"
+        : emphasis === "category"
+          ? "border-neutral-300"
+          : "border-neutral-200",
   manageTagCategoryRow:
-    "grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-2 max-sm:grid-cols-1",
-  manageTagList: "grid gap-2",
+    "grid grid-cols-[minmax(0,1fr)_7rem_7rem] items-center gap-2 border-b pb-3 max-sm:grid-cols-2 [&>input]:max-sm:col-span-2 [&>button]:max-sm:w-full",
+  manageTagList: "grid",
   manageTagRow:
-    "grid grid-cols-[minmax(0,1fr)_7rem_7rem] items-center gap-2 pl-8 max-sm:grid-cols-2 max-sm:pl-4 [&>input]:max-sm:col-span-2 [&>button]:max-sm:w-full",
+    "grid grid-cols-[minmax(0,1fr)_7rem_7rem] items-center gap-2 border-b py-2 pl-8 last:border-b-0 last:pb-0 max-sm:grid-cols-2 max-sm:pl-4 [&>input]:max-sm:col-span-2 [&>button]:max-sm:w-full",
   manageTagActionButton: (theme: SiteTheme) =>
-    `${controlStyles.secondaryButton(theme)} w-28 min-w-0 px-4`,
+    `${controlStyles.secondaryButton(theme)} w-28 min-w-0 px-4 max-sm:h-9 max-sm:w-full max-sm:px-3 max-sm:text-sm`,
   manageTagRemoveButton: (theme: SiteTheme) =>
-    `${controlStyles.removeButton(theme)} w-28 min-w-0 px-4`,
+    `${controlStyles.removeButton(theme)} w-28 min-w-0 px-4 max-sm:h-9 max-sm:w-full max-sm:px-3 max-sm:text-sm`,
   resultsWithFilters: "col-span-10 max-[1100px]:col-span-12",
   recipeGrid: `grid grid-cols-3 gap-3 min-[641px]:max-[1100px]:grid-cols-4 ${sizeClasses.portableBottomNavOffset} max-md:grid-cols-2 max-[380px]:grid-cols-1`,
   ingredientGridPanel: (_theme: SiteTheme) => "",

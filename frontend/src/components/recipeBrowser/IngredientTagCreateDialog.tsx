@@ -208,7 +208,7 @@ function IngredientTagCreateDialog({
               key={category.ingredientTagCategoryId}
               onClick={() => setSelectedCategoryId(category.ingredientTagCategoryId)}
             >
-              <div className={recipeBrowserStyles.manageTagCategoryRow}>
+              <div className={`${recipeBrowserStyles.manageTagCategoryRow} ${recipeBrowserStyles.manageTagDivider(theme, "category")}`}>
                 <input
                   className={recipeBrowserStyles.textField(theme)}
                   value={managedCategoryNames[category.ingredientTagCategoryId] ?? category.name}
@@ -220,7 +220,7 @@ function IngredientTagCreateDialog({
                   }
                 />
                 <button
-                    className={recipeBrowserStyles.manageTagActionButton(theme)}
+                  className={recipeBrowserStyles.manageTagActionButton(theme)}
                   disabled={isManagingTags}
                   type="button"
                   onClick={(event) => {
@@ -244,7 +244,10 @@ function IngredientTagCreateDialog({
               </div>
               <div className={recipeBrowserStyles.manageTagList}>
                 {category.tags.map((tag) => (
-                  <div className={recipeBrowserStyles.manageTagRow} key={tag}>
+                  <div
+                    className={`${recipeBrowserStyles.manageTagRow} ${recipeBrowserStyles.manageTagDivider(theme)}`}
+                    key={tag}
+                  >
                     <input
                       className={recipeBrowserStyles.textField(theme)}
                       value={managedTagNames[tag] ?? tag}

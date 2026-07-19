@@ -170,7 +170,7 @@ export const siteColorClasses = {
 export const typographyClasses = {
   app: "font-['Nunito',system-ui,sans-serif]",
   hero: "font-['Segoe_Print','Bradley_Hand','Comic_Sans_MS',cursive]",
-  logo: "translate-x-0 font-['Ubuntu',sans-serif] text-[46px] font-bold leading-none max-sm:text-[34px]",
+  logo: "min-[1401px]:-translate-x-[8.5rem] font-['Ubuntu',sans-serif] text-[46px] font-bold leading-none max-sm:text-[34px]",
   dayLabel: "text-2xl font-extralight tracking-normal",
   mealHeaderLabel: "text-2xl font-extralight tracking-wide",
 } as const;
@@ -294,8 +294,7 @@ export const thumbnailStyles = {
   ingredientImageFallback:
     "flex h-full w-full items-center justify-center text-xs font-black leading-none",
   ingredientDot: "h-3 w-3 rounded-md",
-  ingredientContent:
-    "grid min-w-0 content-center gap-0.5",
+  ingredientContent: "grid min-w-0 content-center gap-0.5",
   ingredientName: "min-w-0 truncate text-sm font-bold leading-tight",
   ingredientNameCompact: "text-xs",
   ingredientBrand:
@@ -687,7 +686,8 @@ export const scannerStyles = {
   editorImageButton: (theme: SiteTheme) =>
     `${controlStyles.secondaryButton(theme)} h-12 min-w-0 cursor-pointer px-4 text-sm`,
   hiddenFileInput: "sr-only",
-  compactFormGrid: "grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-start gap-3 max-sm:grid-cols-1",
+  compactFormGrid:
+    "grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-start gap-3 max-sm:grid-cols-1",
   priceField: "relative mb-4 grid gap-2",
   labelStack: "grid gap-0.5",
   labelSubtitle: (theme: SiteTheme) =>
@@ -1150,7 +1150,8 @@ export const plannerPickerStyles = {
   selectedStrip: "grid grid-cols-2 content-start gap-2 max-sm:grid-cols-1",
   selectedMainGrid:
     "grid grid-cols-[9rem_minmax(12rem,22rem)] items-start gap-3 min-[641px]:max-[1100px]:grid-cols-[minmax(0,1fr)_minmax(0,3fr)] max-sm:grid-cols-1",
-  selectedMainThumbnail: "h-36 w-36 min-[641px]:max-[1100px]:h-auto min-[641px]:max-[1100px]:w-full",
+  selectedMainThumbnail:
+    "h-36 w-36 min-[641px]:max-[1100px]:h-auto min-[641px]:max-[1100px]:w-full",
   selectedItem: (theme: SiteTheme) =>
     `inline-flex h-8 items-center gap-2 rounded-md border px-3 text-xs font-bold ${siteColorClasses[theme].plannerControl}`,
   bodyGrid: `mt-4 grid ${sizeClasses.plannerPickerBrowserHeight} overflow-y-auto pr-1`,

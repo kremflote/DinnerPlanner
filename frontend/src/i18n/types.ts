@@ -263,7 +263,6 @@ export type TranslationDictionary = {
     scanCandidatesTitle: string;
     scannerFound: (ean: string) => string;
     scannerReady: string;
-    scanningHint: string;
     selectCandidate: string;
     searching: string;
     selectTags: string;
