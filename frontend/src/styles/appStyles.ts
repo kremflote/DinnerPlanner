@@ -295,11 +295,11 @@ export const thumbnailStyles = {
     "flex h-full w-full items-center justify-center text-xs font-black leading-none",
   ingredientDot: "h-3 w-3 rounded-md",
   ingredientContent:
-    "grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,38%)] items-center gap-2",
+    "grid min-w-0 content-center gap-0.5",
   ingredientName: "min-w-0 truncate text-sm font-bold leading-tight",
   ingredientNameCompact: "text-xs",
   ingredientBrand:
-    "min-w-0 justify-self-end truncate text-right text-[11px] font-semibold leading-tight opacity-75",
+    "min-w-0 truncate text-[11px] font-semibold leading-tight opacity-75",
   ingredientBrandCompact: "text-[10px]",
 } as const;
 

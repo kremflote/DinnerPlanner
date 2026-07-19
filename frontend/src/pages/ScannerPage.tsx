@@ -1,6 +1,5 @@
 import type { IScannerControls } from "@zxing/browser";
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type FormEvent } from "react";
-import ConfirmationDialog from "../components/ConfirmationDialog";
 import Modal from "../components/Modal";
 import CreatableSelect from "../components/recipeBrowser/CreatableSelect";
 import { useBrands, useIngredientTagCategories, useIngredients, useLanguage, useStores } from "../contexts";
@@ -66,7 +65,6 @@ function ScannerPage({ theme }: ScannerPageProps) {
   const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null);
   const [ingredientDraft, setIngredientDraft] = useState<IngredientDraft | null>(null);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
-  const [confirmSaveOpen, setConfirmSaveOpen] = useState(false);
   const editorTitleId = useId();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const scannerControlsRef = useRef<IScannerControls | null>(null);
@@ -123,15 +121,6 @@ function ScannerPage({ theme }: ScannerPageProps) {
     setIsEditorOpen(true);
   };
 
-  const promptSaveIngredient = () => {
-    if (ingredientDraft === null || ingredientDraft.name.trim().length === 0) {
-      setError(t.scanner.noCandidateSelected);
-      return;
-    }
-
-    setConfirmSaveOpen(true);
-  };
-
   const saveIngredient = async () => {
     if (ingredientDraft === null) {
       return;
@@ -140,7 +129,6 @@ function ScannerPage({ theme }: ScannerPageProps) {
     const ingredientName = ingredientDraft.name.trim().slice(0, 30);
     if (ingredientName.length === 0) {
       setError(t.scanner.noCandidateSelected);
-      setConfirmSaveOpen(false);
       return;
     }
 
@@ -185,7 +173,6 @@ function ScannerPage({ theme }: ScannerPageProps) {
       }
 
       await refreshIngredients();
-      setConfirmSaveOpen(false);
       setIsEditorOpen(false);
       setCameraStatus(t.scanner.ingredientSaved(ingredientName));
     } catch (caughtError) {
@@ -399,7 +386,7 @@ function ScannerPage({ theme }: ScannerPageProps) {
                 className={`${scannerStyles.saveButton(theme)} ${scannerStyles.editorModalActionButton}`}
                 disabled={isSavingIngredient}
                 type="button"
-                onClick={promptSaveIngredient}
+                onClick={() => void saveIngredient()}
               >
                 {isSavingIngredient ? t.scanner.savingIngredient : t.scanner.saveIngredient}
               </button>
@@ -419,19 +406,6 @@ function ScannerPage({ theme }: ScannerPageProps) {
             onChange={setIngredientDraft}
           />
         </Modal>
-      )}
-
-      {confirmSaveOpen && ingredientDraft !== null && (
-        <ConfirmationDialog
-          body={t.scanner.saveIngredientBody(ingredientDraft.name.trim() || t.scanner.suggestedIngredient)}
-          confirmLabel={t.scanner.saveIngredient}
-          isBusy={isSavingIngredient}
-          theme={theme}
-          title={t.scanner.saveIngredientTitle}
-          tone="default"
-          onCancel={() => setConfirmSaveOpen(false)}
-          onConfirm={saveIngredient}
-        />
       )}
     </main>
   );
