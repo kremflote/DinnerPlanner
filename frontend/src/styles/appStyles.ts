@@ -687,7 +687,7 @@ export const scannerStyles = {
   editorImageButton: (theme: SiteTheme) =>
     `${controlStyles.secondaryButton(theme)} h-12 min-w-0 cursor-pointer px-4 text-sm`,
   hiddenFileInput: "sr-only",
-  compactFormGrid: "grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-3 max-sm:grid-cols-1",
+  compactFormGrid: "grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-start gap-3 max-sm:grid-cols-1",
   priceField: "relative mb-4 grid gap-2",
   labelStack: "grid gap-0.5",
   labelSubtitle: (theme: SiteTheme) =>

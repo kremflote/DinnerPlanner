@@ -8,12 +8,12 @@ import {
   formatIngredientTagCategoryName,
   getIngredientTagGroupsWithCustomTags,
   ingredientTagGroups,
-  vitamins,
 } from "./formOptions";
 import { GroupedCheckboxPanel } from "./BrowserFilterGroups";
 import CreatableSelect from "./CreatableSelect";
 import ImageCropPicker from "./ImageCropPicker";
 import IngredientTagCreateDialog from "./IngredientTagCreateDialog";
+import NutritionEditor, { type NutritionEditorValues } from "./NutritionEditor";
 import { formatLabel, recipeBrowserStyles } from "./recipeBrowserStyles";
 
 type IngredientCreateFormProps = {
@@ -24,43 +24,6 @@ type IngredientCreateFormProps = {
 };
 
 const INGREDIENT_NAME_MAX_LENGTH = 30;
-
-type NutritionNumberFieldProps = {
-  label: string;
-  theme: SiteTheme;
-  value: string;
-  className?: string;
-  step?: string;
-  unit?: string;
-  onChange: (value: string) => void;
-};
-
-function NutritionNumberField({
-  label,
-  theme,
-  value,
-  className = "",
-  step = "0.1",
-  unit = "g",
-  onChange,
-}: NutritionNumberFieldProps) {
-  return (
-    <label className={`${recipeBrowserStyles.field} ${className}`}>
-      <span className={recipeBrowserStyles.label(theme)}>{label}</span>
-      <span className={recipeBrowserStyles.numberField}>
-        <input
-          className={recipeBrowserStyles.numberFieldInput(theme)}
-          min="0"
-          step={step}
-          type="number"
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-        />
-        <span className={recipeBrowserStyles.numberFieldSuffix(theme)}>{unit}</span>
-      </span>
-    </label>
-  );
-}
 
 function IngredientCreateForm({
   initialIngredient = null,
@@ -224,86 +187,40 @@ function IngredientCreateForm({
     }
   };
 
-  const nutritionPanel = (
-    <div className={recipeBrowserStyles.detailsPanel(theme)}>
-      <div className={recipeBrowserStyles.formGrid}>
-        <NutritionNumberField
-          label={t.cookbook.caloriesPer100g}
-          step="1"
-          theme={theme}
-          unit="kcal"
-          value={calories}
-          onChange={setCalories}
-        />
-        <NutritionNumberField
-          label={t.cookbook.carbsPer100g}
-          theme={theme}
-          value={carbohydrateGrams}
-          onChange={setCarbohydrateGrams}
-        />
-        <NutritionNumberField
-          label={`${t.scanner.protein} per 100g`}
-          theme={theme}
-          value={proteinGrams}
-          onChange={setProteinGrams}
-        />
-        <NutritionNumberField
-          label={t.cookbook.saltPer100g}
-          step="0.01"
-          theme={theme}
-          value={saltGrams}
-          onChange={setSaltGrams}
-        />
-        <NutritionNumberField
-          label={t.cookbook.fiberPer100g}
-          theme={theme}
-          value={dietaryFiberGrams}
-          onChange={setDietaryFiberGrams}
-        />
-        <NutritionNumberField
-          className={recipeBrowserStyles.nutritionSecondRowStart}
-          label={t.cookbook.saturatedFatsPer100g}
-          theme={theme}
-          value={saturatedFatGrams}
-          onChange={setSaturatedFatGrams}
-        />
-        <NutritionNumberField
-          label={t.cookbook.unsaturatedFatsPer100g}
-          theme={theme}
-          value={unsaturatedFatGrams}
-          onChange={setUnsaturatedFatGrams}
-        />
-        <NutritionNumberField
-          label={t.cookbook.monounsaturatedFatsPer100g}
-          theme={theme}
-          value={monounsaturatedFatGrams}
-          onChange={setMonounsaturatedFatGrams}
-        />
-        <NutritionNumberField
-          label={t.cookbook.polyunsaturatedFatsPer100g}
-          theme={theme}
-          value={polyunsaturatedFatGrams}
-          onChange={setPolyunsaturatedFatGrams}
-        />
-      </div>
+  const nutritionValues: NutritionEditorValues = {
+    calories,
+    carbohydrateGrams,
+    proteinGrams,
+    saltGrams,
+    dietaryFiberGrams,
+    saturatedFatGrams,
+    unsaturatedFatGrams,
+    monounsaturatedFatGrams,
+    polyunsaturatedFatGrams,
+  };
+  const updateNutritionValue = (key: keyof NutritionEditorValues, value: string) => {
+    const setters: Record<keyof NutritionEditorValues, (value: string) => void> = {
+      calories: setCalories,
+      carbohydrateGrams: setCarbohydrateGrams,
+      proteinGrams: setProteinGrams,
+      saltGrams: setSaltGrams,
+      dietaryFiberGrams: setDietaryFiberGrams,
+      saturatedFatGrams: setSaturatedFatGrams,
+      unsaturatedFatGrams: setUnsaturatedFatGrams,
+      monounsaturatedFatGrams: setMonounsaturatedFatGrams,
+      polyunsaturatedFatGrams: setPolyunsaturatedFatGrams,
+    };
 
-      <section className={recipeBrowserStyles.field}>
-        <span className={recipeBrowserStyles.label(theme)}>{t.cookbook.vitamins}</span>
-        <div className={`${recipeBrowserStyles.tagCheckboxGrid} ${recipeBrowserStyles.checkboxGridPanel(theme)}`}>
-          {vitamins.map((vitamin) => (
-            <label className={recipeBrowserStyles.checkboxLabel(theme)} key={vitamin}>
-              <input
-                checked={selectedVitamins.includes(vitamin)}
-                className={recipeBrowserStyles.checkbox}
-                type="checkbox"
-                onChange={() => setSelectedVitamins((currentVitamins) => toggleValue(currentVitamins, vitamin))}
-              />
-              {formatLabel(vitamin)}
-            </label>
-          ))}
-        </div>
-      </section>
-    </div>
+    setters[key](value);
+  };
+  const nutritionPanel = (
+    <NutritionEditor
+      selectedVitamins={selectedVitamins}
+      theme={theme}
+      values={nutritionValues}
+      onChange={updateNutritionValue}
+      onVitaminsChange={setSelectedVitamins}
+    />
   );
 
   const priceInformationPanel = showPriceInformation && (

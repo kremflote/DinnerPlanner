@@ -14,6 +14,8 @@ type CreatableSelectProps = {
   value: number | null;
   options: CreatableOption[];
   theme: SiteTheme;
+  fieldClassName?: string;
+  labelClassName?: string;
   required?: boolean;
   placeholder?: string;
   createLabel?: string;
@@ -29,6 +31,8 @@ function CreatableSelect({
   value,
   options,
   theme,
+  fieldClassName,
+  labelClassName,
   required = false,
   placeholder = "Select option",
   createLabel = "Create New",
@@ -115,7 +119,7 @@ function CreatableSelect({
   };
 
   const labelContent = (
-    <span className={recipeBrowserStyles.label(theme)}>
+    <span className={labelClassName ?? recipeBrowserStyles.label(theme)}>
       {label}
       {required && <span className={recipeBrowserStyles.requiredMark(theme)}> *</span>}
     </span>
@@ -123,7 +127,7 @@ function CreatableSelect({
 
   if (onDeleteOption !== undefined) {
     return (
-      <div className={recipeBrowserStyles.field} ref={selectRef}>
+      <div className={fieldClassName ?? recipeBrowserStyles.field} ref={selectRef}>
         {labelContent}
         <div className={recipeBrowserStyles.customSelectWrap}>
           <button
@@ -229,7 +233,7 @@ function CreatableSelect({
   }
 
   return (
-    <label className={recipeBrowserStyles.field}>
+    <label className={fieldClassName ?? recipeBrowserStyles.field}>
       {labelContent}
       <select
         className={recipeBrowserStyles.textField(theme)}

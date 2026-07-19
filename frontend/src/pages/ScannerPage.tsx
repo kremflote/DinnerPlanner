@@ -4,7 +4,7 @@ import ConfirmationDialog from "../components/ConfirmationDialog";
 import Modal from "../components/Modal";
 import CreatableSelect from "../components/recipeBrowser/CreatableSelect";
 import { useBrands, useIngredientTagCategories, useIngredients, useLanguage, useStores } from "../contexts";
-import type { IngredientTag, INutritionFacts } from "../interfaces/IIngredient";
+import type { IngredientTag, INutritionFacts, Vitamin } from "../interfaces/IIngredient";
 import type { IStore } from "../interfaces/ILookup";
 import type { IProductLookupNutrition, IProductLookupResult } from "../interfaces/IProductLookup";
 import { brandService, imageUploadService, ingredientPriceService, ingredientService, ingredientTagCategoryService, productLookupService, storeService } from "../services";
@@ -19,6 +19,7 @@ import {
 import { GroupedCheckboxPanel } from "../components/recipeBrowser/BrowserFilterGroups";
 import { recipeBrowserStyles } from "../components/recipeBrowser/recipeBrowserStyles";
 import IngredientTagCreateDialog from "../components/recipeBrowser/IngredientTagCreateDialog";
+import NutritionEditor, { type NutritionEditorValues } from "../components/recipeBrowser/NutritionEditor";
 
 type ScannerPageProps = {
   theme: SiteTheme;
@@ -452,6 +453,7 @@ function IngredientDraftEditor({
   const imageInputId = useId();
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
   const [isTagCreateOpen, setIsTagCreateOpen] = useState(false);
+  const [showNutrition, setShowNutrition] = useState(false);
   const imageUrl = getApiAssetUrl(imagePreviewUrl ?? draft.imageUrl);
   const knownIngredientTags = (ingredientTagCategories.length === 0
     ? ingredientTagGroups.flatMap((group) => group.values)
@@ -472,6 +474,8 @@ function IngredientDraftEditor({
           formatIngredientTagCategoryName(category.name, t.filters.ingredientTagGroups),
         ]),
       );
+  const nutritionValues = nutritionToEditorValues(draft.nutritionPer100);
+  const selectedVitamins = draft.nutritionPer100?.vitamins ?? [];
 
   useEffect(() => {
     if (draft.imageFile === null) {
@@ -528,7 +532,9 @@ function IngredientDraftEditor({
         </label>
         <CreatableSelect
           createLabel={t.common.createNew}
+          fieldClassName={scannerStyles.field}
           label={t.scanner.storeLabel}
+          labelClassName={scannerStyles.label}
           options={stores.map((store) => ({ id: store.storeId, name: store.name }))}
           placeholder={t.prices.selectStore}
           theme={theme}
@@ -552,6 +558,27 @@ function IngredientDraftEditor({
           <span className={scannerStyles.floatingLabelSubtitle(theme)}>{t.prices.priceUnitSubtitle}</span>
         </label>
       </div>
+
+      <section className={scannerStyles.field}>
+        <span className={scannerStyles.label}>{t.cookbook.nutrition}</span>
+        <button
+          aria-expanded={showNutrition}
+          className={recipeBrowserStyles.detailsToggleFull(theme)}
+          type="button"
+          onClick={() => setShowNutrition((currentValue) => !currentValue)}
+        >
+          {showNutrition ? t.cookbook.hideNutrition : t.cookbook.addNutrition}
+        </button>
+        {showNutrition && (
+          <NutritionEditor
+            selectedVitamins={selectedVitamins}
+            theme={theme}
+            values={nutritionValues}
+            onChange={(key, value) => onChange(updateNutritionDraft(draft, key, value))}
+            onVitaminsChange={(vitamins) => onChange(updateNutritionVitamins(draft, vitamins))}
+          />
+        )}
+      </section>
 
       <section className={scannerStyles.field}>
         <span className={scannerStyles.label}>{t.scanner.selectTags}</span>
@@ -607,6 +634,28 @@ function IngredientDraftEditor({
       )}
     </section>
   );
+}
+
+function updateNutritionDraft(draft: IngredientDraft, key: keyof NutritionEditorValues, value: string): IngredientDraft {
+  return {
+    ...draft,
+    nutritionPer100: {
+      ...emptyNutritionFacts(),
+      ...draft.nutritionPer100,
+      [key]: nullableNumber(value),
+    },
+  };
+}
+
+function updateNutritionVitamins(draft: IngredientDraft, vitamins: Vitamin[]): IngredientDraft {
+  return {
+    ...draft,
+    nutritionPer100: {
+      ...emptyNutritionFacts(),
+      ...draft.nutritionPer100,
+      vitamins,
+    },
+  };
 }
 
 function CandidateImage({ candidate, theme }: { candidate: IngredientCandidate; theme: SiteTheme }) {
@@ -730,6 +779,35 @@ function toIngredientNutrition(nutrition: IProductLookupNutrition | null): INutr
     monounsaturatedFatGrams: nutrition.monounsaturatedFatGrams,
     polyunsaturatedFatGrams: nutrition.polyunsaturatedFatGrams,
     vitamins: [],
+  };
+}
+
+function emptyNutritionFacts(): INutritionFacts {
+  return {
+    calories: null,
+    carbohydrateGrams: null,
+    proteinGrams: null,
+    saltGrams: null,
+    dietaryFiberGrams: null,
+    saturatedFatGrams: null,
+    unsaturatedFatGrams: null,
+    monounsaturatedFatGrams: null,
+    polyunsaturatedFatGrams: null,
+    vitamins: [],
+  };
+}
+
+function nutritionToEditorValues(nutrition: INutritionFacts | null): NutritionEditorValues {
+  return {
+    calories: numberToInputValue(nutrition?.calories),
+    carbohydrateGrams: numberToInputValue(nutrition?.carbohydrateGrams),
+    proteinGrams: numberToInputValue(nutrition?.proteinGrams),
+    saltGrams: numberToInputValue(nutrition?.saltGrams),
+    dietaryFiberGrams: numberToInputValue(nutrition?.dietaryFiberGrams),
+    saturatedFatGrams: numberToInputValue(nutrition?.saturatedFatGrams),
+    unsaturatedFatGrams: numberToInputValue(nutrition?.unsaturatedFatGrams),
+    monounsaturatedFatGrams: numberToInputValue(nutrition?.monounsaturatedFatGrams),
+    polyunsaturatedFatGrams: numberToInputValue(nutrition?.polyunsaturatedFatGrams),
   };
 }
 
