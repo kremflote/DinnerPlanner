@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Header, { type PageId } from "./components/Header";
 import CookbookPage from "./pages/CookbookPage";
+import NutritionPage from "./pages/NutritionPage";
 import PlannerPage from "./pages/PlannerPage";
 import PricesPage from "./pages/PricesPage";
 import ScannerPage from "./pages/ScannerPage";
@@ -24,6 +25,7 @@ function App() {
       {activePage === "cookbook" && <CookbookPage theme={theme} />}
       {activePage === "scanner" && <ScannerPage theme={theme} />}
       {activePage === "prices" && <PricesPage theme={theme} />}
+      {activePage === "nutrition" && <NutritionPage theme={theme} />}
     </div>
   );
 }

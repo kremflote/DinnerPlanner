@@ -3,10 +3,11 @@ namespace DinnerPlanner.Api.Models;
 public enum Vitamin
 {
     VitaminA,
-    VitaminB,
+    VitaminB9,
     VitaminB12,
     VitaminC,
     VitaminD,
     VitaminE,
-    VitaminK
+    VitaminK,
+    Choline
 }

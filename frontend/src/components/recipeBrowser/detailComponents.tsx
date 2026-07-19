@@ -109,25 +109,63 @@ export function NutritionGrid({ nutrition, theme }: NutritionGridProps) {
     return <p className={recipeBrowserStyles.helperText(theme)}>{t.cookbook.noDietaryInformation}</p>;
   }
 
-  const rows = [
-    [t.cookbook.calories, nutrition.calories === null ? null : `${nutrition.calories} kcal`],
-    [t.cookbook.carbs, formatGrams(nutrition.carbohydrateGrams)],
-    [t.cookbook.protein, formatGrams(nutrition.proteinGrams)],
-    [t.cookbook.salt, formatGrams(nutrition.saltGrams)],
-    [t.cookbook.fiber, formatGrams(nutrition.dietaryFiberGrams)],
-    [t.cookbook.saturatedFats, formatGrams(nutrition.saturatedFatGrams)],
-    [t.cookbook.unsaturatedFats, formatGrams(nutrition.unsaturatedFatGrams)],
-    [t.cookbook.monounsaturatedFats, formatGrams(nutrition.monounsaturatedFatGrams)],
-    [t.cookbook.polyunsaturatedFats, formatGrams(nutrition.polyunsaturatedFatGrams)],
-    [t.cookbook.vitamins, nutrition.vitamins.length === 0 ? null : nutrition.vitamins.map((vitamin) => t.enums.vitamins[vitamin]).join(", ")],
+  const rowGroups: Array<{ title: string; rows: Array<[string, string | null]> }> = [
+    {
+      title: t.cookbook.nutritionMacros,
+      rows: [
+      [t.cookbook.calories, nutrition.calories === null ? null : `${nutrition.calories} kcal`],
+      [t.cookbook.carbs, formatGrams(nutrition.carbohydrateGrams)],
+      [t.cookbook.protein, formatGrams(nutrition.proteinGrams)],
+      ],
+    },
+    {
+      title: t.cookbook.nutritionFats,
+      rows: [
+      [t.cookbook.saturatedFats, formatGrams(nutrition.saturatedFatGrams)],
+      [t.cookbook.transFats, formatGrams(nutrition.transFatGrams)],
+      [t.cookbook.monounsaturatedFats, formatGrams(nutrition.monounsaturatedFatGrams)],
+      [t.cookbook.polyunsaturatedFats, formatGrams(nutrition.polyunsaturatedFatGrams)],
+      [t.cookbook.omega3, formatGrams(nutrition.omega3Grams)],
+      [t.cookbook.omega6, formatGrams(nutrition.omega6Grams)],
+      [t.cookbook.cholesterol, formatUnit(nutrition.cholesterolMilligrams, "mg")],
+      ],
+    },
+    {
+      title: t.cookbook.nutritionVitamins,
+      rows: [
+      ["Vitamin A", formatUnit(nutrition.vitaminAMicrograms, "ug")],
+      ["Vitamin B9", formatUnit(nutrition.vitaminB9Micrograms, "ug")],
+      ["Vitamin B12", formatUnit(nutrition.vitaminB12Micrograms, "ug")],
+      ["Vitamin C", formatUnit(nutrition.vitaminCMilligrams, "mg")],
+      ["Vitamin D", formatUnit(nutrition.vitaminDMicrograms, "ug")],
+      ["Vitamin E", formatUnit(nutrition.vitaminEMilligrams, "mg")],
+      ["Vitamin K", formatUnit(nutrition.vitaminKMicrograms, "ug")],
+      ],
+    },
+    {
+      title: t.cookbook.nutritionOther,
+      rows: [
+      [t.cookbook.fiber, formatGrams(nutrition.dietaryFiberGrams)],
+      ["Choline", formatUnit(nutrition.cholineMilligrams, "mg")],
+      [t.cookbook.salt, formatGrams(nutrition.saltGrams)],
+      ],
+    },
   ];
 
   return (
     <div className={recipeBrowserStyles.nutritionGrid}>
-      {rows.map(([label, value]) => (
-        <div className={recipeBrowserStyles.detailRow(theme)} key={label}>
-          <span className={recipeBrowserStyles.detailRowLabel}>{label}</span>
-          <span>{value ?? t.cookbook.notSet}</span>
+      {rowGroups.map((group, groupIndex) => (
+        <div className={recipeBrowserStyles.nutritionGridGroupWrap} key={group.title}>
+          {groupIndex > 0 && <div className={recipeBrowserStyles.nutritionSeparator(theme)} />}
+          <h4 className={recipeBrowserStyles.nutritionGridGroupTitle(theme)}>{group.title}</h4>
+          <div className={recipeBrowserStyles.nutritionGridGroup}>
+            {group.rows.map(([label, value]) => (
+              <div className={recipeBrowserStyles.detailRow(theme)} key={label}>
+                <span className={recipeBrowserStyles.detailRowLabel}>{label}</span>
+                <span>{value ?? t.cookbook.notSet}</span>
+              </div>
+            ))}
+            </div>
         </div>
       ))}
     </div>
@@ -136,4 +174,8 @@ export function NutritionGrid({ nutrition, theme }: NutritionGridProps) {
 
 function formatGrams(value: number | null) {
   return value === null ? null : `${value} g`;
+}
+
+function formatUnit(value: number | null, unit: string) {
+  return value === null ? null : `${value} ${unit}`;
 }

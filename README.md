@@ -327,6 +327,39 @@ Camera scanning uses ZXing in the browser and is loaded only when the scan butto
 
 On phone/tablet widths, scanned product results become suggested ingredients. Choose a suggestion, edit the name, brand, price, tags, or color, then confirm to save it through the normal ingredient API.
 
+## Nutrition References
+
+The Nutrition page compares planned meals against locally stored reference values. MATFLOTE can refresh those reference values from Helsedirektoratet HAPI, but weekly calculations use the local database so the app keeps working without a live external call.
+
+For local development, store the HAPI subscription key with .NET user-secrets:
+
+```powershell
+dotnet user-secrets set "Helsedirektoratet:SubscriptionKey" "your-subscription-key-here" --project backend
+```
+
+For Docker/server use, set the key in your private `.env` or server environment:
+
+```env
+HELSEDIREKTORATET_BASE_URL=https://api.helsedirektoratet.no
+HELSEDIREKTORATET_SUBSCRIPTION_KEY=your-subscription-key-here
+```
+
+QA keys from `utvikler-qa.helsedirektoratet.no` must use:
+
+```env
+HELSEDIREKTORATET_BASE_URL=https://api-qa.helsedirektoratet.no
+```
+
+Refresh local reference values:
+
+```text
+POST /api/nutrition/reference-values/import
+```
+
+The frontend must never contain the Helsedirektoratet subscription key. MATFLOTE should also show source attribution for imported nutrition reference values.
+
+MATFLOTE currently tracks vitamins and choline in the Nutrition page. Minerals are intentionally not imported or displayed yet. Ingredient nutrition follows Matvaretabellen's explicit fat fields: saturated fat, trans fat, monounsaturated fat, polyunsaturated fat, omega-3, omega-6, and cholesterol. There is no generic unsaturated fat field. The selected nutrition profile is stored as a household-level backend setting, and the page warns when planned ingredients are missing nutrition data.
+
 ## Starter Data Catalog
 
 Starter ingredients and recipes can be shipped through `backend/SeedData/catalog.json`.

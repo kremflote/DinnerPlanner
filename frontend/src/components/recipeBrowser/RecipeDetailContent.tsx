@@ -220,9 +220,20 @@ function calculateRecipeNutrition(recipe: EnrichedRecipe): INutritionFacts | nul
     total.saltGrams = addScaled(total.saltGrams, nutrition.saltGrams, factor);
     total.dietaryFiberGrams = addScaled(total.dietaryFiberGrams, nutrition.dietaryFiberGrams, factor);
     total.saturatedFatGrams = addScaled(total.saturatedFatGrams, nutrition.saturatedFatGrams, factor);
-    total.unsaturatedFatGrams = addScaled(total.unsaturatedFatGrams, nutrition.unsaturatedFatGrams, factor);
+    total.transFatGrams = addScaled(total.transFatGrams, nutrition.transFatGrams, factor);
     total.monounsaturatedFatGrams = addScaled(total.monounsaturatedFatGrams, nutrition.monounsaturatedFatGrams, factor);
     total.polyunsaturatedFatGrams = addScaled(total.polyunsaturatedFatGrams, nutrition.polyunsaturatedFatGrams, factor);
+    total.omega3Grams = addScaled(total.omega3Grams, nutrition.omega3Grams, factor);
+    total.omega6Grams = addScaled(total.omega6Grams, nutrition.omega6Grams, factor);
+    total.cholesterolMilligrams = addScaled(total.cholesterolMilligrams, nutrition.cholesterolMilligrams, factor);
+    total.vitaminAMicrograms = addScaled(total.vitaminAMicrograms, nutrition.vitaminAMicrograms, factor);
+    total.vitaminB9Micrograms = addScaled(total.vitaminB9Micrograms, nutrition.vitaminB9Micrograms, factor);
+    total.vitaminB12Micrograms = addScaled(total.vitaminB12Micrograms, nutrition.vitaminB12Micrograms, factor);
+    total.vitaminCMilligrams = addScaled(total.vitaminCMilligrams, nutrition.vitaminCMilligrams, factor);
+    total.vitaminDMicrograms = addScaled(total.vitaminDMicrograms, nutrition.vitaminDMicrograms, factor);
+    total.vitaminEMilligrams = addScaled(total.vitaminEMilligrams, nutrition.vitaminEMilligrams, factor);
+    total.vitaminKMicrograms = addScaled(total.vitaminKMicrograms, nutrition.vitaminKMicrograms, factor);
+    total.cholineMilligrams = addScaled(total.cholineMilligrams, nutrition.cholineMilligrams, factor);
     total.vitamins = Array.from(new Set([...total.vitamins, ...nutrition.vitamins]));
   });
 
@@ -237,9 +248,20 @@ function createEmptyNutrition(): INutritionFacts {
     saltGrams: null,
     dietaryFiberGrams: null,
     saturatedFatGrams: null,
-    unsaturatedFatGrams: null,
+    transFatGrams: null,
     monounsaturatedFatGrams: null,
     polyunsaturatedFatGrams: null,
+    omega3Grams: null,
+    omega6Grams: null,
+    cholesterolMilligrams: null,
+    vitaminAMicrograms: null,
+    vitaminB9Micrograms: null,
+    vitaminB12Micrograms: null,
+    vitaminCMilligrams: null,
+    vitaminDMicrograms: null,
+    vitaminEMilligrams: null,
+    vitaminKMicrograms: null,
+    cholineMilligrams: null,
     vitamins: [],
   };
 }

@@ -724,7 +724,17 @@ export const recipeBrowserStyles = {
   detailChipSection: "grid gap-2",
   detailChipSectionCompact: "grid gap-1",
   detailChipList: "flex flex-wrap gap-2",
-  nutritionGrid: "grid grid-cols-2 gap-2 max-sm:grid-cols-1",
+  nutritionGrid: "grid gap-3",
+  nutritionGridGroupWrap: "grid gap-2",
+  nutritionGridGroupTitle: (theme: SiteTheme) =>
+    `text-xs font-extrabold uppercase tracking-wide ${
+      theme === "dark"
+        ? "text-neutral-300"
+        : theme === "paletteLight"
+          ? "text-[#556145]"
+          : "text-neutral-600"
+    }`,
+  nutritionGridGroup: "grid grid-cols-2 gap-2 max-sm:grid-cols-1",
   scaleLabel: "flex items-center gap-2",
   scaleField: "w-20",
   scaleInput: "w-full pr-6",
@@ -747,7 +757,35 @@ export const recipeBrowserStyles = {
   categoryFilterHeader: "flex items-center justify-between gap-3",
   categoryFilterBody: "min-h-0 overflow-y-auto",
   recipeIngredientThumbnailCompact: "",
-  nutritionSecondRowStart: "md:col-start-1",
+  nutritionEditorGroup: (theme: SiteTheme) =>
+    `grid gap-3 rounded-md border p-3 ${
+      theme === "dark"
+        ? "border-white/[0.08] bg-white/[0.035]"
+        : theme === "paletteLight"
+          ? "border-[#C8C0B5] bg-[#FAF7F2]/55"
+          : "border-neutral-200 bg-white"
+    }`,
+  nutritionEditorGroupButton: (theme: SiteTheme) =>
+    `flex w-full items-center justify-between gap-3 text-left text-sm font-extrabold uppercase tracking-wide ${
+      theme === "dark"
+        ? "text-neutral-100"
+        : theme === "paletteLight"
+          ? "text-[#3C4A2E]"
+          : "text-neutral-800"
+    }`,
+  nutritionEditorGroupIcon: (isOpen: boolean) =>
+    `grid h-6 w-6 shrink-0 place-items-center rounded-md text-base leading-none transition-transform ${
+      isOpen ? "rotate-0" : "rotate-180"
+    }`,
+  nutritionEditorSection: "grid grid-cols-2 gap-4 max-md:grid-cols-1",
+  nutritionSeparator: (theme: SiteTheme) =>
+    `h-px w-full ${
+      theme === "dark"
+        ? "bg-white/[0.10]"
+        : theme === "paletteLight"
+          ? "bg-[#C8C0B5]"
+          : "bg-neutral-200"
+    }`,
 };
 
 export function formatLabel(value: string) {

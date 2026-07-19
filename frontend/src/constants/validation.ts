@@ -1,0 +1,1 @@
+export const INGREDIENT_NAME_MAX_LENGTH = 40;

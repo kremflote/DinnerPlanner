@@ -72,11 +72,12 @@ export const commonEnumLabels = {
   },
   vitamins: {
     VitaminA: "Vitamin A",
-    VitaminB: "Vitamin B",
+    VitaminB9: "Vitamin B9",
     VitaminB12: "Vitamin B12",
     VitaminC: "Vitamin C",
     VitaminD: "Vitamin D",
     VitaminE: "Vitamin E",
     VitaminK: "Vitamin K",
+    Choline: "Choline",
   },
 } as const;

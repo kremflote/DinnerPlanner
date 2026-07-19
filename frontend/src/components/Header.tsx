@@ -1,18 +1,18 @@
 import { useLanguage } from "../contexts";
 import { headerStyles, type SiteTheme } from "../styles/appStyles";
 
-export type PageId = "settings" | "weekPlanner" | "cookbook" | "scanner" | "prices";
+export type PageId = "settings" | "weekPlanner" | "cookbook" | "scanner" | "prices" | "nutrition";
 
 const navItems: Array<{
   id: PageId;
-  labelKey: "settings" | "planner" | "cookbook" | "scanner" | "prices";
-  icon: "settings" | "calendar" | "book" | "barcode" | "price";
+  labelKey: "planner" | "cookbook" | "scanner" | "prices" | "nutrition";
+  icon: "calendar" | "book" | "barcode" | "price" | "nutrition";
 }> = [
   { id: "prices", labelKey: "prices", icon: "price" },
   { id: "scanner", labelKey: "scanner", icon: "barcode" },
   { id: "weekPlanner", labelKey: "planner", icon: "calendar" },
   { id: "cookbook", labelKey: "cookbook", icon: "book" },
-  { id: "settings", labelKey: "settings", icon: "settings" },
+  { id: "nutrition", labelKey: "nutrition", icon: "nutrition" },
 ];
 
 type HeaderProps = {
@@ -70,20 +70,32 @@ function Header({
           })}
         </nav>
 
-        <button
-          aria-label={themeLabel}
-          aria-pressed={isLightSide}
-          className={headerStyles.themeButton(theme)}
-          onClick={toggleTheme}
-          title={themeLabel}
-          type="button"
-        >
-          <span className={headerStyles.themeTrack(theme)}>
-            <span className={headerStyles.themeThumb(theme)}>
-              <HeaderIcon icon={theme === "dark" ? "moon" : "sun"} />
+        <div className={headerStyles.actions}>
+          <button
+            aria-current={activePage === "settings" ? "page" : undefined}
+            aria-label={t.nav.settings}
+            className={headerStyles.settingsButton(theme, activePage === "settings")}
+            onClick={() => onPageChange("settings")}
+            title={t.nav.settings}
+            type="button"
+          >
+            <HeaderIcon icon="settings" />
+          </button>
+          <button
+            aria-label={themeLabel}
+            aria-pressed={isLightSide}
+            className={headerStyles.themeButton(theme)}
+            onClick={toggleTheme}
+            title={themeLabel}
+            type="button"
+          >
+            <span className={headerStyles.themeTrack(theme)}>
+              <span className={headerStyles.themeThumb(theme)}>
+                <HeaderIcon icon={theme === "dark" ? "moon" : "sun"} />
+              </span>
             </span>
-          </span>
-        </button>
+          </button>
+        </div>
       </div>
     </header>
   );
@@ -92,7 +104,7 @@ function Header({
 function HeaderIcon({
   icon,
 }: {
-  icon: "settings" | "calendar" | "book" | "barcode" | "price" | "moon" | "sun";
+  icon: "settings" | "calendar" | "book" | "barcode" | "price" | "nutrition" | "moon" | "sun";
 }) {
   if (icon === "settings") {
     return (
@@ -131,6 +143,14 @@ function HeaderIcon({
     return (
       <svg aria-hidden="true" className={headerStyles.icon} viewBox="0 0 24 24">
         <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H12l8 8-8.5 8.5a2 2 0 0 1-2.8 0L4.5 15.3a2 2 0 0 1 0-2.8L13 4H6.5a1.5 1.5 0 0 0 0 3H8v2H6.5A3.5 3.5 0 0 1 3 5.5h1Zm11.2 1.3-9.3 9.3 4.2 4.2 9.3-9.3-4.2-4.2Z" />
+      </svg>
+    );
+  }
+
+  if (icon === "nutrition") {
+    return (
+      <svg aria-hidden="true" className={headerStyles.icon} viewBox="0 0 24 24">
+        <path d="M12 3c3.6 0 6.5 2.9 6.5 6.5 0 5-6.5 11.5-6.5 11.5S5.5 14.5 5.5 9.5C5.5 5.9 8.4 3 12 3Zm0 2a4.5 4.5 0 0 0-4.5 4.5c0 2.7 2.7 6.4 4.5 8.6 1.8-2.2 4.5-5.9 4.5-8.6A4.5 4.5 0 0 0 12 5Zm0 2.2 1.1 2.2 2.4.3-1.8 1.7.5 2.4-2.2-1.2-2.2 1.2.5-2.4-1.8-1.7 2.4-.3L12 7.2Z" />
       </svg>
     );
   }

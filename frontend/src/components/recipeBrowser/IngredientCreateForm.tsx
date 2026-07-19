@@ -1,9 +1,10 @@
 import { useCallback, useId, useState, type FormEvent } from "react";
 import { useBrands, useIngredientTagCategories, useIngredients, useLanguage, useRecipes, useStores } from "../../contexts";
-import type { IIngredient, IngredientTag, Vitamin } from "../../interfaces/IIngredient";
+import type { IIngredient, IngredientTag } from "../../interfaces/IIngredient";
 import { brandService, imageUploadService, ingredientPriceService, ingredientService, ingredientTagCategoryService, storeService } from "../../services";
 import type { SiteTheme } from "../../styles/appStyles";
 import { normalizePriceInput, todayInputValue } from "../../utils/priceFormatting";
+import { INGREDIENT_NAME_MAX_LENGTH } from "../../constants/validation";
 import {
   formatIngredientTagCategoryName,
   getIngredientTagGroupsWithCustomTags,
@@ -13,7 +14,7 @@ import { GroupedCheckboxPanel } from "./BrowserFilterGroups";
 import CreatableSelect from "./CreatableSelect";
 import ImageCropPicker from "./ImageCropPicker";
 import IngredientTagCreateDialog from "./IngredientTagCreateDialog";
-import NutritionEditor, { type NutritionEditorValues } from "./NutritionEditor";
+import NutritionEditor, { deriveVitaminsFromNutritionValues, type NutritionEditorValues } from "./NutritionEditor";
 import { formatLabel, recipeBrowserStyles } from "./recipeBrowserStyles";
 
 type IngredientCreateFormProps = {
@@ -22,8 +23,6 @@ type IngredientCreateFormProps = {
   onCreated: () => void;
   onCancel: () => void;
 };
-
-const INGREDIENT_NAME_MAX_LENGTH = 30;
 
 function IngredientCreateForm({
   initialIngredient = null,
@@ -58,8 +57,8 @@ function IngredientCreateForm({
   const [saturatedFatGrams, setSaturatedFatGrams] = useState(
     numberToInputValue(initialIngredient?.nutritionPer100?.saturatedFatGrams),
   );
-  const [unsaturatedFatGrams, setUnsaturatedFatGrams] = useState(
-    numberToInputValue(initialIngredient?.nutritionPer100?.unsaturatedFatGrams),
+  const [transFatGrams, setTransFatGrams] = useState(
+    numberToInputValue(initialIngredient?.nutritionPer100?.transFatGrams),
   );
   const [monounsaturatedFatGrams, setMonounsaturatedFatGrams] = useState(
     numberToInputValue(initialIngredient?.nutritionPer100?.monounsaturatedFatGrams),
@@ -67,8 +66,38 @@ function IngredientCreateForm({
   const [polyunsaturatedFatGrams, setPolyunsaturatedFatGrams] = useState(
     numberToInputValue(initialIngredient?.nutritionPer100?.polyunsaturatedFatGrams),
   );
-  const [selectedVitamins, setSelectedVitamins] = useState<Vitamin[]>(
-    initialIngredient?.nutritionPer100?.vitamins ?? [],
+  const [omega3Grams, setOmega3Grams] = useState(
+    numberToInputValue(initialIngredient?.nutritionPer100?.omega3Grams),
+  );
+  const [omega6Grams, setOmega6Grams] = useState(
+    numberToInputValue(initialIngredient?.nutritionPer100?.omega6Grams),
+  );
+  const [cholesterolMilligrams, setCholesterolMilligrams] = useState(
+    numberToInputValue(initialIngredient?.nutritionPer100?.cholesterolMilligrams),
+  );
+  const [vitaminAMicrograms, setVitaminAMicrograms] = useState(
+    numberToInputValue(initialIngredient?.nutritionPer100?.vitaminAMicrograms),
+  );
+  const [vitaminB9Micrograms, setVitaminB9Micrograms] = useState(
+    numberToInputValue(initialIngredient?.nutritionPer100?.vitaminB9Micrograms),
+  );
+  const [vitaminB12Micrograms, setVitaminB12Micrograms] = useState(
+    numberToInputValue(initialIngredient?.nutritionPer100?.vitaminB12Micrograms),
+  );
+  const [vitaminCMilligrams, setVitaminCMilligrams] = useState(
+    numberToInputValue(initialIngredient?.nutritionPer100?.vitaminCMilligrams),
+  );
+  const [vitaminDMicrograms, setVitaminDMicrograms] = useState(
+    numberToInputValue(initialIngredient?.nutritionPer100?.vitaminDMicrograms),
+  );
+  const [vitaminEMilligrams, setVitaminEMilligrams] = useState(
+    numberToInputValue(initialIngredient?.nutritionPer100?.vitaminEMilligrams),
+  );
+  const [vitaminKMicrograms, setVitaminKMicrograms] = useState(
+    numberToInputValue(initialIngredient?.nutritionPer100?.vitaminKMicrograms),
+  );
+  const [cholineMilligrams, setCholineMilligrams] = useState(
+    numberToInputValue(initialIngredient?.nutritionPer100?.cholineMilligrams),
   );
   const [showNutrition, setShowNutrition] = useState(false);
   const [showPriceInformation, setShowPriceInformation] = useState(false);
@@ -150,11 +179,27 @@ function IngredientCreateForm({
           saltGrams: nullableNumber(saltGrams),
           dietaryFiberGrams: nullableNumber(dietaryFiberGrams),
           saturatedFatGrams: nullableNumber(saturatedFatGrams),
-          unsaturatedFatGrams: nullableNumber(unsaturatedFatGrams),
+          transFatGrams: nullableNumber(transFatGrams),
           monounsaturatedFatGrams: nullableNumber(monounsaturatedFatGrams),
           polyunsaturatedFatGrams: nullableNumber(polyunsaturatedFatGrams),
-          vitamins: selectedVitamins,
+          omega3Grams: nullableNumber(omega3Grams),
+          omega6Grams: nullableNumber(omega6Grams),
+          cholesterolMilligrams: nullableNumber(cholesterolMilligrams),
+          vitaminAMicrograms: nullableNumber(vitaminAMicrograms),
+          vitaminB9Micrograms: nullableNumber(vitaminB9Micrograms),
+          vitaminB12Micrograms: nullableNumber(vitaminB12Micrograms),
+          vitaminCMilligrams: nullableNumber(vitaminCMilligrams),
+          vitaminDMicrograms: nullableNumber(vitaminDMicrograms),
+          vitaminEMilligrams: nullableNumber(vitaminEMilligrams),
+          vitaminKMicrograms: nullableNumber(vitaminKMicrograms),
+          cholineMilligrams: nullableNumber(cholineMilligrams),
+          vitamins: deriveVitaminsFromNutritionValues(nutritionValues),
         },
+        nutritionSource: initialIngredient?.nutritionSource ?? "Manual",
+        nutritionSourceLabel: initialIngredient?.nutritionSourceLabel ?? null,
+        matvaretabellenFoodId: initialIngredient?.matvaretabellenFoodId ?? null,
+        nutritionMatchedName: initialIngredient?.nutritionMatchedName ?? null,
+        nutritionMatchConfidence: initialIngredient?.nutritionMatchConfidence ?? null,
         color: initialIngredient?.color ?? null,
       };
 
@@ -194,9 +239,20 @@ function IngredientCreateForm({
     saltGrams,
     dietaryFiberGrams,
     saturatedFatGrams,
-    unsaturatedFatGrams,
+    transFatGrams,
     monounsaturatedFatGrams,
     polyunsaturatedFatGrams,
+    omega3Grams,
+    omega6Grams,
+    cholesterolMilligrams,
+    vitaminAMicrograms,
+    vitaminB9Micrograms,
+    vitaminB12Micrograms,
+    vitaminCMilligrams,
+    vitaminDMicrograms,
+    vitaminEMilligrams,
+    vitaminKMicrograms,
+    cholineMilligrams,
   };
   const updateNutritionValue = (key: keyof NutritionEditorValues, value: string) => {
     const setters: Record<keyof NutritionEditorValues, (value: string) => void> = {
@@ -206,20 +262,29 @@ function IngredientCreateForm({
       saltGrams: setSaltGrams,
       dietaryFiberGrams: setDietaryFiberGrams,
       saturatedFatGrams: setSaturatedFatGrams,
-      unsaturatedFatGrams: setUnsaturatedFatGrams,
+      transFatGrams: setTransFatGrams,
       monounsaturatedFatGrams: setMonounsaturatedFatGrams,
       polyunsaturatedFatGrams: setPolyunsaturatedFatGrams,
+      omega3Grams: setOmega3Grams,
+      omega6Grams: setOmega6Grams,
+      cholesterolMilligrams: setCholesterolMilligrams,
+      vitaminAMicrograms: setVitaminAMicrograms,
+      vitaminB9Micrograms: setVitaminB9Micrograms,
+      vitaminB12Micrograms: setVitaminB12Micrograms,
+      vitaminCMilligrams: setVitaminCMilligrams,
+      vitaminDMicrograms: setVitaminDMicrograms,
+      vitaminEMilligrams: setVitaminEMilligrams,
+      vitaminKMicrograms: setVitaminKMicrograms,
+      cholineMilligrams: setCholineMilligrams,
     };
 
     setters[key](value);
   };
   const nutritionPanel = (
     <NutritionEditor
-      selectedVitamins={selectedVitamins}
       theme={theme}
       values={nutritionValues}
       onChange={updateNutritionValue}
-      onVitaminsChange={setSelectedVitamins}
     />
   );
 

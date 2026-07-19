@@ -35,12 +35,18 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
 builder.Services.AddOpenApi();
+builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<ImageStoragePathProvider>();
 builder.Services.AddScoped<AppSettingsService>();
 builder.Services.AddScoped<VikunjaOptionsResolver>();
 builder.Services.AddScoped<GroceryListService>();
+builder.Services.AddScoped<NutritionReferenceImportService>();
+builder.Services.AddScoped<HelsedirektoratetNutritionReferenceParser>();
+builder.Services.AddScoped<NutritionSummaryService>();
 builder.Services.AddScoped<SeedCatalogService>();
 builder.Services.AddScoped<ShoppingListExportService>();
+builder.Services.AddHttpClient<MatvaretabellenNutritionLookupService>();
+builder.Services.AddHttpClient<HelsedirektoratetContentClient>();
 builder.Services.AddHttpClient<KassalappProductLookupService>();
 builder.Services.AddHttpClient<VikunjaShoppingListExporter>();
 builder.Services.AddScoped<IShoppingListExporter>(provider => provider.GetRequiredService<VikunjaShoppingListExporter>());

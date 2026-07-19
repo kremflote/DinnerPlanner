@@ -464,6 +464,11 @@ public class RecipesController(DinnerPlannerContext context) : ControllerBase
         ingredient.Price,
         ingredient.Tags.Select(ingredientTag => ingredientTag.Tag).OrderBy(tag => tag).ToList(),
         ingredient.NutritionPer100,
+        ingredient.NutritionSource,
+        ingredient.NutritionSourceLabel,
+        ingredient.MatvaretabellenFoodId,
+        ingredient.NutritionMatchedName,
+        ingredient.NutritionMatchConfidence,
         ingredient.Color
     );
 }

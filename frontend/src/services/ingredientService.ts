@@ -1,4 +1,4 @@
-import type { IIngredient, IngredientTag, INutritionFacts } from "../interfaces/IIngredient";
+import type { IIngredient, IngredientTag, INutritionFacts, NutritionDataSource } from "../interfaces/IIngredient";
 import { apiRequest } from "./apiClient";
 
 export interface IngredientRequest {
@@ -9,6 +9,11 @@ export interface IngredientRequest {
   price: number | null;
   tags: IngredientTag[];
   nutritionPer100: INutritionFacts | null;
+  nutritionSource: NutritionDataSource;
+  nutritionSourceLabel: string | null;
+  matvaretabellenFoodId: string | null;
+  nutritionMatchedName: string | null;
+  nutritionMatchConfidence: number | null;
   color: string | null;
 }
 

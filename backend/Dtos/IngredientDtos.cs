@@ -5,7 +5,7 @@ namespace DinnerPlanner.Api.Dtos;
 
 public record IngredientRequest(
     [Required]
-    [StringLength(30, MinimumLength = 1)]
+    [StringLength(ValidationLimits.IngredientNameMaxLength, MinimumLength = 1)]
     string IngredientName,
     [StringLength(600)]
     string? Description,
@@ -16,6 +16,15 @@ public record IngredientRequest(
     decimal? Price,
     IReadOnlyCollection<string> Tags,
     NutritionFacts? NutritionPer100,
+    NutritionDataSource? NutritionSource,
+    [StringLength(160)]
+    string? NutritionSourceLabel,
+    [StringLength(80)]
+    string? MatvaretabellenFoodId,
+    [StringLength(160)]
+    string? NutritionMatchedName,
+    [Range(typeof(decimal), "0", "1")]
+    decimal? NutritionMatchConfidence,
     [StringLength(40)]
     string? Color
 );
@@ -30,5 +39,10 @@ public record IngredientDto(
     decimal? Price,
     IReadOnlyCollection<string> Tags,
     NutritionFacts? NutritionPer100,
+    NutritionDataSource NutritionSource,
+    string? NutritionSourceLabel,
+    string? MatvaretabellenFoodId,
+    string? NutritionMatchedName,
+    decimal? NutritionMatchConfidence,
     string? Color
 );

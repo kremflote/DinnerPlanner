@@ -17,8 +17,20 @@ export interface IProductLookupResult {
   weightUnit: string | null;
   store: IProductLookupStore | null;
   nutritionPer100: IProductLookupNutrition | null;
+  nutritionSource: ProductLookupNutritionSource;
+  nutritionSourceLabel: string | null;
+  matvaretabellenFoodId: string | null;
+  matvaretabellenUrl: string | null;
+  nutritionMatchedName: string | null;
+  nutritionMatchConfidence: number | null;
   source: string;
 }
+
+export type ProductLookupNutritionSource =
+  | "None"
+  | "Matvaretabellen"
+  | "Kassalapp"
+  | "Manual";
 
 export interface IProductLookupStore {
   name: string;
@@ -33,6 +45,18 @@ export interface IProductLookupNutrition {
   saltGrams: number | null;
   dietaryFiberGrams: number | null;
   saturatedFatGrams: number | null;
+  transFatGrams: number | null;
   monounsaturatedFatGrams: number | null;
   polyunsaturatedFatGrams: number | null;
+  omega3Grams: number | null;
+  omega6Grams: number | null;
+  cholesterolMilligrams: number | null;
+  vitaminAMicrograms: number | null;
+  vitaminB9Micrograms: number | null;
+  vitaminB12Micrograms: number | null;
+  vitaminCMilligrams: number | null;
+  vitaminDMicrograms: number | null;
+  vitaminEMilligrams: number | null;
+  vitaminKMicrograms: number | null;
+  cholineMilligrams: number | null;
 }

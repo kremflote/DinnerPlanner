@@ -3,12 +3,13 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState, type FormEven
 import Modal from "../components/Modal";
 import CreatableSelect from "../components/recipeBrowser/CreatableSelect";
 import { useBrands, useIngredientTagCategories, useIngredients, useLanguage, useStores } from "../contexts";
-import type { IngredientTag, INutritionFacts, Vitamin } from "../interfaces/IIngredient";
+import type { IngredientTag, INutritionFacts, NutritionDataSource } from "../interfaces/IIngredient";
 import type { IBrand, IStore } from "../interfaces/ILookup";
 import type { IProductLookupNutrition, IProductLookupResult } from "../interfaces/IProductLookup";
 import { brandService, imageUploadService, ingredientPriceService, ingredientService, ingredientTagCategoryService, productLookupService, storeService } from "../services";
 import { getApiAssetUrl } from "../services/apiClient";
 import { pageStyles, scannerStyles, type SiteTheme } from "../styles/appStyles";
+import { INGREDIENT_NAME_MAX_LENGTH } from "../constants/validation";
 import { normalizePriceInput, todayInputValue } from "../utils/priceFormatting";
 import {
   formatIngredientTagCategoryName,
@@ -18,13 +19,11 @@ import {
 import { GroupedCheckboxPanel } from "../components/recipeBrowser/BrowserFilterGroups";
 import { recipeBrowserStyles } from "../components/recipeBrowser/recipeBrowserStyles";
 import IngredientTagCreateDialog from "../components/recipeBrowser/IngredientTagCreateDialog";
-import NutritionEditor, { type NutritionEditorValues } from "../components/recipeBrowser/NutritionEditor";
+import NutritionEditor, { deriveVitaminsFromNutritionValues, type NutritionEditorValues } from "../components/recipeBrowser/NutritionEditor";
 
 type ScannerPageProps = {
   theme: SiteTheme;
 };
-
-const INGREDIENT_NAME_MAX_LENGTH = 30;
 
 type IngredientCandidate = {
   id: string;
@@ -34,6 +33,12 @@ type IngredientCandidate = {
   price: number | null;
   imageUrl: string | null;
   nutritionPer100: INutritionFacts | null;
+  nutritionSource: NutritionDataSource;
+  nutritionSourceLabel: string | null;
+  matvaretabellenFoodId: string | null;
+  matvaretabellenUrl: string | null;
+  nutritionMatchedName: string | null;
+  nutritionMatchConfidence: number | null;
   tags: IngredientTag[];
   product: IProductLookupResult;
 };
@@ -49,6 +54,12 @@ type IngredientDraft = {
   imageFile: File | null;
   tags: IngredientTag[];
   nutritionPer100: INutritionFacts | null;
+  nutritionSource: NutritionDataSource;
+  nutritionSourceLabel: string | null;
+  matvaretabellenFoodId: string | null;
+  matvaretabellenUrl: string | null;
+  nutritionMatchedName: string | null;
+  nutritionMatchConfidence: number | null;
 };
 
 function ScannerPage({ theme }: ScannerPageProps) {
@@ -68,6 +79,7 @@ function ScannerPage({ theme }: ScannerPageProps) {
   const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null);
   const [ingredientDraft, setIngredientDraft] = useState<IngredientDraft | null>(null);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [editorError, setEditorError] = useState<string | null>(null);
   const editorTitleId = useId();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const scannerControlsRef = useRef<IScannerControls | null>(null);
@@ -80,11 +92,13 @@ function ScannerPage({ theme }: ScannerPageProps) {
       setSelectedCandidateId(null);
       setIngredientDraft(null);
       setIsEditorOpen(false);
+      setEditorError(null);
       return;
     }
 
     setSelectedCandidateId(firstCandidate.id);
     setIngredientDraft(candidateToDraft(firstCandidate, stores, brands));
+    setEditorError(null);
   }, [candidates, stores]);
 
   const lookupEan = useCallback(async (rawEan: string) => {
@@ -121,6 +135,7 @@ function ScannerPage({ theme }: ScannerPageProps) {
   const selectCandidate = (candidate: IngredientCandidate) => {
     setSelectedCandidateId(candidate.id);
     setIngredientDraft(candidateToDraft(candidate, stores, brands));
+    setEditorError(null);
     setIsEditorOpen(true);
   };
 
@@ -131,17 +146,18 @@ function ScannerPage({ theme }: ScannerPageProps) {
 
     const ingredientName = ingredientDraft.name.trim();
     if (ingredientName.length === 0) {
-      setError(t.scanner.noCandidateSelected);
+      setEditorError(t.scanner.noCandidateSelected);
       return;
     }
 
     if (ingredientName.length > INGREDIENT_NAME_MAX_LENGTH) {
-      setError(t.cookbook.ingredientNameTooLong(INGREDIENT_NAME_MAX_LENGTH));
+      setEditorError(t.cookbook.ingredientNameTooLong(INGREDIENT_NAME_MAX_LENGTH));
       return;
     }
 
     setIsSavingIngredient(true);
     setError(null);
+    setEditorError(null);
 
     try {
       const brandName = ingredientDraft.brandName.trim();
@@ -168,7 +184,12 @@ function ScannerPage({ theme }: ScannerPageProps) {
         imageUrl: uploadedImage?.url ?? ingredientDraft.imageUrl,
         price: nullableNumber(ingredientDraft.price),
         tags: ingredientDraft.tags,
-        nutritionPer100: ingredientDraft.nutritionPer100,
+        nutritionPer100: withDerivedVitamins(ingredientDraft.nutritionPer100),
+        nutritionSource: ingredientDraft.nutritionSource,
+        nutritionSourceLabel: ingredientDraft.nutritionSourceLabel,
+        matvaretabellenFoodId: ingredientDraft.matvaretabellenFoodId,
+        nutritionMatchedName: ingredientDraft.nutritionMatchedName,
+        nutritionMatchConfidence: ingredientDraft.nutritionMatchConfidence,
         color: null,
       });
 
@@ -185,9 +206,10 @@ function ScannerPage({ theme }: ScannerPageProps) {
 
       await refreshIngredients();
       setIsEditorOpen(false);
+      setEditorError(null);
       setCameraStatus(t.scanner.ingredientSaved(ingredientName));
     } catch (caughtError) {
-      setError(caughtError instanceof Error ? caughtError.message : t.scanner.lookupFailed);
+      setEditorError(caughtError instanceof Error ? caughtError.message : t.scanner.lookupFailed);
     } finally {
       setIsSavingIngredient(false);
     }
@@ -395,6 +417,9 @@ function ScannerPage({ theme }: ScannerPageProps) {
               >
                 {isSavingIngredient ? t.scanner.savingIngredient : t.scanner.saveIngredient}
               </button>
+              {editorError !== null && (
+                <p className={scannerStyles.editorModalError(theme)}>{editorError}</p>
+              )}
             </>
           )}
           footerClassName={scannerStyles.editorModalFooter(theme)}
@@ -408,7 +433,10 @@ function ScannerPage({ theme }: ScannerPageProps) {
           <IngredientDraftEditor
             draft={ingredientDraft}
             theme={theme}
-            onChange={setIngredientDraft}
+            onChange={(nextDraft) => {
+              setIngredientDraft(nextDraft);
+              setEditorError(null);
+            }}
           />
         </Modal>
       )}
@@ -455,7 +483,7 @@ function IngredientDraftEditor({
         ]),
       );
   const nutritionValues = nutritionToEditorValues(draft.nutritionPer100);
-  const selectedVitamins = draft.nutritionPer100?.vitamins ?? [];
+  const nutritionSource = getNutritionSource(draft, t.scanner.nutritionSources);
 
   useEffect(() => {
     if (draft.imageFile === null) {
@@ -557,6 +585,18 @@ function IngredientDraftEditor({
 
       <section className={scannerStyles.field}>
         <span className={scannerStyles.label}>{t.cookbook.nutrition}</span>
+        {nutritionSource.url === null ? (
+          <span className={scannerStyles.nutritionSourceText(theme)}>{nutritionSource.text}</span>
+        ) : (
+          <a
+            className={scannerStyles.nutritionSourceLink(theme)}
+            href={nutritionSource.url}
+            rel="noreferrer"
+            target="_blank"
+          >
+            {nutritionSource.text}
+          </a>
+        )}
         <button
           aria-expanded={showNutrition}
           className={recipeBrowserStyles.detailsToggleFull(theme)}
@@ -567,11 +607,9 @@ function IngredientDraftEditor({
         </button>
         {showNutrition && (
           <NutritionEditor
-            selectedVitamins={selectedVitamins}
             theme={theme}
             values={nutritionValues}
             onChange={(key, value) => onChange(updateNutritionDraft(draft, key, value))}
-            onVitaminsChange={(vitamins) => onChange(updateNutritionVitamins(draft, vitamins))}
           />
         )}
       </section>
@@ -635,6 +673,12 @@ function IngredientDraftEditor({
 function updateNutritionDraft(draft: IngredientDraft, key: keyof NutritionEditorValues, value: string): IngredientDraft {
   return {
     ...draft,
+    nutritionSource: "Manual",
+    nutritionSourceLabel: null,
+    matvaretabellenFoodId: null,
+    matvaretabellenUrl: null,
+    nutritionMatchedName: null,
+    nutritionMatchConfidence: null,
     nutritionPer100: {
       ...emptyNutritionFacts(),
       ...draft.nutritionPer100,
@@ -643,14 +687,15 @@ function updateNutritionDraft(draft: IngredientDraft, key: keyof NutritionEditor
   };
 }
 
-function updateNutritionVitamins(draft: IngredientDraft, vitamins: Vitamin[]): IngredientDraft {
+function withDerivedVitamins(nutrition: INutritionFacts | null): INutritionFacts | null {
+  if (nutrition === null) {
+    return null;
+  }
+
+  const values = nutritionToEditorValues(nutrition);
   return {
-    ...draft,
-    nutritionPer100: {
-      ...emptyNutritionFacts(),
-      ...draft.nutritionPer100,
-      vitamins,
-    },
+    ...nutrition,
+    vitamins: deriveVitaminsFromNutritionValues(values),
   };
 }
 
@@ -684,6 +729,12 @@ function buildIngredientCandidates(products: IProductLookupResult[]): Ingredient
         price: product.currentUnitPrice ?? product.currentPrice,
         imageUrl: product.imageUrl,
         nutritionPer100: toIngredientNutrition(product.nutritionPer100),
+        nutritionSource: product.nutritionSource,
+        nutritionSourceLabel: product.nutritionSourceLabel,
+        matvaretabellenFoodId: product.matvaretabellenFoodId,
+        matvaretabellenUrl: product.matvaretabellenUrl,
+        nutritionMatchedName: product.nutritionMatchedName,
+        nutritionMatchConfidence: product.nutritionMatchConfidence,
         tags,
         product,
       };
@@ -714,7 +765,29 @@ function candidateToDraft(candidate: IngredientCandidate, stores: IStore[], bran
     imageFile: null,
     tags: candidate.tags,
     nutritionPer100: candidate.nutritionPer100,
+    nutritionSource: candidate.nutritionSource,
+    nutritionSourceLabel: candidate.nutritionSourceLabel,
+    matvaretabellenFoodId: candidate.matvaretabellenFoodId,
+    matvaretabellenUrl: candidate.matvaretabellenUrl,
+    nutritionMatchedName: candidate.nutritionMatchedName,
+    nutritionMatchConfidence: candidate.nutritionMatchConfidence,
   };
+}
+
+function getNutritionSource(
+  draft: IngredientDraft,
+  labels: Record<NutritionDataSource, string>,
+) {
+  if (draft.nutritionPer100 === null || draft.nutritionSource === "None") {
+    return { text: labels.None, url: null };
+  }
+
+  const matchedName = draft.nutritionMatchedName?.trim();
+  if (draft.nutritionSource === "Matvaretabellen" && matchedName) {
+    return { text: `${labels.Matvaretabellen}: ${matchedName}`, url: draft.matvaretabellenUrl };
+  }
+
+  return { text: labels[draft.nutritionSource], url: null };
 }
 
 function findBrandId(brandName: string, brands: IBrand[]) {
@@ -775,9 +848,20 @@ function toIngredientNutrition(nutrition: IProductLookupNutrition | null): INutr
     saltGrams: nutrition.saltGrams,
     dietaryFiberGrams: nutrition.dietaryFiberGrams,
     saturatedFatGrams: nutrition.saturatedFatGrams,
-    unsaturatedFatGrams: null,
+    transFatGrams: nutrition.transFatGrams,
     monounsaturatedFatGrams: nutrition.monounsaturatedFatGrams,
     polyunsaturatedFatGrams: nutrition.polyunsaturatedFatGrams,
+    omega3Grams: nutrition.omega3Grams,
+    omega6Grams: nutrition.omega6Grams,
+    cholesterolMilligrams: nutrition.cholesterolMilligrams,
+    vitaminAMicrograms: nutrition.vitaminAMicrograms,
+    vitaminB9Micrograms: nutrition.vitaminB9Micrograms,
+    vitaminB12Micrograms: nutrition.vitaminB12Micrograms,
+    vitaminCMilligrams: nutrition.vitaminCMilligrams,
+    vitaminDMicrograms: nutrition.vitaminDMicrograms,
+    vitaminEMilligrams: nutrition.vitaminEMilligrams,
+    vitaminKMicrograms: nutrition.vitaminKMicrograms,
+    cholineMilligrams: nutrition.cholineMilligrams,
     vitamins: [],
   };
 }
@@ -790,9 +874,20 @@ function emptyNutritionFacts(): INutritionFacts {
     saltGrams: null,
     dietaryFiberGrams: null,
     saturatedFatGrams: null,
-    unsaturatedFatGrams: null,
+    transFatGrams: null,
     monounsaturatedFatGrams: null,
     polyunsaturatedFatGrams: null,
+    omega3Grams: null,
+    omega6Grams: null,
+    cholesterolMilligrams: null,
+    vitaminAMicrograms: null,
+    vitaminB9Micrograms: null,
+    vitaminB12Micrograms: null,
+    vitaminCMilligrams: null,
+    vitaminDMicrograms: null,
+    vitaminEMilligrams: null,
+    vitaminKMicrograms: null,
+    cholineMilligrams: null,
     vitamins: [],
   };
 }
@@ -805,9 +900,20 @@ function nutritionToEditorValues(nutrition: INutritionFacts | null): NutritionEd
     saltGrams: numberToInputValue(nutrition?.saltGrams),
     dietaryFiberGrams: numberToInputValue(nutrition?.dietaryFiberGrams),
     saturatedFatGrams: numberToInputValue(nutrition?.saturatedFatGrams),
-    unsaturatedFatGrams: numberToInputValue(nutrition?.unsaturatedFatGrams),
+    transFatGrams: numberToInputValue(nutrition?.transFatGrams),
     monounsaturatedFatGrams: numberToInputValue(nutrition?.monounsaturatedFatGrams),
     polyunsaturatedFatGrams: numberToInputValue(nutrition?.polyunsaturatedFatGrams),
+    omega3Grams: numberToInputValue(nutrition?.omega3Grams),
+    omega6Grams: numberToInputValue(nutrition?.omega6Grams),
+    cholesterolMilligrams: numberToInputValue(nutrition?.cholesterolMilligrams),
+    vitaminAMicrograms: numberToInputValue(nutrition?.vitaminAMicrograms),
+    vitaminB9Micrograms: numberToInputValue(nutrition?.vitaminB9Micrograms),
+    vitaminB12Micrograms: numberToInputValue(nutrition?.vitaminB12Micrograms),
+    vitaminCMilligrams: numberToInputValue(nutrition?.vitaminCMilligrams),
+    vitaminDMicrograms: numberToInputValue(nutrition?.vitaminDMicrograms),
+    vitaminEMilligrams: numberToInputValue(nutrition?.vitaminEMilligrams),
+    vitaminKMicrograms: numberToInputValue(nutrition?.vitaminKMicrograms),
+    cholineMilligrams: numberToInputValue(nutrition?.cholineMilligrams),
   };
 }
 

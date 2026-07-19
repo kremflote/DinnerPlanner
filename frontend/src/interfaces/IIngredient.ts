@@ -10,6 +10,11 @@ export interface IIngredient {
   price: number | null;
   tags: IngredientTag[];
   nutritionPer100: INutritionFacts | null;
+  nutritionSource: NutritionDataSource;
+  nutritionSourceLabel: string | null;
+  matvaretabellenFoodId: string | null;
+  nutritionMatchedName: string | null;
+  nutritionMatchConfidence: number | null;
   color: string | null;
 }
 
@@ -43,20 +48,38 @@ export interface INutritionFacts {
   saltGrams: number | null;
   dietaryFiberGrams: number | null;
   saturatedFatGrams: number | null;
-  unsaturatedFatGrams: number | null;
+  transFatGrams: number | null;
   monounsaturatedFatGrams: number | null;
   polyunsaturatedFatGrams: number | null;
+  omega3Grams: number | null;
+  omega6Grams: number | null;
+  cholesterolMilligrams: number | null;
+  vitaminAMicrograms: number | null;
+  vitaminB9Micrograms: number | null;
+  vitaminB12Micrograms: number | null;
+  vitaminCMilligrams: number | null;
+  vitaminDMicrograms: number | null;
+  vitaminEMilligrams: number | null;
+  vitaminKMicrograms: number | null;
+  cholineMilligrams: number | null;
   vitamins: Vitamin[];
 }
 
 export type Vitamin =
   | "VitaminA"
-  | "VitaminB"
+  | "VitaminB9"
   | "VitaminB12"
   | "VitaminC"
   | "VitaminD"
   | "VitaminE"
-  | "VitaminK";
+  | "VitaminK"
+  | "Choline";
+
+export type NutritionDataSource =
+  | "None"
+  | "Matvaretabellen"
+  | "Kassalapp"
+  | "Manual";
 
 export type MeasurementUnit =
   | "Gram"

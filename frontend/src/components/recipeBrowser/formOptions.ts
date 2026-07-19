@@ -200,10 +200,11 @@ export const ingredientPreparations: IngredientPreparation[] = [
 
 export const vitamins: Vitamin[] = [
   "VitaminA",
-  "VitaminB",
+  "VitaminB9",
   "VitaminB12",
   "VitaminC",
   "VitaminD",
   "VitaminE",
   "VitaminK",
+  "Choline",
 ];

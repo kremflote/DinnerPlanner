@@ -16,6 +16,8 @@ services:
       Vikunja__ApiToken: ${VIKUNJA_API_TOKEN:-}
       Vikunja__ProjectId: ${VIKUNJA_PROJECT_ID:-}
       Kassalapp__ApiKey: ${KASSALAPP_API_KEY:-}
+      Helsedirektoratet__BaseUrl: ${HELSEDIREKTORATET_BASE_URL:-https://api.helsedirektoratet.no}
+      Helsedirektoratet__SubscriptionKey: ${HELSEDIREKTORATET_SUBSCRIPTION_KEY:-}
     volumes:
       - matflote-data:/data
       - matflote-images:/data/images

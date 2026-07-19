@@ -54,6 +54,11 @@ public class IngredientsController(DinnerPlannerContext context) : ControllerBas
                 .Select(tag => new IngredientTagAssignment { Tag = tag })
                 .ToList(),
             NutritionPer100 = request.NutritionPer100,
+            NutritionSource = NormalizeNutritionSource(request.NutritionPer100, request.NutritionSource),
+            NutritionSourceLabel = request.NutritionSourceLabel,
+            MatvaretabellenFoodId = request.MatvaretabellenFoodId,
+            NutritionMatchedName = request.NutritionMatchedName,
+            NutritionMatchConfidence = request.NutritionMatchConfidence,
             Color = request.Color
         };
 
@@ -93,6 +98,11 @@ public class IngredientsController(DinnerPlannerContext context) : ControllerBas
             })
             .ToList();
         ingredient.NutritionPer100 = request.NutritionPer100;
+        ingredient.NutritionSource = NormalizeNutritionSource(request.NutritionPer100, request.NutritionSource);
+        ingredient.NutritionSourceLabel = request.NutritionSourceLabel;
+        ingredient.MatvaretabellenFoodId = request.MatvaretabellenFoodId;
+        ingredient.NutritionMatchedName = request.NutritionMatchedName;
+        ingredient.NutritionMatchConfidence = request.NutritionMatchConfidence;
         ingredient.Color = request.Color;
 
         await context.SaveChangesAsync();
@@ -130,6 +140,9 @@ public class IngredientsController(DinnerPlannerContext context) : ControllerBas
                 .Distinct()
                 .ToList();
 
+    private static NutritionDataSource NormalizeNutritionSource(NutritionFacts? nutrition, NutritionDataSource? source) =>
+        nutrition is null ? NutritionDataSource.None : source ?? NutritionDataSource.Manual;
+
     private static IngredientDto ToDto(Ingredient ingredient) => new(
         ingredient.IngredientId,
         ingredient.IngredientName,
@@ -140,6 +153,11 @@ public class IngredientsController(DinnerPlannerContext context) : ControllerBas
         ingredient.Price,
         ingredient.Tags.Select(ingredientTag => ingredientTag.Tag).OrderBy(tag => tag).ToList(),
         ingredient.NutritionPer100,
+        ingredient.NutritionSource,
+        ingredient.NutritionSourceLabel,
+        ingredient.MatvaretabellenFoodId,
+        ingredient.NutritionMatchedName,
+        ingredient.NutritionMatchConfidence,
         ingredient.Color
     );
 }

@@ -1,4 +1,5 @@
 using DinnerPlanner.Api.Models;
+using DinnerPlanner.Api.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
@@ -27,6 +28,9 @@ public class DinnerPlannerContext(DbContextOptions<DinnerPlannerContext> options
     public DbSet<Store> Stores => Set<Store>();
     public DbSet<MealPlanEntry> MealPlanEntries => Set<MealPlanEntry>();
     public DbSet<MealPlanRecipe> MealPlanRecipes => Set<MealPlanRecipe>();
+    public DbSet<NutritionReferenceImportRun> NutritionReferenceImportRuns => Set<NutritionReferenceImportRun>();
+    public DbSet<NutritionReferenceProfile> NutritionReferenceProfiles => Set<NutritionReferenceProfile>();
+    public DbSet<NutritionReferenceValue> NutritionReferenceValues => Set<NutritionReferenceValue>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -53,10 +57,15 @@ public class DinnerPlannerContext(DbContextOptions<DinnerPlannerContext> options
 
         modelBuilder.Entity<Ingredient>(entity =>
         {
-            entity.Property(ingredient => ingredient.IngredientName).HasMaxLength(30);
+            entity.Property(ingredient => ingredient.IngredientName).HasMaxLength(ValidationLimits.IngredientNameMaxLength);
             entity.Property(ingredient => ingredient.Description).HasMaxLength(600);
             entity.Property(ingredient => ingredient.ImageUrl).HasMaxLength(500);
             entity.Property(ingredient => ingredient.Price).HasPrecision(10, 2);
+            entity.Property(ingredient => ingredient.NutritionSource).HasConversion<string>().HasMaxLength(40);
+            entity.Property(ingredient => ingredient.NutritionSourceLabel).HasMaxLength(160);
+            entity.Property(ingredient => ingredient.MatvaretabellenFoodId).HasMaxLength(80);
+            entity.Property(ingredient => ingredient.NutritionMatchedName).HasMaxLength(160);
+            entity.Property(ingredient => ingredient.NutritionMatchConfidence).HasPrecision(4, 3);
             entity.HasOne(ingredient => ingredient.Brand)
                 .WithMany()
                 .HasForeignKey(ingredient => ingredient.BrandId)
@@ -68,9 +77,20 @@ public class DinnerPlannerContext(DbContextOptions<DinnerPlannerContext> options
                 nutrition.Property(value => value.SaltGrams).HasPrecision(8, 2);
                 nutrition.Property(value => value.DietaryFiberGrams).HasPrecision(8, 2);
                 nutrition.Property(value => value.SaturatedFatGrams).HasPrecision(8, 2);
-                nutrition.Property(value => value.UnsaturatedFatGrams).HasPrecision(8, 2);
+                nutrition.Property(value => value.TransFatGrams).HasPrecision(8, 2);
                 nutrition.Property(value => value.MonounsaturatedFatGrams).HasPrecision(8, 2);
                 nutrition.Property(value => value.PolyunsaturatedFatGrams).HasPrecision(8, 2);
+                nutrition.Property(value => value.Omega3Grams).HasPrecision(8, 2);
+                nutrition.Property(value => value.Omega6Grams).HasPrecision(8, 2);
+                nutrition.Property(value => value.CholesterolMilligrams).HasPrecision(8, 2);
+                nutrition.Property(value => value.VitaminAMicrograms).HasPrecision(8, 2);
+                nutrition.Property(value => value.VitaminB9Micrograms).HasPrecision(8, 2);
+                nutrition.Property(value => value.VitaminB12Micrograms).HasPrecision(8, 2);
+                nutrition.Property(value => value.VitaminCMilligrams).HasPrecision(8, 2);
+                nutrition.Property(value => value.VitaminDMicrograms).HasPrecision(8, 2);
+                nutrition.Property(value => value.VitaminEMilligrams).HasPrecision(8, 2);
+                nutrition.Property(value => value.VitaminKMicrograms).HasPrecision(8, 2);
+                nutrition.Property(value => value.CholineMilligrams).HasPrecision(8, 2);
                 nutrition.Property(value => value.Vitamins)
                     .HasConversion(
                         vitamins => string.Join(",", vitamins.Select(vitamin => vitamin.ToString())),
@@ -270,6 +290,42 @@ public class DinnerPlannerContext(DbContextOptions<DinnerPlannerContext> options
             });
         });
 
+        modelBuilder.Entity<NutritionReferenceImportRun>(entity =>
+        {
+            entity.Property(importRun => importRun.Provider).HasMaxLength(120);
+            entity.Property(importRun => importRun.Status).HasMaxLength(80);
+            entity.Property(importRun => importRun.Message).HasMaxLength(1000);
+            entity.Property(importRun => importRun.SourceUrl).HasMaxLength(500);
+        });
+
+        modelBuilder.Entity<NutritionReferenceProfile>(entity =>
+        {
+            entity.Property(profile => profile.ProfileId).HasMaxLength(80);
+            entity.Property(profile => profile.Label).HasMaxLength(120);
+            entity.Property(profile => profile.Gender).HasMaxLength(40);
+            entity.Property(profile => profile.SourceUrl).HasMaxLength(500);
+            entity.HasIndex(profile => profile.ProfileId).IsUnique();
+
+            entity.HasMany(profile => profile.ReferenceValues)
+                .WithOne(value => value.Profile)
+                .HasForeignKey(value => value.NutritionReferenceProfileId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<NutritionReferenceValue>(entity =>
+        {
+            entity.Property(value => value.NutrientKey).HasMaxLength(80);
+            entity.Property(value => value.Label).HasMaxLength(120);
+            entity.Property(value => value.DailyAmount).HasPrecision(10, 2);
+            entity.Property(value => value.Unit).HasMaxLength(20);
+            entity.Property(value => value.ValueType).HasConversion<string>().HasMaxLength(40);
+            entity.HasIndex(value => new
+            {
+                value.NutritionReferenceProfileId,
+                value.NutrientKey
+            }).IsUnique();
+        });
+
         SeedData(modelBuilder);
     }
 
@@ -299,6 +355,9 @@ public class DinnerPlannerContext(DbContextOptions<DinnerPlannerContext> options
             new { StoreId = 8, Name = "Bunnpris" },
             new { StoreId = 9, Name = "Europris" }
         );
+
+        modelBuilder.Entity<NutritionReferenceProfile>().HasData(CreateNutritionReferenceProfiles());
+        modelBuilder.Entity<NutritionReferenceValue>().HasData(CreateNutritionReferenceValues());
 
         modelBuilder.Entity<IngredientTagCategory>().HasData(
             new { IngredientTagCategoryId = 1, Name = "Produce", SortOrder = 100 },
@@ -342,10 +401,10 @@ public class DinnerPlannerContext(DbContextOptions<DinnerPlannerContext> options
                 NutritionPer100_SaltGrams = (decimal?)0.18m,
                 NutritionPer100_DietaryFiberGrams = (decimal?)0m,
                 NutritionPer100_SaturatedFatGrams = (decimal?)1m,
-                NutritionPer100_UnsaturatedFatGrams = (decimal?)2.6m,
                 NutritionPer100_MonounsaturatedFatGrams = (decimal?)1.2m,
                 NutritionPer100_PolyunsaturatedFatGrams = (decimal?)0.8m,
-                NutritionPer100_Vitamins = "VitaminB,VitaminB12",
+                NutritionPer100_Vitamins = "VitaminB12",
+                NutritionSource = NutritionDataSource.Manual,
                 Color = "#f6d4b8"
             },
             new
@@ -361,10 +420,10 @@ public class DinnerPlannerContext(DbContextOptions<DinnerPlannerContext> options
                 NutritionPer100_SaltGrams = (decimal?)0.04m,
                 NutritionPer100_DietaryFiberGrams = (decimal?)2.1m,
                 NutritionPer100_SaturatedFatGrams = (decimal?)0.1m,
-                NutritionPer100_UnsaturatedFatGrams = (decimal?)0.4m,
                 NutritionPer100_MonounsaturatedFatGrams = (decimal?)0m,
                 NutritionPer100_PolyunsaturatedFatGrams = (decimal?)0.2m,
-                NutritionPer100_Vitamins = "VitaminB,VitaminC",
+                NutritionPer100_Vitamins = "VitaminC",
+                NutritionSource = NutritionDataSource.Manual,
                 Color = "#f4ead2"
             },
             new
@@ -380,10 +439,10 @@ public class DinnerPlannerContext(DbContextOptions<DinnerPlannerContext> options
                 NutritionPer100_SaltGrams = (decimal?)0.1m,
                 NutritionPer100_DietaryFiberGrams = (decimal?)0m,
                 NutritionPer100_SaturatedFatGrams = (decimal?)1.6m,
-                NutritionPer100_UnsaturatedFatGrams = (decimal?)0.8m,
                 NutritionPer100_MonounsaturatedFatGrams = (decimal?)0.7m,
                 NutritionPer100_PolyunsaturatedFatGrams = (decimal?)0.1m,
-                NutritionPer100_Vitamins = "VitaminB,VitaminB12",
+                NutritionPer100_Vitamins = "VitaminB12",
+                NutritionSource = NutritionDataSource.Manual,
                 Color = "#fff7ef"
             },
             new
@@ -399,10 +458,10 @@ public class DinnerPlannerContext(DbContextOptions<DinnerPlannerContext> options
                 NutritionPer100_SaltGrams = (decimal?)0.01m,
                 NutritionPer100_DietaryFiberGrams = (decimal?)0.4m,
                 NutritionPer100_SaturatedFatGrams = (decimal?)0.1m,
-                NutritionPer100_UnsaturatedFatGrams = (decimal?)0.2m,
                 NutritionPer100_MonounsaturatedFatGrams = (decimal?)0.1m,
                 NutritionPer100_PolyunsaturatedFatGrams = (decimal?)0.1m,
-                NutritionPer100_Vitamins = "VitaminB",
+                NutritionPer100_Vitamins = "",
+                NutritionSource = NutritionDataSource.Manual,
                 Color = "#f6f0df"
             },
             new
@@ -418,10 +477,10 @@ public class DinnerPlannerContext(DbContextOptions<DinnerPlannerContext> options
                 NutritionPer100_SaltGrams = (decimal?)0m,
                 NutritionPer100_DietaryFiberGrams = (decimal?)2.8m,
                 NutritionPer100_SaturatedFatGrams = (decimal?)0m,
-                NutritionPer100_UnsaturatedFatGrams = (decimal?)0.2m,
                 NutritionPer100_MonounsaturatedFatGrams = (decimal?)0m,
                 NutritionPer100_PolyunsaturatedFatGrams = (decimal?)0.1m,
                 NutritionPer100_Vitamins = "VitaminC",
+                NutritionSource = NutritionDataSource.Manual,
                 Color = "#f9dc5c"
             }
         );
@@ -554,4 +613,51 @@ public class DinnerPlannerContext(DbContextOptions<DinnerPlannerContext> options
                 .Select(vitamin => vitamin!.Value)
                 .Distinct()
                 .ToList();
+
+    private static IReadOnlyCollection<object> CreateNutritionReferenceProfiles()
+    {
+        var importedAt = new DateTimeOffset(2026, 7, 19, 0, 0, 0, TimeSpan.Zero);
+        return NutritionReferenceDefaults.Profiles
+            .Select((profile, index) => new
+            {
+                NutritionReferenceProfileId = index + 1,
+                profile.ProfileId,
+                profile.Label,
+                profile.Gender,
+                profile.MinAge,
+                profile.MaxAge,
+                SourceUrl = NutritionReferenceDefaults.SourceUrl,
+                SourceUpdatedAt = (DateTimeOffset?)null,
+                ImportedAt = importedAt
+            })
+            .ToList<object>();
+    }
+
+    private static IReadOnlyCollection<object> CreateNutritionReferenceValues()
+    {
+        var valueId = 1;
+        var values = new List<object>();
+        foreach (var profile in NutritionReferenceDefaults.Profiles.Select((profile, index) => new
+        {
+            Profile = profile,
+            ProfileId = index + 1
+        }))
+        {
+            foreach (var value in profile.Profile.Values)
+            {
+                values.Add(new
+                {
+                    NutritionReferenceValueId = valueId++,
+                    NutritionReferenceProfileId = profile.ProfileId,
+                    value.NutrientKey,
+                    value.Label,
+                    value.DailyAmount,
+                    value.Unit,
+                    ValueType = NutritionReferenceValueType.ManualFallback
+                });
+            }
+        }
+
+        return values;
+    }
 }

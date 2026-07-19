@@ -1,6 +1,7 @@
 import type {
   KnownIngredientTag,
   MeasurementUnit,
+  NutritionDataSource,
   Vitamin,
 } from "../interfaces/IIngredient";
 import type { MealSlot, PlannerViewMode } from "../interfaces/IMeal";
@@ -114,6 +115,7 @@ export type TranslationDictionary = {
     loadingRecipes: string;
     mainRecipe: string;
     monounsaturatedFatsPer100g: string;
+    monounsaturatedFats: string;
     name: string;
     none: string;
     noDescription: string;
@@ -127,12 +129,22 @@ export type TranslationDictionary = {
     noRecipesFound: string;
     noSidesAdded: string;
     nutrition: string;
+    nutritionFats: string;
+    nutritionMacros: string;
+    nutritionOther: string;
+    nutritionVitamins: string;
     openIngredientFilter: string;
     optional: string;
     overview: string;
     pickOneOrMore: string;
     polyunsaturatedFatsPer100g: string;
     polyunsaturatedFats: string;
+    omega3Per100g: string;
+    omega3: string;
+    omega6Per100g: string;
+    omega6: string;
+    cholesterolPer100g: string;
+    cholesterol: string;
     price: string;
     proteinPer100g: string;
     protein: string;
@@ -145,6 +157,8 @@ export type TranslationDictionary = {
     salt: string;
     saturatedFatsPer100g: string;
     saturatedFats: string;
+    transFatsPer100g: string;
+    transFats: string;
     saveIngredient: string;
     saveRecipe: string;
     scale: string;
@@ -159,10 +173,15 @@ export type TranslationDictionary = {
     takePhoto: string;
     confirmImage: string;
     tryChangingSearch: string;
-    unsaturatedFatsPer100g: string;
-    unsaturatedFats: string;
-    monounsaturatedFats: string;
     vitamins: string;
+    vitaminAPer100g: string;
+    vitaminB9Per100g: string;
+    vitaminB12Per100g: string;
+    vitaminCPer100g: string;
+    vitaminDPer100g: string;
+    vitaminEPer100g: string;
+    vitaminKPer100g: string;
+    cholinePer100g: string;
     notSet: string;
     verticalCrop: string;
     zoom: string;
@@ -192,11 +211,28 @@ export type TranslationDictionary = {
   nav: {
     cookbook: string;
     home: string;
+    nutrition: string;
     planner: string;
     prices: string;
     primary: string;
     scanner: string;
     settings: string;
+  };
+  nutrition: {
+    comparedTo: (target: string, percent: number) => string;
+    couldNotLoad: string;
+    defaultProfile: string;
+    items: Record<string, string>;
+    missingNutritionIntro: (count: number) => string;
+    missingNutritionTitle: string;
+    noData: string;
+    pageIntro: string;
+    pageTitle: string;
+    profile: string;
+    referenceNotSet: string;
+    referenceSource: (provider: string, importedAt: string) => string;
+    referenceSourceLink: string;
+    weekStart: string;
   };
   prices: {
     addPrice: string;
@@ -245,6 +281,7 @@ export type TranslationDictionary = {
     noImage: string;
     noPrice: string;
     noProductsFound: (ean: string) => string;
+    nutritionSources: Record<NutritionDataSource, string>;
     pageIntroAfterKassalapp: string;
     pageIntroBeforeKassalapp: string;
     pageTitle: string;

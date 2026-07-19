@@ -76,6 +76,11 @@ public class SeedCatalogService(
                 ingredient.Price,
                 ingredient.Tags.Select(tag => tag.Tag).OrderBy(tag => tag).ToList(),
                 ingredient.NutritionPer100,
+                ingredient.NutritionSource,
+                ingredient.NutritionSourceLabel,
+                ingredient.MatvaretabellenFoodId,
+                ingredient.NutritionMatchedName,
+                ingredient.NutritionMatchConfidence,
                 ingredient.Color
             ))
             .ToListAsync(cancellationToken);
@@ -168,6 +173,13 @@ public class SeedCatalogService(
                 ImageUrl = NullIfWhiteSpace(seedIngredient.ImageUrl),
                 Price = seedIngredient.Price,
                 NutritionPer100 = seedIngredient.NutritionPer100,
+                NutritionSource = seedIngredient.NutritionPer100 is null
+                    ? NutritionDataSource.None
+                    : seedIngredient.NutritionSource ?? NutritionDataSource.Manual,
+                NutritionSourceLabel = NullIfWhiteSpace(seedIngredient.NutritionSourceLabel),
+                MatvaretabellenFoodId = NullIfWhiteSpace(seedIngredient.MatvaretabellenFoodId),
+                NutritionMatchedName = NullIfWhiteSpace(seedIngredient.NutritionMatchedName),
+                NutritionMatchConfidence = seedIngredient.NutritionMatchConfidence,
                 Color = NullIfWhiteSpace(seedIngredient.Color),
                 Tags = NormalizeIngredientTags(seedIngredient.Tags)
                     .Select(tag => new IngredientTagAssignment { Tag = tag })

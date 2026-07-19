@@ -66,6 +66,12 @@ public class AppSettingsService(
         return storedValue ?? configuration[key];
     }
 
+    public async Task SetNutritionProfileIdAsync(string? profileId, CancellationToken cancellationToken)
+    {
+        await SetValueAsync(AppSettingKeys.NutritionProfileId, profileId, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
+    }
+
     private async Task SetValueAsync(string key, string? value, CancellationToken cancellationToken)
     {
         var setting = await context.AppSettings.FindAsync([key], cancellationToken);
@@ -99,6 +105,7 @@ public static class AppSettingKeys
     public const string VikunjaBaseUrl = "Vikunja:BaseUrl";
     public const string VikunjaApiToken = "Vikunja:ApiToken";
     public const string VikunjaProjectId = "Vikunja:ProjectId";
+    public const string NutritionProfileId = "Nutrition:ProfileId";
 }
 
 public static class ExportTaskModes

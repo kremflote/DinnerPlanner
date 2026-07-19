@@ -448,6 +448,18 @@ Ingredient images use the same image storage model as recipe images: the backend
 
 Ingredient display should use the shared `IngredientThumbnail` component instead of rebuilding ingredient capsules in each page. The component supports default and compact modes; default is for browser cards and detail views, compact is for dense pickers, filter popovers, and selected ingredient summaries. It must show image/fallback, ingredient name, and brand when present.
 
+### Nutrition source assumptions
+
+Matvaretabellen and Helsedirektoratet serve different nutrition roles in MATFLOTE. Matvaretabellen is the preferred source for ingredient nutrition per 100 g when a scanned product can be matched to a food entry. Ingredient nutrition should mirror Matvaretabellen's explicit fat fields: saturated fat, trans fat, monounsaturated fat, polyunsaturated fat, omega-3, omega-6, and cholesterol. Do not store a generic unsaturated fat field, because Matvaretabellen provides the mono/poly split instead. Helsedirektoratet HAPI is the preferred source for official recommended intake/reference values used by the Nutrition page.
+
+Helsedirektoratet HAPI must stay backend-only. The frontend must not contain the HAPI subscription key. Development should use .NET user-secrets or local environment variables, while Docker/production should receive `HELSEDIREKTORATET_BASE_URL` and `HELSEDIREKTORATET_SUBSCRIPTION_KEY` through environment configuration. The API key must never be committed.
+
+Weekly nutrition should calculate from local database values, not live external API calls. HAPI import/refresh stores normalized reference profiles and daily nutrient values in the database, including source URL, source updated date when available, import timestamp, and whether values are RI, AI, or fallback values. MATFLOTE tracks vitamins and choline for this page; minerals are intentionally out of scope for now. The Nutrition page should show source attribution and the import date.
+
+Nutrition profile choice is a household-level app preference stored in backend app settings. It should persist across page reloads and devices connected to the same MATFLOTE instance. The Nutrition page should warn when planned meals contain ingredients without nutrition data, because calculated totals may otherwise look more complete than they are.
+
+If HAPI is unavailable, not configured, or its response shape changes, MATFLOTE should keep working from bundled fallback reference values. Parser/import improvements should be tested against captured payload fixtures before replacing fallback values automatically.
+
 ### Runtime verification
 
 Use `scripts/smoke-test.ps1` as the first verification pass after backend/frontend integration changes. The smoke script should remain external-service-free. It may check local endpoints, temporary SQLite migration/startup behavior, runtime settings persistence, grocery preview generation, and image upload storage, but it should not require a real Vikunja token.

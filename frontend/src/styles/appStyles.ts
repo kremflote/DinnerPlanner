@@ -378,6 +378,7 @@ export const headerStyles = {
   inner: `${layoutClasses.contentWidth} grid min-h-20 grid-cols-[1fr_auto_1fr] items-center gap-6 py-0 max-[1100px]:min-h-0 max-[1100px]:grid-cols-[1fr_auto] max-[1100px]:gap-x-4 max-[1100px]:py-3 max-sm:py-3`,
   logo: (theme: SiteTheme) =>
     `justify-self-start border-0 bg-transparent p-0 text-left no-underline ${typographyClasses.logo} ${siteColorClasses[theme].headerForeground}`,
+  actions: "flex items-center justify-end gap-2",
   nav: (theme: SiteTheme) =>
     `flex items-center justify-center gap-2 max-[1100px]:fixed max-[1100px]:inset-x-0 max-[1100px]:bottom-0 max-[1100px]:z-50 max-[1100px]:border-t max-[1100px]:px-6 max-[1100px]:pt-2 max-[1100px]:[padding-bottom:calc(0.5rem+env(safe-area-inset-bottom))] max-sm:px-4 ${siteColorClasses[theme].header} ${siteColorClasses[theme].bottomNav}`,
   navButton: (theme: SiteTheme, selected: boolean) =>
@@ -388,6 +389,12 @@ export const headerStyles = {
     }`,
   icon: "h-8 w-8 fill-current max-[1100px]:h-5 max-[1100px]:w-5",
   navLabel: "text-xs font-semibold leading-none max-sm:text-[11px]",
+  settingsButton: (theme: SiteTheme, selected: boolean) =>
+    `inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md border transition-colors duration-150 max-[1100px]:h-9 max-[1100px]:w-9 ${focusBase} ${siteColorClasses[theme].focus} ${
+      selected
+        ? siteColorClasses[theme].controlSelected
+        : siteColorClasses[theme].control
+    }`,
   themeButton: (theme: SiteTheme) =>
     `inline-flex h-8 w-14 cursor-pointer items-center justify-center justify-self-end rounded-md border border-transparent bg-transparent p-0 ${focusBase} ${siteColorClasses[theme].focus}`,
   // Exception to the rectangular control rule: the theme switch keeps the familiar rounded toggle shape.
@@ -534,6 +541,22 @@ export const scannerStyles = {
     }`,
   field: "grid gap-2",
   label: "text-sm font-bold leading-tight",
+  nutritionSourceText: (theme: SiteTheme) =>
+    `text-xs font-semibold leading-tight ${
+      theme === "dark"
+        ? "text-neutral-400"
+        : theme === "paletteLight"
+          ? "text-[#7A8864]"
+          : "text-neutral-500"
+    }`,
+  nutritionSourceLink: (theme: SiteTheme) =>
+    `text-xs font-bold leading-tight underline underline-offset-2 ${
+      theme === "dark"
+        ? "text-neutral-200 hover:text-white"
+        : theme === "paletteLight"
+          ? "text-[#556145] hover:text-[#3C4A2E]"
+          : "text-neutral-700 hover:text-neutral-950"
+    }`,
   input: controlStyles.formField,
   submitButton: controlStyles.primaryButton,
   scannerActions: "grid gap-3 min-[1101px]:hidden",
@@ -747,6 +770,14 @@ export const scannerStyles = {
     }`,
   editorModalActionButton:
     "max-sm:h-10 max-sm:min-w-0 max-sm:flex-1 max-sm:px-3 max-sm:text-sm",
+  editorModalError: (theme: SiteTheme) =>
+    `basis-full rounded-md px-3 py-2 text-sm font-bold max-sm:text-xs ${
+      theme === "dark"
+        ? "bg-red-500/15 text-red-100"
+        : theme === "paletteLight"
+          ? "bg-[#B44E3A]/10 text-[#8E321F]"
+          : "bg-red-50 text-red-700"
+    }`,
 } as const;
 
 export const priceStyles = {
@@ -810,6 +841,96 @@ export const priceStyles = {
     "justify-self-end text-base font-extrabold max-sm:justify-self-start",
   rowDate:
     "justify-self-end text-xs font-bold opacity-70 max-sm:justify-self-start",
+} as const;
+
+export const nutritionStyles = {
+  shell: pageStyles.contentShell,
+  header: "grid gap-2",
+  title: (theme: SiteTheme) =>
+    `text-3xl font-bold leading-tight ${theme === "paletteLight" ? "text-[#556145]" : siteColorClasses[theme].plannerCounterAccent}`,
+  intro: (theme: SiteTheme) =>
+    `max-w-2xl text-sm font-semibold leading-[1.5] ${
+      theme === "dark"
+        ? "text-neutral-300"
+        : theme === "paletteLight"
+          ? "text-[#7A8864]"
+          : "text-neutral-600"
+    }`,
+  panel: (theme: SiteTheme) =>
+    `grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-end gap-3 rounded-md border p-4 max-sm:grid-cols-1 ${shadowClasses.subtle} ${surfaceClasses.panel(theme)}`,
+  field: "grid gap-2",
+  label: "text-sm font-bold leading-tight",
+  input: controlStyles.formField,
+  statusError: (theme: SiteTheme) =>
+    `${radiusClasses.figma6} border px-3 py-2 text-sm font-semibold ${
+      theme === "dark"
+        ? "border-red-400/30 bg-red-500/10 text-red-200"
+        : theme === "paletteLight"
+          ? "border-red-700/25 bg-red-700/10 text-red-800"
+          : "border-red-200 bg-red-50 text-red-700"
+    }`,
+  warningPanel: (theme: SiteTheme) =>
+    `${radiusClasses.figma6} border p-4 ${shadowClasses.subtle} ${
+      theme === "dark"
+        ? "border-amber-300/25 bg-amber-200/10 text-amber-100"
+        : theme === "paletteLight"
+          ? "border-[#9B7A3D]/30 bg-[#E5D5BC]/65 text-[#5F4A24]"
+          : "border-amber-200 bg-amber-50 text-amber-900"
+    }`,
+  warningTitle: "text-sm font-extrabold leading-tight",
+  warningText: "mt-1 text-sm font-semibold leading-[1.45]",
+  warningList: "mt-3 flex flex-wrap gap-2",
+  warningChip: (theme: SiteTheme) =>
+    `${radiusClasses.figma6} border px-2 py-1 text-xs font-bold ${
+      theme === "dark"
+        ? "border-amber-200/20 bg-black/20 text-amber-50"
+        : theme === "paletteLight"
+          ? "border-[#9B7A3D]/25 bg-[#FAF7F2] text-[#5F4A24]"
+          : "border-amber-200 bg-white text-amber-900"
+    }`,
+  emptyState: (theme: SiteTheme) =>
+    `rounded-md border p-6 text-center text-sm font-bold ${surfaceClasses.panel(theme)}`,
+  grid: "grid grid-cols-3 gap-3 max-[1100px]:grid-cols-2 max-sm:grid-cols-1",
+  item: (theme: SiteTheme) =>
+    `grid gap-3 rounded-md border p-4 ${shadowClasses.subtle} ${surfaceClasses.panel(theme)}`,
+  itemHeader: "flex items-start justify-between gap-3",
+  itemTitle: "text-base font-bold leading-tight",
+  itemTotal: (theme: SiteTheme) =>
+    `text-sm font-extrabold leading-tight ${theme === "paletteLight" ? "text-[#556145]" : siteColorClasses[theme].plannerCounterAccent}`,
+  progressTrack: (theme: SiteTheme) =>
+    `h-2 overflow-hidden rounded-full ${
+      theme === "dark"
+        ? "bg-white/[0.10]"
+        : theme === "paletteLight"
+          ? "bg-[#D7CCBB]"
+          : "bg-neutral-200"
+    }`,
+  progressFill: (theme: SiteTheme) =>
+    `block h-full rounded-full ${
+      theme === "dark"
+        ? "bg-emerald-300"
+        : theme === "paletteLight"
+          ? "bg-[#556145]"
+          : "bg-neutral-900"
+    }`,
+  itemMeta: (theme: SiteTheme) =>
+    `text-xs font-semibold leading-tight ${
+      theme === "dark"
+        ? "text-neutral-400"
+        : theme === "paletteLight"
+          ? "text-[#7A8864]"
+          : "text-neutral-500"
+    }`,
+  sourceText: (theme: SiteTheme) =>
+    `text-xs font-semibold leading-tight ${
+      theme === "dark"
+        ? "text-neutral-400"
+        : theme === "paletteLight"
+          ? "text-[#7A8864]"
+          : "text-neutral-500"
+    }`,
+  sourceLink: (theme: SiteTheme) =>
+    `font-extrabold underline-offset-2 hover:underline ${siteColorClasses[theme].plannerCounterAccent}`,
 } as const;
 
 export const plannerControlsStyles = {

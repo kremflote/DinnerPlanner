@@ -21,6 +21,11 @@ public record SeedIngredientDto(
     decimal? Price,
     IReadOnlyCollection<string>? Tags,
     NutritionFacts? NutritionPer100,
+    NutritionDataSource? NutritionSource,
+    string? NutritionSourceLabel,
+    string? MatvaretabellenFoodId,
+    string? NutritionMatchedName,
+    decimal? NutritionMatchConfidence,
     string? Color
 );
 

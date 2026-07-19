@@ -8,6 +8,7 @@ export { ingredientPriceService } from "./ingredientPriceService";
 export { ingredientTagCategoryService } from "./ingredientTagCategoryService";
 export { ingredientService } from "./ingredientService";
 export { mealPlanService } from "./mealPlanService";
+export { nutritionService } from "./nutritionService";
 export { productLookupService } from "./productLookupService";
 export { recipeService } from "./recipeService";
 export { storeService } from "./storeService";

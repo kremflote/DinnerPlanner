@@ -147,7 +147,28 @@ namespace backend.Migrations
 
                     b.Property<string>("IngredientName")
                         .IsRequired()
-                        .HasMaxLength(30)
+                        .HasMaxLength(40)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("MatvaretabellenFoodId")
+                        .HasMaxLength(80)
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal?>("NutritionMatchConfidence")
+                        .HasPrecision(4, 3)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("NutritionMatchedName")
+                        .HasMaxLength(160)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("NutritionSource")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("NutritionSourceLabel")
+                        .HasMaxLength(160)
                         .HasColumnType("TEXT");
 
                     b.Property<decimal?>("Price")
@@ -167,6 +188,7 @@ namespace backend.Migrations
                             Color = "#f6d4b8",
                             Description = "Lean poultry cut with mild flavor. Useful as the main protein in bowls, salads, soups, and quick pan-fried dinners.",
                             IngredientName = "Chicken breast",
+                            NutritionSource = "Manual",
                             Price = 89.90m
                         },
                         new
@@ -175,6 +197,7 @@ namespace backend.Migrations
                             Color = "#f4ead2",
                             Description = "Aromatic vegetable used to build flavor in sauces, marinades, soups, stir fries, and roasted dishes.",
                             IngredientName = "Garlic",
+                            NutritionSource = "Manual",
                             Price = 14.90m
                         },
                         new
@@ -183,6 +206,7 @@ namespace backend.Migrations
                             Color = "#fff7ef",
                             Description = "Thick cultured dairy product. Works as a base for cold sauces, dressings, marinades, and high-protein breakfasts.",
                             IngredientName = "Greek yogurt",
+                            NutritionSource = "Manual",
                             Price = 34.90m
                         },
                         new
@@ -191,6 +215,7 @@ namespace backend.Migrations
                             Color = "#f6f0df",
                             Description = "Neutral grain that works as a side or base for bowls, curries, stir fries, and meal prep portions.",
                             IngredientName = "Rice",
+                            NutritionSource = "Manual",
                             Price = 39.90m
                         },
                         new
@@ -199,6 +224,7 @@ namespace backend.Migrations
                             Color = "#f9dc5c",
                             Description = "Bright acidic fruit used for sauces, dressings, marinades, desserts, and finishing cooked dishes.",
                             IngredientName = "Lemon",
+                            NutritionSource = "Manual",
                             Price = 8.90m
                         });
                 });
@@ -511,6 +537,1855 @@ namespace backend.Migrations
                     b.HasIndex("MealPlanEntryId", "SortOrder");
 
                     b.ToTable("MealPlanRecipes");
+                });
+
+            modelBuilder.Entity("DinnerPlanner.Api.Models.NutritionReferenceImportRun", b =>
+                {
+                    b.Property<int>("NutritionReferenceImportRunId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset?>("CompletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Message")
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SourceUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("StartedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("NutritionReferenceImportRunId");
+
+                    b.ToTable("NutritionReferenceImportRuns");
+                });
+
+            modelBuilder.Entity("DinnerPlanner.Api.Models.NutritionReferenceProfile", b =>
+                {
+                    b.Property<int>("NutritionReferenceProfileId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Gender")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("ImportedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("MaxAge")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("MinAge")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ProfileId")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset?>("SourceUpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SourceUrl")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("NutritionReferenceProfileId");
+
+                    b.HasIndex("ProfileId")
+                        .IsUnique();
+
+                    b.ToTable("NutritionReferenceProfiles");
+
+                    b.HasData(
+                        new
+                        {
+                            NutritionReferenceProfileId = 1,
+                            Gender = "Child",
+                            ImportedAt = new DateTimeOffset(new DateTime(2026, 7, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Label = "Child 1-3",
+                            MaxAge = 3,
+                            MinAge = 1,
+                            ProfileId = "child-1-3",
+                            SourceUrl = "https://www.helsedirektoratet.no/rapporter/referanseverdier-for-energi-og-naeringsstoffer/anbefalinger-om-energi-og-naeringsstoffer-ved-planlegging-av-kosthold/vitaminer-og-mineraler"
+                        },
+                        new
+                        {
+                            NutritionReferenceProfileId = 2,
+                            Gender = "Child",
+                            ImportedAt = new DateTimeOffset(new DateTime(2026, 7, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Label = "Child 4-6",
+                            MaxAge = 6,
+                            MinAge = 4,
+                            ProfileId = "child-4-6",
+                            SourceUrl = "https://www.helsedirektoratet.no/rapporter/referanseverdier-for-energi-og-naeringsstoffer/anbefalinger-om-energi-og-naeringsstoffer-ved-planlegging-av-kosthold/vitaminer-og-mineraler"
+                        },
+                        new
+                        {
+                            NutritionReferenceProfileId = 3,
+                            Gender = "Child",
+                            ImportedAt = new DateTimeOffset(new DateTime(2026, 7, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Label = "Child 7-10",
+                            MaxAge = 10,
+                            MinAge = 7,
+                            ProfileId = "child-7-10",
+                            SourceUrl = "https://www.helsedirektoratet.no/rapporter/referanseverdier-for-energi-og-naeringsstoffer/anbefalinger-om-energi-og-naeringsstoffer-ved-planlegging-av-kosthold/vitaminer-og-mineraler"
+                        },
+                        new
+                        {
+                            NutritionReferenceProfileId = 4,
+                            Gender = "Female",
+                            ImportedAt = new DateTimeOffset(new DateTime(2026, 7, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Label = "Female 11-14",
+                            MaxAge = 14,
+                            MinAge = 11,
+                            ProfileId = "female-11-14",
+                            SourceUrl = "https://www.helsedirektoratet.no/rapporter/referanseverdier-for-energi-og-naeringsstoffer/anbefalinger-om-energi-og-naeringsstoffer-ved-planlegging-av-kosthold/vitaminer-og-mineraler"
+                        },
+                        new
+                        {
+                            NutritionReferenceProfileId = 5,
+                            Gender = "Female",
+                            ImportedAt = new DateTimeOffset(new DateTime(2026, 7, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Label = "Female 15-17",
+                            MaxAge = 17,
+                            MinAge = 15,
+                            ProfileId = "female-15-17",
+                            SourceUrl = "https://www.helsedirektoratet.no/rapporter/referanseverdier-for-energi-og-naeringsstoffer/anbefalinger-om-energi-og-naeringsstoffer-ved-planlegging-av-kosthold/vitaminer-og-mineraler"
+                        },
+                        new
+                        {
+                            NutritionReferenceProfileId = 6,
+                            Gender = "Female",
+                            ImportedAt = new DateTimeOffset(new DateTime(2026, 7, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Label = "Female 18-24",
+                            MaxAge = 24,
+                            MinAge = 18,
+                            ProfileId = "female-18-24",
+                            SourceUrl = "https://www.helsedirektoratet.no/rapporter/referanseverdier-for-energi-og-naeringsstoffer/anbefalinger-om-energi-og-naeringsstoffer-ved-planlegging-av-kosthold/vitaminer-og-mineraler"
+                        },
+                        new
+                        {
+                            NutritionReferenceProfileId = 7,
+                            Gender = "Female",
+                            ImportedAt = new DateTimeOffset(new DateTime(2026, 7, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Label = "Female 25-50",
+                            MaxAge = 50,
+                            MinAge = 25,
+                            ProfileId = "female-25-50",
+                            SourceUrl = "https://www.helsedirektoratet.no/rapporter/referanseverdier-for-energi-og-naeringsstoffer/anbefalinger-om-energi-og-naeringsstoffer-ved-planlegging-av-kosthold/vitaminer-og-mineraler"
+                        },
+                        new
+                        {
+                            NutritionReferenceProfileId = 8,
+                            Gender = "Female",
+                            ImportedAt = new DateTimeOffset(new DateTime(2026, 7, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Label = "Female 51-70",
+                            MaxAge = 70,
+                            MinAge = 51,
+                            ProfileId = "female-51-70",
+                            SourceUrl = "https://www.helsedirektoratet.no/rapporter/referanseverdier-for-energi-og-naeringsstoffer/anbefalinger-om-energi-og-naeringsstoffer-ved-planlegging-av-kosthold/vitaminer-og-mineraler"
+                        },
+                        new
+                        {
+                            NutritionReferenceProfileId = 9,
+                            Gender = "Female",
+                            ImportedAt = new DateTimeOffset(new DateTime(2026, 7, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Label = "Female 70+",
+                            MinAge = 70,
+                            ProfileId = "female-70-plus",
+                            SourceUrl = "https://www.helsedirektoratet.no/rapporter/referanseverdier-for-energi-og-naeringsstoffer/anbefalinger-om-energi-og-naeringsstoffer-ved-planlegging-av-kosthold/vitaminer-og-mineraler"
+                        },
+                        new
+                        {
+                            NutritionReferenceProfileId = 10,
+                            Gender = "Pregnancy",
+                            ImportedAt = new DateTimeOffset(new DateTime(2026, 7, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Label = "Pregnant, trimester 1",
+                            MinAge = 18,
+                            ProfileId = "pregnant-trimester-1",
+                            SourceUrl = "https://www.helsedirektoratet.no/rapporter/referanseverdier-for-energi-og-naeringsstoffer/anbefalinger-om-energi-og-naeringsstoffer-ved-planlegging-av-kosthold/vitaminer-og-mineraler"
+                        },
+                        new
+                        {
+                            NutritionReferenceProfileId = 11,
+                            Gender = "Pregnancy",
+                            ImportedAt = new DateTimeOffset(new DateTime(2026, 7, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Label = "Pregnant, trimester 2",
+                            MinAge = 18,
+                            ProfileId = "pregnant-trimester-2",
+                            SourceUrl = "https://www.helsedirektoratet.no/rapporter/referanseverdier-for-energi-og-naeringsstoffer/anbefalinger-om-energi-og-naeringsstoffer-ved-planlegging-av-kosthold/vitaminer-og-mineraler"
+                        },
+                        new
+                        {
+                            NutritionReferenceProfileId = 12,
+                            Gender = "Pregnancy",
+                            ImportedAt = new DateTimeOffset(new DateTime(2026, 7, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Label = "Pregnant, trimester 3",
+                            MinAge = 18,
+                            ProfileId = "pregnant-trimester-3",
+                            SourceUrl = "https://www.helsedirektoratet.no/rapporter/referanseverdier-for-energi-og-naeringsstoffer/anbefalinger-om-energi-og-naeringsstoffer-ved-planlegging-av-kosthold/vitaminer-og-mineraler"
+                        },
+                        new
+                        {
+                            NutritionReferenceProfileId = 13,
+                            Gender = "Lactating",
+                            ImportedAt = new DateTimeOffset(new DateTime(2026, 7, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Label = "Lactating",
+                            MinAge = 18,
+                            ProfileId = "lactating",
+                            SourceUrl = "https://www.helsedirektoratet.no/rapporter/referanseverdier-for-energi-og-naeringsstoffer/anbefalinger-om-energi-og-naeringsstoffer-ved-planlegging-av-kosthold/vitaminer-og-mineraler"
+                        },
+                        new
+                        {
+                            NutritionReferenceProfileId = 14,
+                            Gender = "Male",
+                            ImportedAt = new DateTimeOffset(new DateTime(2026, 7, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Label = "Male 11-14",
+                            MaxAge = 14,
+                            MinAge = 11,
+                            ProfileId = "male-11-14",
+                            SourceUrl = "https://www.helsedirektoratet.no/rapporter/referanseverdier-for-energi-og-naeringsstoffer/anbefalinger-om-energi-og-naeringsstoffer-ved-planlegging-av-kosthold/vitaminer-og-mineraler"
+                        },
+                        new
+                        {
+                            NutritionReferenceProfileId = 15,
+                            Gender = "Male",
+                            ImportedAt = new DateTimeOffset(new DateTime(2026, 7, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Label = "Male 15-17",
+                            MaxAge = 17,
+                            MinAge = 15,
+                            ProfileId = "male-15-17",
+                            SourceUrl = "https://www.helsedirektoratet.no/rapporter/referanseverdier-for-energi-og-naeringsstoffer/anbefalinger-om-energi-og-naeringsstoffer-ved-planlegging-av-kosthold/vitaminer-og-mineraler"
+                        },
+                        new
+                        {
+                            NutritionReferenceProfileId = 16,
+                            Gender = "Male",
+                            ImportedAt = new DateTimeOffset(new DateTime(2026, 7, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Label = "Male 18-24",
+                            MaxAge = 24,
+                            MinAge = 18,
+                            ProfileId = "male-18-24",
+                            SourceUrl = "https://www.helsedirektoratet.no/rapporter/referanseverdier-for-energi-og-naeringsstoffer/anbefalinger-om-energi-og-naeringsstoffer-ved-planlegging-av-kosthold/vitaminer-og-mineraler"
+                        },
+                        new
+                        {
+                            NutritionReferenceProfileId = 17,
+                            Gender = "Male",
+                            ImportedAt = new DateTimeOffset(new DateTime(2026, 7, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Label = "Male 25-50",
+                            MaxAge = 50,
+                            MinAge = 25,
+                            ProfileId = "male-25-50",
+                            SourceUrl = "https://www.helsedirektoratet.no/rapporter/referanseverdier-for-energi-og-naeringsstoffer/anbefalinger-om-energi-og-naeringsstoffer-ved-planlegging-av-kosthold/vitaminer-og-mineraler"
+                        },
+                        new
+                        {
+                            NutritionReferenceProfileId = 18,
+                            Gender = "Male",
+                            ImportedAt = new DateTimeOffset(new DateTime(2026, 7, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Label = "Male 51-70",
+                            MaxAge = 70,
+                            MinAge = 51,
+                            ProfileId = "male-51-70",
+                            SourceUrl = "https://www.helsedirektoratet.no/rapporter/referanseverdier-for-energi-og-naeringsstoffer/anbefalinger-om-energi-og-naeringsstoffer-ved-planlegging-av-kosthold/vitaminer-og-mineraler"
+                        },
+                        new
+                        {
+                            NutritionReferenceProfileId = 19,
+                            Gender = "Male",
+                            ImportedAt = new DateTimeOffset(new DateTime(2026, 7, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Label = "Male 70+",
+                            MinAge = 70,
+                            ProfileId = "male-70-plus",
+                            SourceUrl = "https://www.helsedirektoratet.no/rapporter/referanseverdier-for-energi-og-naeringsstoffer/anbefalinger-om-energi-og-naeringsstoffer-ved-planlegging-av-kosthold/vitaminer-og-mineraler"
+                        });
+                });
+
+            modelBuilder.Entity("DinnerPlanner.Api.Models.NutritionReferenceValue", b =>
+                {
+                    b.Property<int>("NutritionReferenceValueId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal>("DailyAmount")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("NutrientKey")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("NutritionReferenceProfileId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Unit")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ValueType")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("NutritionReferenceValueId");
+
+                    b.HasIndex("NutritionReferenceProfileId", "NutrientKey")
+                        .IsUnique();
+
+                    b.ToTable("NutritionReferenceValues");
+
+                    b.HasData(
+                        new
+                        {
+                            NutritionReferenceValueId = 1,
+                            DailyAmount = 300m,
+                            Label = "Vitamin A",
+                            NutrientKey = "vitaminA",
+                            NutritionReferenceProfileId = 1,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 2,
+                            DailyAmount = 120m,
+                            Label = "Vitamin B9",
+                            NutrientKey = "vitaminB9",
+                            NutritionReferenceProfileId = 1,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 3,
+                            DailyAmount = 1.5m,
+                            Label = "Vitamin B12",
+                            NutrientKey = "vitaminB12",
+                            NutritionReferenceProfileId = 1,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 4,
+                            DailyAmount = 25m,
+                            Label = "Vitamin C",
+                            NutrientKey = "vitaminC",
+                            NutritionReferenceProfileId = 1,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 5,
+                            DailyAmount = 10m,
+                            Label = "Vitamin D",
+                            NutrientKey = "vitaminD",
+                            NutritionReferenceProfileId = 1,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 6,
+                            DailyAmount = 7m,
+                            Label = "Vitamin E",
+                            NutrientKey = "vitaminE",
+                            NutritionReferenceProfileId = 1,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 7,
+                            DailyAmount = 15m,
+                            Label = "Vitamin K",
+                            NutrientKey = "vitaminK",
+                            NutritionReferenceProfileId = 1,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 8,
+                            DailyAmount = 150m,
+                            Label = "Choline",
+                            NutrientKey = "choline",
+                            NutritionReferenceProfileId = 1,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 9,
+                            DailyAmount = 350m,
+                            Label = "Vitamin A",
+                            NutrientKey = "vitaminA",
+                            NutritionReferenceProfileId = 2,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 10,
+                            DailyAmount = 140m,
+                            Label = "Vitamin B9",
+                            NutrientKey = "vitaminB9",
+                            NutritionReferenceProfileId = 2,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 11,
+                            DailyAmount = 1.7m,
+                            Label = "Vitamin B12",
+                            NutrientKey = "vitaminB12",
+                            NutritionReferenceProfileId = 2,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 12,
+                            DailyAmount = 35m,
+                            Label = "Vitamin C",
+                            NutrientKey = "vitaminC",
+                            NutritionReferenceProfileId = 2,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 13,
+                            DailyAmount = 10m,
+                            Label = "Vitamin D",
+                            NutrientKey = "vitaminD",
+                            NutritionReferenceProfileId = 2,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 14,
+                            DailyAmount = 8m,
+                            Label = "Vitamin E",
+                            NutrientKey = "vitaminE",
+                            NutritionReferenceProfileId = 2,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 15,
+                            DailyAmount = 20m,
+                            Label = "Vitamin K",
+                            NutrientKey = "vitaminK",
+                            NutritionReferenceProfileId = 2,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 16,
+                            DailyAmount = 170m,
+                            Label = "Choline",
+                            NutrientKey = "choline",
+                            NutritionReferenceProfileId = 2,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 17,
+                            DailyAmount = 450m,
+                            Label = "Vitamin A",
+                            NutrientKey = "vitaminA",
+                            NutritionReferenceProfileId = 3,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 18,
+                            DailyAmount = 200m,
+                            Label = "Vitamin B9",
+                            NutrientKey = "vitaminB9",
+                            NutritionReferenceProfileId = 3,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 19,
+                            DailyAmount = 2.5m,
+                            Label = "Vitamin B12",
+                            NutrientKey = "vitaminB12",
+                            NutritionReferenceProfileId = 3,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 20,
+                            DailyAmount = 55m,
+                            Label = "Vitamin C",
+                            NutrientKey = "vitaminC",
+                            NutritionReferenceProfileId = 3,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 21,
+                            DailyAmount = 10m,
+                            Label = "Vitamin D",
+                            NutrientKey = "vitaminD",
+                            NutritionReferenceProfileId = 3,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 22,
+                            DailyAmount = 9m,
+                            Label = "Vitamin E",
+                            NutrientKey = "vitaminE",
+                            NutritionReferenceProfileId = 3,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 23,
+                            DailyAmount = 30m,
+                            Label = "Vitamin K",
+                            NutrientKey = "vitaminK",
+                            NutritionReferenceProfileId = 3,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 24,
+                            DailyAmount = 250m,
+                            Label = "Choline",
+                            NutrientKey = "choline",
+                            NutritionReferenceProfileId = 3,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 25,
+                            DailyAmount = 650m,
+                            Label = "Vitamin A",
+                            NutrientKey = "vitaminA",
+                            NutritionReferenceProfileId = 4,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 26,
+                            DailyAmount = 280m,
+                            Label = "Vitamin B9",
+                            NutrientKey = "vitaminB9",
+                            NutritionReferenceProfileId = 4,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 27,
+                            DailyAmount = 3.5m,
+                            Label = "Vitamin B12",
+                            NutrientKey = "vitaminB12",
+                            NutritionReferenceProfileId = 4,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 28,
+                            DailyAmount = 75m,
+                            Label = "Vitamin C",
+                            NutrientKey = "vitaminC",
+                            NutritionReferenceProfileId = 4,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 29,
+                            DailyAmount = 10m,
+                            Label = "Vitamin D",
+                            NutrientKey = "vitaminD",
+                            NutritionReferenceProfileId = 4,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 30,
+                            DailyAmount = 10m,
+                            Label = "Vitamin E",
+                            NutrientKey = "vitaminE",
+                            NutritionReferenceProfileId = 4,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 31,
+                            DailyAmount = 45m,
+                            Label = "Vitamin K",
+                            NutrientKey = "vitaminK",
+                            NutritionReferenceProfileId = 4,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 32,
+                            DailyAmount = 350m,
+                            Label = "Choline",
+                            NutrientKey = "choline",
+                            NutritionReferenceProfileId = 4,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 33,
+                            DailyAmount = 650m,
+                            Label = "Vitamin A",
+                            NutrientKey = "vitaminA",
+                            NutritionReferenceProfileId = 5,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 34,
+                            DailyAmount = 310m,
+                            Label = "Vitamin B9",
+                            NutrientKey = "vitaminB9",
+                            NutritionReferenceProfileId = 5,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 35,
+                            DailyAmount = 4m,
+                            Label = "Vitamin B12",
+                            NutrientKey = "vitaminB12",
+                            NutritionReferenceProfileId = 5,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 36,
+                            DailyAmount = 90m,
+                            Label = "Vitamin C",
+                            NutrientKey = "vitaminC",
+                            NutritionReferenceProfileId = 5,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 37,
+                            DailyAmount = 10m,
+                            Label = "Vitamin D",
+                            NutrientKey = "vitaminD",
+                            NutritionReferenceProfileId = 5,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 38,
+                            DailyAmount = 11m,
+                            Label = "Vitamin E",
+                            NutrientKey = "vitaminE",
+                            NutritionReferenceProfileId = 5,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 39,
+                            DailyAmount = 60m,
+                            Label = "Vitamin K",
+                            NutrientKey = "vitaminK",
+                            NutritionReferenceProfileId = 5,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 40,
+                            DailyAmount = 390m,
+                            Label = "Choline",
+                            NutrientKey = "choline",
+                            NutritionReferenceProfileId = 5,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 41,
+                            DailyAmount = 700m,
+                            Label = "Vitamin A",
+                            NutrientKey = "vitaminA",
+                            NutritionReferenceProfileId = 6,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 42,
+                            DailyAmount = 330m,
+                            Label = "Vitamin B9",
+                            NutrientKey = "vitaminB9",
+                            NutritionReferenceProfileId = 6,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 43,
+                            DailyAmount = 4m,
+                            Label = "Vitamin B12",
+                            NutrientKey = "vitaminB12",
+                            NutritionReferenceProfileId = 6,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 44,
+                            DailyAmount = 95m,
+                            Label = "Vitamin C",
+                            NutrientKey = "vitaminC",
+                            NutritionReferenceProfileId = 6,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 45,
+                            DailyAmount = 10m,
+                            Label = "Vitamin D",
+                            NutrientKey = "vitaminD",
+                            NutritionReferenceProfileId = 6,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 46,
+                            DailyAmount = 10m,
+                            Label = "Vitamin E",
+                            NutrientKey = "vitaminE",
+                            NutritionReferenceProfileId = 6,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 47,
+                            DailyAmount = 65m,
+                            Label = "Vitamin K",
+                            NutrientKey = "vitaminK",
+                            NutritionReferenceProfileId = 6,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 48,
+                            DailyAmount = 400m,
+                            Label = "Choline",
+                            NutrientKey = "choline",
+                            NutritionReferenceProfileId = 6,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 49,
+                            DailyAmount = 700m,
+                            Label = "Vitamin A",
+                            NutrientKey = "vitaminA",
+                            NutritionReferenceProfileId = 7,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 50,
+                            DailyAmount = 330m,
+                            Label = "Vitamin B9",
+                            NutrientKey = "vitaminB9",
+                            NutritionReferenceProfileId = 7,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 51,
+                            DailyAmount = 4m,
+                            Label = "Vitamin B12",
+                            NutrientKey = "vitaminB12",
+                            NutritionReferenceProfileId = 7,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 52,
+                            DailyAmount = 95m,
+                            Label = "Vitamin C",
+                            NutrientKey = "vitaminC",
+                            NutritionReferenceProfileId = 7,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 53,
+                            DailyAmount = 10m,
+                            Label = "Vitamin D",
+                            NutrientKey = "vitaminD",
+                            NutritionReferenceProfileId = 7,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 54,
+                            DailyAmount = 10m,
+                            Label = "Vitamin E",
+                            NutrientKey = "vitaminE",
+                            NutritionReferenceProfileId = 7,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 55,
+                            DailyAmount = 65m,
+                            Label = "Vitamin K",
+                            NutrientKey = "vitaminK",
+                            NutritionReferenceProfileId = 7,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 56,
+                            DailyAmount = 400m,
+                            Label = "Choline",
+                            NutrientKey = "choline",
+                            NutritionReferenceProfileId = 7,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 57,
+                            DailyAmount = 700m,
+                            Label = "Vitamin A",
+                            NutrientKey = "vitaminA",
+                            NutritionReferenceProfileId = 8,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 58,
+                            DailyAmount = 330m,
+                            Label = "Vitamin B9",
+                            NutrientKey = "vitaminB9",
+                            NutritionReferenceProfileId = 8,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 59,
+                            DailyAmount = 4m,
+                            Label = "Vitamin B12",
+                            NutrientKey = "vitaminB12",
+                            NutritionReferenceProfileId = 8,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 60,
+                            DailyAmount = 95m,
+                            Label = "Vitamin C",
+                            NutrientKey = "vitaminC",
+                            NutritionReferenceProfileId = 8,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 61,
+                            DailyAmount = 10m,
+                            Label = "Vitamin D",
+                            NutrientKey = "vitaminD",
+                            NutritionReferenceProfileId = 8,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 62,
+                            DailyAmount = 9m,
+                            Label = "Vitamin E",
+                            NutrientKey = "vitaminE",
+                            NutritionReferenceProfileId = 8,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 63,
+                            DailyAmount = 60m,
+                            Label = "Vitamin K",
+                            NutrientKey = "vitaminK",
+                            NutritionReferenceProfileId = 8,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 64,
+                            DailyAmount = 400m,
+                            Label = "Choline",
+                            NutrientKey = "choline",
+                            NutritionReferenceProfileId = 8,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 65,
+                            DailyAmount = 650m,
+                            Label = "Vitamin A",
+                            NutrientKey = "vitaminA",
+                            NutritionReferenceProfileId = 9,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 66,
+                            DailyAmount = 330m,
+                            Label = "Vitamin B9",
+                            NutrientKey = "vitaminB9",
+                            NutritionReferenceProfileId = 9,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 67,
+                            DailyAmount = 4m,
+                            Label = "Vitamin B12",
+                            NutrientKey = "vitaminB12",
+                            NutritionReferenceProfileId = 9,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 68,
+                            DailyAmount = 95m,
+                            Label = "Vitamin C",
+                            NutrientKey = "vitaminC",
+                            NutritionReferenceProfileId = 9,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 69,
+                            DailyAmount = 20m,
+                            Label = "Vitamin D",
+                            NutrientKey = "vitaminD",
+                            NutritionReferenceProfileId = 9,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 70,
+                            DailyAmount = 9m,
+                            Label = "Vitamin E",
+                            NutrientKey = "vitaminE",
+                            NutritionReferenceProfileId = 9,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 71,
+                            DailyAmount = 60m,
+                            Label = "Vitamin K",
+                            NutrientKey = "vitaminK",
+                            NutritionReferenceProfileId = 9,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 72,
+                            DailyAmount = 400m,
+                            Label = "Choline",
+                            NutrientKey = "choline",
+                            NutritionReferenceProfileId = 9,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 73,
+                            DailyAmount = 750m,
+                            Label = "Vitamin A",
+                            NutrientKey = "vitaminA",
+                            NutritionReferenceProfileId = 10,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 74,
+                            DailyAmount = 600m,
+                            Label = "Vitamin B9",
+                            NutrientKey = "vitaminB9",
+                            NutritionReferenceProfileId = 10,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 75,
+                            DailyAmount = 4.5m,
+                            Label = "Vitamin B12",
+                            NutrientKey = "vitaminB12",
+                            NutritionReferenceProfileId = 10,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 76,
+                            DailyAmount = 105m,
+                            Label = "Vitamin C",
+                            NutrientKey = "vitaminC",
+                            NutritionReferenceProfileId = 10,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 77,
+                            DailyAmount = 10m,
+                            Label = "Vitamin D",
+                            NutrientKey = "vitaminD",
+                            NutritionReferenceProfileId = 10,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 78,
+                            DailyAmount = 10m,
+                            Label = "Vitamin E",
+                            NutrientKey = "vitaminE",
+                            NutritionReferenceProfileId = 10,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 79,
+                            DailyAmount = 65m,
+                            Label = "Vitamin K",
+                            NutrientKey = "vitaminK",
+                            NutritionReferenceProfileId = 10,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 80,
+                            DailyAmount = 410m,
+                            Label = "Choline",
+                            NutrientKey = "choline",
+                            NutritionReferenceProfileId = 10,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 81,
+                            DailyAmount = 750m,
+                            Label = "Vitamin A",
+                            NutrientKey = "vitaminA",
+                            NutritionReferenceProfileId = 11,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 82,
+                            DailyAmount = 600m,
+                            Label = "Vitamin B9",
+                            NutrientKey = "vitaminB9",
+                            NutritionReferenceProfileId = 11,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 83,
+                            DailyAmount = 4.5m,
+                            Label = "Vitamin B12",
+                            NutrientKey = "vitaminB12",
+                            NutritionReferenceProfileId = 11,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 84,
+                            DailyAmount = 105m,
+                            Label = "Vitamin C",
+                            NutrientKey = "vitaminC",
+                            NutritionReferenceProfileId = 11,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 85,
+                            DailyAmount = 10m,
+                            Label = "Vitamin D",
+                            NutrientKey = "vitaminD",
+                            NutritionReferenceProfileId = 11,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 86,
+                            DailyAmount = 11m,
+                            Label = "Vitamin E",
+                            NutrientKey = "vitaminE",
+                            NutritionReferenceProfileId = 11,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 87,
+                            DailyAmount = 70m,
+                            Label = "Vitamin K",
+                            NutrientKey = "vitaminK",
+                            NutritionReferenceProfileId = 11,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 88,
+                            DailyAmount = 430m,
+                            Label = "Choline",
+                            NutrientKey = "choline",
+                            NutritionReferenceProfileId = 11,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 89,
+                            DailyAmount = 750m,
+                            Label = "Vitamin A",
+                            NutrientKey = "vitaminA",
+                            NutritionReferenceProfileId = 12,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 90,
+                            DailyAmount = 600m,
+                            Label = "Vitamin B9",
+                            NutrientKey = "vitaminB9",
+                            NutritionReferenceProfileId = 12,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 91,
+                            DailyAmount = 4.5m,
+                            Label = "Vitamin B12",
+                            NutrientKey = "vitaminB12",
+                            NutritionReferenceProfileId = 12,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 92,
+                            DailyAmount = 105m,
+                            Label = "Vitamin C",
+                            NutrientKey = "vitaminC",
+                            NutritionReferenceProfileId = 12,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 93,
+                            DailyAmount = 10m,
+                            Label = "Vitamin D",
+                            NutrientKey = "vitaminD",
+                            NutritionReferenceProfileId = 12,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 94,
+                            DailyAmount = 12m,
+                            Label = "Vitamin E",
+                            NutrientKey = "vitaminE",
+                            NutritionReferenceProfileId = 12,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 95,
+                            DailyAmount = 75m,
+                            Label = "Vitamin K",
+                            NutrientKey = "vitaminK",
+                            NutritionReferenceProfileId = 12,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 96,
+                            DailyAmount = 470m,
+                            Label = "Choline",
+                            NutrientKey = "choline",
+                            NutritionReferenceProfileId = 12,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 97,
+                            DailyAmount = 1400m,
+                            Label = "Vitamin A",
+                            NutrientKey = "vitaminA",
+                            NutritionReferenceProfileId = 13,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 98,
+                            DailyAmount = 490m,
+                            Label = "Vitamin B9",
+                            NutrientKey = "vitaminB9",
+                            NutritionReferenceProfileId = 13,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 99,
+                            DailyAmount = 5.5m,
+                            Label = "Vitamin B12",
+                            NutrientKey = "vitaminB12",
+                            NutritionReferenceProfileId = 13,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 100,
+                            DailyAmount = 155m,
+                            Label = "Vitamin C",
+                            NutrientKey = "vitaminC",
+                            NutritionReferenceProfileId = 13,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 101,
+                            DailyAmount = 10m,
+                            Label = "Vitamin D",
+                            NutrientKey = "vitaminD",
+                            NutritionReferenceProfileId = 13,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 102,
+                            DailyAmount = 11m,
+                            Label = "Vitamin E",
+                            NutrientKey = "vitaminE",
+                            NutritionReferenceProfileId = 13,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 103,
+                            DailyAmount = 65m,
+                            Label = "Vitamin K",
+                            NutrientKey = "vitaminK",
+                            NutritionReferenceProfileId = 13,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 104,
+                            DailyAmount = 520m,
+                            Label = "Choline",
+                            NutrientKey = "choline",
+                            NutritionReferenceProfileId = 13,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 105,
+                            DailyAmount = 700m,
+                            Label = "Vitamin A",
+                            NutrientKey = "vitaminA",
+                            NutritionReferenceProfileId = 14,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 106,
+                            DailyAmount = 260m,
+                            Label = "Vitamin B9",
+                            NutrientKey = "vitaminB9",
+                            NutritionReferenceProfileId = 14,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 107,
+                            DailyAmount = 3m,
+                            Label = "Vitamin B12",
+                            NutrientKey = "vitaminB12",
+                            NutritionReferenceProfileId = 14,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 108,
+                            DailyAmount = 80m,
+                            Label = "Vitamin C",
+                            NutrientKey = "vitaminC",
+                            NutritionReferenceProfileId = 14,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 109,
+                            DailyAmount = 10m,
+                            Label = "Vitamin D",
+                            NutrientKey = "vitaminD",
+                            NutritionReferenceProfileId = 14,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 110,
+                            DailyAmount = 11m,
+                            Label = "Vitamin E",
+                            NutrientKey = "vitaminE",
+                            NutritionReferenceProfileId = 14,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 111,
+                            DailyAmount = 50m,
+                            Label = "Vitamin K",
+                            NutrientKey = "vitaminK",
+                            NutritionReferenceProfileId = 14,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 112,
+                            DailyAmount = 330m,
+                            Label = "Choline",
+                            NutrientKey = "choline",
+                            NutritionReferenceProfileId = 14,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 113,
+                            DailyAmount = 750m,
+                            Label = "Vitamin A",
+                            NutrientKey = "vitaminA",
+                            NutritionReferenceProfileId = 15,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 114,
+                            DailyAmount = 320m,
+                            Label = "Vitamin B9",
+                            NutrientKey = "vitaminB9",
+                            NutritionReferenceProfileId = 15,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 115,
+                            DailyAmount = 4m,
+                            Label = "Vitamin B12",
+                            NutrientKey = "vitaminB12",
+                            NutritionReferenceProfileId = 15,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 116,
+                            DailyAmount = 105m,
+                            Label = "Vitamin C",
+                            NutrientKey = "vitaminC",
+                            NutritionReferenceProfileId = 15,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 117,
+                            DailyAmount = 10m,
+                            Label = "Vitamin D",
+                            NutrientKey = "vitaminD",
+                            NutritionReferenceProfileId = 15,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 118,
+                            DailyAmount = 12m,
+                            Label = "Vitamin E",
+                            NutrientKey = "vitaminE",
+                            NutritionReferenceProfileId = 15,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 119,
+                            DailyAmount = 65m,
+                            Label = "Vitamin K",
+                            NutrientKey = "vitaminK",
+                            NutritionReferenceProfileId = 15,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 120,
+                            DailyAmount = 400m,
+                            Label = "Choline",
+                            NutrientKey = "choline",
+                            NutritionReferenceProfileId = 15,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 121,
+                            DailyAmount = 800m,
+                            Label = "Vitamin A",
+                            NutrientKey = "vitaminA",
+                            NutritionReferenceProfileId = 16,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 122,
+                            DailyAmount = 330m,
+                            Label = "Vitamin B9",
+                            NutrientKey = "vitaminB9",
+                            NutritionReferenceProfileId = 16,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 123,
+                            DailyAmount = 4m,
+                            Label = "Vitamin B12",
+                            NutrientKey = "vitaminB12",
+                            NutritionReferenceProfileId = 16,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 124,
+                            DailyAmount = 110m,
+                            Label = "Vitamin C",
+                            NutrientKey = "vitaminC",
+                            NutritionReferenceProfileId = 16,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 125,
+                            DailyAmount = 10m,
+                            Label = "Vitamin D",
+                            NutrientKey = "vitaminD",
+                            NutritionReferenceProfileId = 16,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 126,
+                            DailyAmount = 11m,
+                            Label = "Vitamin E",
+                            NutrientKey = "vitaminE",
+                            NutritionReferenceProfileId = 16,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 127,
+                            DailyAmount = 75m,
+                            Label = "Vitamin K",
+                            NutrientKey = "vitaminK",
+                            NutritionReferenceProfileId = 16,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 128,
+                            DailyAmount = 400m,
+                            Label = "Choline",
+                            NutrientKey = "choline",
+                            NutritionReferenceProfileId = 16,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 129,
+                            DailyAmount = 800m,
+                            Label = "Vitamin A",
+                            NutrientKey = "vitaminA",
+                            NutritionReferenceProfileId = 17,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 130,
+                            DailyAmount = 330m,
+                            Label = "Vitamin B9",
+                            NutrientKey = "vitaminB9",
+                            NutritionReferenceProfileId = 17,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 131,
+                            DailyAmount = 4m,
+                            Label = "Vitamin B12",
+                            NutrientKey = "vitaminB12",
+                            NutritionReferenceProfileId = 17,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 132,
+                            DailyAmount = 110m,
+                            Label = "Vitamin C",
+                            NutrientKey = "vitaminC",
+                            NutritionReferenceProfileId = 17,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 133,
+                            DailyAmount = 10m,
+                            Label = "Vitamin D",
+                            NutrientKey = "vitaminD",
+                            NutritionReferenceProfileId = 17,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 134,
+                            DailyAmount = 11m,
+                            Label = "Vitamin E",
+                            NutrientKey = "vitaminE",
+                            NutritionReferenceProfileId = 17,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 135,
+                            DailyAmount = 75m,
+                            Label = "Vitamin K",
+                            NutrientKey = "vitaminK",
+                            NutritionReferenceProfileId = 17,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 136,
+                            DailyAmount = 400m,
+                            Label = "Choline",
+                            NutrientKey = "choline",
+                            NutritionReferenceProfileId = 17,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 137,
+                            DailyAmount = 800m,
+                            Label = "Vitamin A",
+                            NutrientKey = "vitaminA",
+                            NutritionReferenceProfileId = 18,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 138,
+                            DailyAmount = 330m,
+                            Label = "Vitamin B9",
+                            NutrientKey = "vitaminB9",
+                            NutritionReferenceProfileId = 18,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 139,
+                            DailyAmount = 4m,
+                            Label = "Vitamin B12",
+                            NutrientKey = "vitaminB12",
+                            NutritionReferenceProfileId = 18,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 140,
+                            DailyAmount = 110m,
+                            Label = "Vitamin C",
+                            NutrientKey = "vitaminC",
+                            NutritionReferenceProfileId = 18,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 141,
+                            DailyAmount = 10m,
+                            Label = "Vitamin D",
+                            NutrientKey = "vitaminD",
+                            NutritionReferenceProfileId = 18,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 142,
+                            DailyAmount = 11m,
+                            Label = "Vitamin E",
+                            NutrientKey = "vitaminE",
+                            NutritionReferenceProfileId = 18,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 143,
+                            DailyAmount = 70m,
+                            Label = "Vitamin K",
+                            NutrientKey = "vitaminK",
+                            NutritionReferenceProfileId = 18,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 144,
+                            DailyAmount = 400m,
+                            Label = "Choline",
+                            NutrientKey = "choline",
+                            NutritionReferenceProfileId = 18,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 145,
+                            DailyAmount = 750m,
+                            Label = "Vitamin A",
+                            NutrientKey = "vitaminA",
+                            NutritionReferenceProfileId = 19,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 146,
+                            DailyAmount = 330m,
+                            Label = "Vitamin B9",
+                            NutrientKey = "vitaminB9",
+                            NutritionReferenceProfileId = 19,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 147,
+                            DailyAmount = 4m,
+                            Label = "Vitamin B12",
+                            NutrientKey = "vitaminB12",
+                            NutritionReferenceProfileId = 19,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 148,
+                            DailyAmount = 110m,
+                            Label = "Vitamin C",
+                            NutrientKey = "vitaminC",
+                            NutritionReferenceProfileId = 19,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 149,
+                            DailyAmount = 20m,
+                            Label = "Vitamin D",
+                            NutrientKey = "vitaminD",
+                            NutritionReferenceProfileId = 19,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 150,
+                            DailyAmount = 11m,
+                            Label = "Vitamin E",
+                            NutrientKey = "vitaminE",
+                            NutritionReferenceProfileId = 19,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 151,
+                            DailyAmount = 70m,
+                            Label = "Vitamin K",
+                            NutrientKey = "vitaminK",
+                            NutritionReferenceProfileId = 19,
+                            Unit = "ug",
+                            ValueType = "ManualFallback"
+                        },
+                        new
+                        {
+                            NutritionReferenceValueId = 152,
+                            DailyAmount = 400m,
+                            Label = "Choline",
+                            NutrientKey = "choline",
+                            NutritionReferenceProfileId = 19,
+                            Unit = "mg",
+                            ValueType = "ManualFallback"
+                        });
                 });
 
             modelBuilder.Entity("DinnerPlanner.Api.Models.Recipe", b =>
@@ -844,11 +2719,27 @@ namespace backend.Migrations
                                 .HasPrecision(8, 2)
                                 .HasColumnType("TEXT");
 
+                            b1.Property<decimal?>("CholesterolMilligrams")
+                                .HasPrecision(8, 2)
+                                .HasColumnType("TEXT");
+
+                            b1.Property<decimal?>("CholineMilligrams")
+                                .HasPrecision(8, 2)
+                                .HasColumnType("TEXT");
+
                             b1.Property<decimal?>("DietaryFiberGrams")
                                 .HasPrecision(8, 2)
                                 .HasColumnType("TEXT");
 
                             b1.Property<decimal?>("MonounsaturatedFatGrams")
+                                .HasPrecision(8, 2)
+                                .HasColumnType("TEXT");
+
+                            b1.Property<decimal?>("Omega3Grams")
+                                .HasPrecision(8, 2)
+                                .HasColumnType("TEXT");
+
+                            b1.Property<decimal?>("Omega6Grams")
                                 .HasPrecision(8, 2)
                                 .HasColumnType("TEXT");
 
@@ -868,7 +2759,35 @@ namespace backend.Migrations
                                 .HasPrecision(8, 2)
                                 .HasColumnType("TEXT");
 
-                            b1.Property<decimal?>("UnsaturatedFatGrams")
+                            b1.Property<decimal?>("TransFatGrams")
+                                .HasPrecision(8, 2)
+                                .HasColumnType("TEXT");
+
+                            b1.Property<decimal?>("VitaminAMicrograms")
+                                .HasPrecision(8, 2)
+                                .HasColumnType("TEXT");
+
+                            b1.Property<decimal?>("VitaminB12Micrograms")
+                                .HasPrecision(8, 2)
+                                .HasColumnType("TEXT");
+
+                            b1.Property<decimal?>("VitaminB9Micrograms")
+                                .HasPrecision(8, 2)
+                                .HasColumnType("TEXT");
+
+                            b1.Property<decimal?>("VitaminCMilligrams")
+                                .HasPrecision(8, 2)
+                                .HasColumnType("TEXT");
+
+                            b1.Property<decimal?>("VitaminDMicrograms")
+                                .HasPrecision(8, 2)
+                                .HasColumnType("TEXT");
+
+                            b1.Property<decimal?>("VitaminEMilligrams")
+                                .HasPrecision(8, 2)
+                                .HasColumnType("TEXT");
+
+                            b1.Property<decimal?>("VitaminKMicrograms")
                                 .HasPrecision(8, 2)
                                 .HasColumnType("TEXT");
 
@@ -949,6 +2868,17 @@ namespace backend.Migrations
                     b.Navigation("Recipe");
                 });
 
+            modelBuilder.Entity("DinnerPlanner.Api.Models.NutritionReferenceValue", b =>
+                {
+                    b.HasOne("DinnerPlanner.Api.Models.NutritionReferenceProfile", "Profile")
+                        .WithMany("ReferenceValues")
+                        .HasForeignKey("NutritionReferenceProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Profile");
+                });
+
             modelBuilder.Entity("DinnerPlanner.Api.Models.RecipeComponent", b =>
                 {
                     b.HasOne("DinnerPlanner.Api.Models.Recipe", "ChildRecipe")
@@ -1021,6 +2951,11 @@ namespace backend.Migrations
             modelBuilder.Entity("DinnerPlanner.Api.Models.MealPlanEntry", b =>
                 {
                     b.Navigation("Recipes");
+                });
+
+            modelBuilder.Entity("DinnerPlanner.Api.Models.NutritionReferenceProfile", b =>
+                {
+                    b.Navigation("ReferenceValues");
                 });
 
             modelBuilder.Entity("DinnerPlanner.Api.Models.Recipe", b =>
