@@ -57,6 +57,27 @@ export const nb: TranslationDictionary = {
     chooseIngredients: "Velg ingredienser",
     chooseAtLeastOneIngredient: "Velg minst én ingrediens.",
     chooseAtLeastOneIngredientTag: "Velg minst én ingredienstag.",
+    conversionHelper: "Konverteringshjelp",
+    conversionHelperIntro:
+      "Bruk disse hurtigverdiene når en oppskrift bruker vanlige kjøkkenmål. Lagre den omregnede mengden som g, kg, ml eller l.",
+    conversionHelperSections: [
+      {
+        title: "Volum",
+        items: [
+          { from: "1 ts", to: "5 ml" },
+          { from: "1 ss", to: "15 ml" },
+          { from: "1 kopp", to: "240 ml" },
+        ],
+      },
+      {
+        title: "Vanlige grønnsaker",
+        items: [
+          { from: "1 gul løk", to: "170 g" },
+          { from: "1 hvitløksfedd", to: "3 g" },
+          { from: "1 gulrot", to: "70 g" },
+        ],
+      },
+    ],
     cookbookSections: "Kokebokseksjoner",
     create: "Opprett",
     createIngredient: "Opprett ingrediens",

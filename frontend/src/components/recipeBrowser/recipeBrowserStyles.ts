@@ -124,6 +124,16 @@ export const recipeBrowserStyles = {
   form: "mt-6 grid gap-4",
   formBodyScrollArea: `${sizeClasses.modalFormBodyMaxHeight} ${sizeClasses.modalFormBodyMobileMaxHeight} grid gap-4 overflow-y-auto pr-1`,
   formGrid: "grid grid-cols-2 gap-4 max-md:grid-cols-1",
+  fieldHeaderRow:
+    "flex items-center justify-between gap-3 max-sm:items-start",
+  inlineHelperButton: (theme: SiteTheme) =>
+    `inline-flex h-8 shrink-0 cursor-pointer items-center justify-center rounded-md border px-3 text-[11px] font-bold transition-colors max-sm:h-8 max-sm:px-2 max-sm:text-[10px] ${
+      theme === "dark"
+        ? "border-white/[0.10] bg-white/[0.06] text-neutral-200 hover:bg-white/[0.12]"
+        : theme === "paletteLight"
+          ? "border-[#C8C0B5] bg-[#E5D5BC]/45 text-[#556145] hover:bg-[#C8C0B5]/70"
+          : "border-neutral-300 bg-neutral-100 text-neutral-800 hover:bg-neutral-200"
+    }`,
   recipeCreateScrollArea: (theme: SiteTheme) =>
     `grid gap-4 rounded-md border p-3 ${
       theme === "dark"
@@ -330,6 +340,47 @@ export const recipeBrowserStyles = {
     "[&_h3]:text-xs [&_p]:text-[9px] max-sm:[&_h3]:text-[10px] max-sm:[&_p]:text-[8px]",
   componentRecipeSelected:
     "outline outline-2 outline-offset-[-2px] outline-current",
+  conversionHelperIntro: (theme: SiteTheme) =>
+    `text-sm font-semibold leading-snug ${
+      theme === "dark"
+        ? "text-neutral-300"
+        : theme === "paletteLight"
+          ? "text-[#7A8864]"
+          : "text-neutral-600"
+    }`,
+  conversionSection: (theme: SiteTheme) =>
+    `grid gap-2 rounded-md border p-3 ${
+      theme === "dark"
+        ? "border-white/[0.08] bg-white/[0.035]"
+        : theme === "paletteLight"
+          ? "border-[#C8C0B5] bg-[#E5D5BC]/25"
+          : "border-neutral-200 bg-neutral-50"
+    }`,
+  conversionSectionTitle: (theme: SiteTheme) =>
+    `text-sm font-bold ${
+      theme === "dark"
+        ? "text-neutral-100"
+        : theme === "paletteLight"
+          ? "text-[#556145]"
+          : "text-neutral-900"
+    }`,
+  conversionList: "grid gap-1.5",
+  conversionRow: (theme: SiteTheme) =>
+    `grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 rounded-md px-2 py-1.5 text-sm font-semibold ${
+      theme === "dark"
+        ? "bg-white/[0.04] text-neutral-200"
+        : theme === "paletteLight"
+          ? "bg-[#FAF7F2]/65 text-[#556145]"
+          : "bg-white text-neutral-700"
+    }`,
+  conversionSource: "min-w-0 text-left",
+  conversionArrow: (theme: SiteTheme) =>
+    theme === "dark"
+      ? "text-neutral-500"
+      : theme === "paletteLight"
+        ? "text-[#7A8864]"
+        : "text-neutral-400",
+  conversionTarget: "min-w-0 text-right",
   recipeIngredientPickerRow:
     "grid grid-cols-[auto_minmax(0,1fr)_6rem_8rem_10rem] items-center gap-2 max-[1100px]:grid-cols-[auto_minmax(0,1fr)_6rem] max-md:grid-cols-[auto_minmax(0,1fr)] max-sm:gap-y-2",
   recipeIngredientControlGrid:

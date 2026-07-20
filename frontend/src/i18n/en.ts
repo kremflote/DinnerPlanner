@@ -58,6 +58,27 @@ export const en: TranslationDictionary = {
     chooseIngredients: "Choose ingredients",
     chooseAtLeastOneIngredient: "Choose at least one ingredient.",
     chooseAtLeastOneIngredientTag: "Choose at least one ingredient tag.",
+    conversionHelper: "Conversion Helper",
+    conversionHelperIntro:
+      "Use these quick references when a recipe gives everyday kitchen amounts. Save the converted amount as g, kg, ml, or l.",
+    conversionHelperSections: [
+      {
+        title: "Volume",
+        items: [
+          { from: "1 tsp", to: "5 ml" },
+          { from: "1 tbsp", to: "15 ml" },
+          { from: "1 cup", to: "240 ml" },
+        ],
+      },
+      {
+        title: "Common vegetables",
+        items: [
+          { from: "1 yellow onion", to: "170 g" },
+          { from: "1 garlic clove", to: "3 g" },
+          { from: "1 carrot", to: "70 g" },
+        ],
+      },
+    ],
     cookbookSections: "Cookbook sections",
     create: "Create",
     createIngredient: "Create ingredient",

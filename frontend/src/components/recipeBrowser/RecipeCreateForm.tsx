@@ -78,6 +78,7 @@ function RecipeCreateForm({
   const [ingredientSearch, setIngredientSearch] = useState("");
   const [isIngredientPickerOpen, setIsIngredientPickerOpen] = useState(false);
   const [isComponentPickerOpen, setIsComponentPickerOpen] = useState(false);
+  const [isConversionHelperOpen, setIsConversionHelperOpen] = useState(false);
   const [mobileIngredientDraft, setMobileIngredientDraft] = useState<SelectedRecipeIngredient[]>([]);
   const [croppedImageFile, setCroppedImageFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -382,9 +383,18 @@ function RecipeCreateForm({
           </section>
 
           <section className={recipeBrowserStyles.field}>
-            <span className={recipeBrowserStyles.label(theme)}>
-              {t.cookbook.ingredients}<span className={recipeBrowserStyles.requiredMark(theme)}> *</span>
-            </span>
+            <div className={recipeBrowserStyles.fieldHeaderRow}>
+              <span className={recipeBrowserStyles.label(theme)}>
+                {t.cookbook.ingredients}<span className={recipeBrowserStyles.requiredMark(theme)}> *</span>
+              </span>
+              <button
+                className={recipeBrowserStyles.inlineHelperButton(theme)}
+                type="button"
+                onClick={() => setIsConversionHelperOpen(true)}
+              >
+                {t.cookbook.conversionHelper}
+              </button>
+            </div>
             <div className={recipeBrowserStyles.mobileIngredientSummary}>
               <button className={recipeBrowserStyles.detailsToggleFull(theme)} type="button" onClick={openMobileIngredientPicker}>
                 {t.cookbook.chooseIngredients}
@@ -508,6 +518,12 @@ function RecipeCreateForm({
           }
         />
       )}
+      {isConversionHelperOpen && (
+        <ConversionHelperDialog
+          theme={theme}
+          onClose={() => setIsConversionHelperOpen(false)}
+        />
+      )}
       {isComponentPickerOpen && (
         <RecipeComponentPickerDialog
           recipes={componentRecipeOptions}
@@ -525,6 +541,53 @@ function RecipeCreateForm({
         />
       )}
     </form>
+  );
+}
+
+type ConversionHelperDialogProps = {
+  theme: SiteTheme;
+  onClose: () => void;
+};
+
+function ConversionHelperDialog({ theme, onClose }: ConversionHelperDialogProps) {
+  const { t } = useLanguage();
+
+  return (
+    <Modal
+      backdropClassName={recipeBrowserStyles.nestedModalBackdrop}
+      bodyClassName={recipeBrowserStyles.nestedIngredientModalBody}
+      closeButtonClassName={recipeBrowserStyles.modalCloseAligned(theme)}
+      closeLabel={t.common.close}
+      footer={
+        <button className={`${recipeBrowserStyles.primaryButton(theme)} ${recipeBrowserStyles.formActionButton}`} type="button" onClick={onClose}>
+          {t.common.close}
+        </button>
+      }
+      footerClassName={recipeBrowserStyles.formActions}
+      headerClassName={recipeBrowserStyles.modalHeader}
+      panelClassName={recipeBrowserStyles.nestedIngredientModalPanel(theme)}
+      title={t.cookbook.conversionHelper}
+      titleClassName={recipeBrowserStyles.modalTitle}
+      onClose={onClose}
+    >
+      <p className={recipeBrowserStyles.conversionHelperIntro(theme)}>
+        {t.cookbook.conversionHelperIntro}
+      </p>
+      {t.cookbook.conversionHelperSections.map((section) => (
+        <section className={recipeBrowserStyles.conversionSection(theme)} key={section.title}>
+          <h3 className={recipeBrowserStyles.conversionSectionTitle(theme)}>{section.title}</h3>
+          <div className={recipeBrowserStyles.conversionList}>
+            {section.items.map((item) => (
+              <div className={recipeBrowserStyles.conversionRow(theme)} key={`${item.from}-${item.to}`}>
+                <span className={recipeBrowserStyles.conversionSource}>{item.from}</span>
+                <span className={recipeBrowserStyles.conversionArrow(theme)}>=</span>
+                <span className={recipeBrowserStyles.conversionTarget}>{item.to}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      ))}
+    </Modal>
   );
 }
 

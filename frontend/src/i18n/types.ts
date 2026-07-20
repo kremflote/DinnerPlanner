@@ -82,6 +82,15 @@ export type TranslationDictionary = {
     chooseIngredients: string;
     chooseAtLeastOneIngredient: string;
     chooseAtLeastOneIngredientTag: string;
+    conversionHelper: string;
+    conversionHelperIntro: string;
+    conversionHelperSections: ReadonlyArray<{
+      title: string;
+      items: ReadonlyArray<{
+        from: string;
+        to: string;
+      }>;
+    }>;
     cookbookSections: string;
     create: string;
     createIngredient: string;
