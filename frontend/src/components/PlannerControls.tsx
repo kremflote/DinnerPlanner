@@ -10,6 +10,7 @@ type PlannerControlsProps = {
   isClearRangeRunning?: boolean;
   isExportRangeRunning?: boolean;
   isGenerateRangeRunning?: boolean;
+  isMobileToolsHidden?: boolean;
   isRangeBusy?: boolean;
   theme?: SiteTheme;
   viewMode: PlannerViewMode;
@@ -28,6 +29,7 @@ function PlannerControls({
   isClearRangeRunning = false,
   isExportRangeRunning = false,
   isGenerateRangeRunning = false,
+  isMobileToolsHidden = false,
   isRangeBusy = false,
   theme = "dark",
   viewMode,
@@ -42,7 +44,7 @@ function PlannerControls({
   const { t } = useLanguage();
   const [isMobileActionsOpen, setIsMobileActionsOpen] = useState(false);
   const rangeLabel = t.planner.rangeNames[viewMode];
-  const showMobileTools = viewMode === "week";
+  const showMobileTools = viewMode === "week" && !isMobileToolsHidden;
   const runMobileAction = (action: () => void | Promise<void>) => {
     setIsMobileActionsOpen(false);
     void action();

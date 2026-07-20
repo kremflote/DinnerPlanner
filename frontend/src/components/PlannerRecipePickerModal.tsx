@@ -216,8 +216,6 @@ function PlannerRecipePickerModal({
     const previouslyFocusedElement =
       document.activeElement instanceof HTMLElement ? document.activeElement : null;
 
-    searchInputRef.current?.focus();
-
     return () => {
       previouslyFocusedElement?.focus();
     };

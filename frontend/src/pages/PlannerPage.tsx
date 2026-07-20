@@ -252,6 +252,7 @@ const PlannerPage = ({ theme }: PlannerPageProps) => {
           isClearRangeRunning={plannerAction === "clear"}
           isExportRangeRunning={isGroceryListLoading}
           isGenerateRangeRunning={plannerAction === "generate"}
+          isMobileToolsHidden={selectedSlot !== null}
           isRangeBusy={mealPlanIsLoading}
           theme={theme}
           viewMode={viewMode}
