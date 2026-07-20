@@ -292,12 +292,19 @@ public partial class MatvaretabellenNutritionLookupService(
 
     private static string ExpandNorwegianFoodCompounds(string value)
     {
-        return value
+        var expanded = value
             .Replace("grovbrod", "grovbrod grov brod", StringComparison.Ordinal)
             .Replace("fullkornsbrod", "fullkornsbrod fullkorn brod", StringComparison.Ordinal)
             .Replace("rugbrod", "rugbrod rug brod", StringComparison.Ordinal)
             .Replace("knekkebrod", "knekkebrod knekk brod", StringComparison.Ordinal)
-            .Replace("flatbrod", "flatbrod flat brod", StringComparison.Ordinal);
+            .Replace("flatbrod", "flatbrod flat brod", StringComparison.Ordinal)
+            .Replace("worcestersaus", "worcestersaus worcester worcestershire saus sauce", StringComparison.Ordinal)
+            .Replace("worcestershire", "worcestershire worcester", StringComparison.Ordinal);
+
+        return $" {expanded} "
+            .Replace(" sauce ", " sauce saus ", StringComparison.Ordinal)
+            .Replace(" saus ", " saus sauce ", StringComparison.Ordinal)
+            .Trim();
     }
 
     private static string? ToAbsoluteMatvaretabellenUrl(string? uri)
