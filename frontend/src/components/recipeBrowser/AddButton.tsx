@@ -2,6 +2,7 @@ import { useEffect, useId, useState } from "react";
 import { useLanguage } from "../../contexts";
 import type { SiteTheme } from "../../styles/appStyles";
 import Modal from "../Modal";
+import SuccessToast from "../SuccessToast";
 import IngredientCreateForm from "./IngredientCreateForm";
 import { recipeBrowserStyles } from "./recipeBrowserStyles";
 import RecipeCreateForm from "./RecipeCreateForm";
@@ -19,6 +20,7 @@ function AddButton({ target, theme }: AddButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [activeTarget, setActiveTarget] = useState<BrowserAddTarget>(target);
   const [showRecipeDetails, setShowRecipeDetails] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const openModal = () => {
     setActiveTarget(target);
@@ -27,6 +29,12 @@ function AddButton({ target, theme }: AddButtonProps) {
   };
 
   const closeModal = () => setIsOpen(false);
+  const closeIngredientModal = (ingredientName?: string) => {
+    closeModal();
+    if (ingredientName !== undefined) {
+      setSuccessMessage(t.common.ingredientAdded(ingredientName));
+    }
+  };
 
   useEffect(() => {
     if (!isOpen) {
@@ -98,9 +106,17 @@ function AddButton({ target, theme }: AddButtonProps) {
                 onCreated={closeModal}
               />
             ) : (
-              <IngredientCreateForm theme={theme} onCancel={closeModal} onCreated={closeModal} />
+              <IngredientCreateForm theme={theme} onCancel={closeModal} onCreated={closeIngredientModal} />
             )}
         </Modal>
+      )}
+      {successMessage !== null && (
+        <SuccessToast
+          closeLabel={t.common.close}
+          message={successMessage}
+          theme={theme}
+          onClose={() => setSuccessMessage(null)}
+        />
       )}
     </>
   );

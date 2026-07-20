@@ -20,7 +20,7 @@ import { formatLabel, recipeBrowserStyles } from "./recipeBrowserStyles";
 type IngredientCreateFormProps = {
   initialIngredient?: IIngredient | null;
   theme: SiteTheme;
-  onCreated: () => void;
+  onCreated: (ingredientName?: string) => void;
   onCancel: () => void;
 };
 
@@ -224,7 +224,7 @@ function IngredientCreateForm({
 
       await refreshIngredients();
       await refreshRecipes();
-      onCreated();
+      onCreated(trimmedName);
     } catch (caughtError) {
       setError(caughtError instanceof Error ? caughtError.message : t.cookbook.couldNotSaveIngredient);
     } finally {

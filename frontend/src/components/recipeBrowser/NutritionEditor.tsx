@@ -135,11 +135,19 @@ function NutritionEditorSection({ children, isOpen, theme, title, onToggle }: Nu
       >
         <span>{title}</span>
         <span aria-hidden="true" className={recipeBrowserStyles.nutritionEditorGroupIcon(isOpen)}>
-          ^
+          <ChevronIcon />
         </span>
       </button>
       {isOpen && <div className={recipeBrowserStyles.nutritionEditorSection}>{children}</div>}
     </section>
+  );
+}
+
+function ChevronIcon() {
+  return (
+    <svg aria-hidden="true" className={recipeBrowserStyles.nutritionEditorGroupSvg} viewBox="0 0 24 24">
+      <path d="m8.6 5.8 6.2 6.2-6.2 6.2 1.4 1.4 7.6-7.6L10 4.4 8.6 5.8Z" />
+    </svg>
   );
 }
 

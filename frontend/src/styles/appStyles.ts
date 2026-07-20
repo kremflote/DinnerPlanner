@@ -305,6 +305,27 @@ export const thumbnailStyles = {
 const focusBase =
   "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2";
 
+export const toastStyles = {
+  viewport:
+    "pointer-events-none fixed left-1/2 top-20 z-[90] w-[min(24rem,calc(100vw_-_2rem))] -translate-x-1/2 max-sm:top-16",
+  success: (theme: SiteTheme) =>
+    `pointer-events-auto flex items-center justify-between gap-3 rounded-md border px-4 py-3 text-sm font-bold ${shadowClasses.overlay} ${
+      theme === "dark"
+        ? "border-emerald-300/25 bg-emerald-500/20 text-emerald-50"
+        : theme === "paletteLight"
+          ? "border-[#7A8864]/40 bg-[#DDECCF] text-[#3C4A2E]"
+          : "border-emerald-200 bg-emerald-50 text-emerald-800"
+    }`,
+  closeButton: (theme: SiteTheme) =>
+    `inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-sm font-extrabold transition-colors ${focusBase} ${siteColorClasses[theme].focus} ${
+      theme === "dark"
+        ? "text-emerald-50 hover:bg-white/[0.10]"
+        : theme === "paletteLight"
+          ? "text-[#3C4A2E] hover:bg-[#7A8864]/15"
+          : "text-emerald-800 hover:bg-emerald-100"
+    }`,
+} as const;
+
 const autofillHintTextClasses = (theme: SiteTheme) =>
   `text-[10px] font-extrabold uppercase leading-tight ${
     theme === "dark"
@@ -702,7 +723,7 @@ export const scannerStyles = {
     }`,
   candidateList: "grid gap-2",
   candidateButton: (theme: SiteTheme, selected: boolean) =>
-    `grid w-full grid-cols-[4rem_minmax(0,1fr)_auto] items-center gap-3 rounded-md border p-3 text-left transition-colors max-[380px]:grid-cols-[3.25rem_minmax(0,1fr)] ${shadowClasses.subtle} ${focusBase} ${siteColorClasses[theme].focus} ${
+    `grid w-full grid-cols-[4rem_minmax(0,1fr)] items-center gap-3 rounded-md border p-3 text-left transition-colors max-[380px]:grid-cols-[3.25rem_minmax(0,1fr)] ${shadowClasses.subtle} ${focusBase} ${siteColorClasses[theme].focus} ${
       selected
         ? theme === "dark"
           ? "border-white/[0.28] bg-white/[0.14]"
@@ -719,22 +740,15 @@ export const scannerStyles = {
           ? "border-[#C8C0B5] bg-[#FAF7F2]"
           : "border-neutral-200 bg-white"
     }`,
+  candidateTextStack: "grid min-w-0 gap-1",
   candidateName: "min-w-0 text-base font-bold leading-tight",
   candidateMeta: (theme: SiteTheme) =>
-    `mt-1 min-w-0 text-xs font-semibold leading-tight ${
+    `min-w-0 text-xs font-semibold leading-tight ${
       theme === "dark"
         ? "text-neutral-400"
         : theme === "paletteLight"
           ? "text-[#7A8864]"
-          : "text-neutral-500"
-    }`,
-  candidateSelectLabel: (theme: SiteTheme) =>
-    `rounded-md px-2 py-1 text-xs font-bold max-[380px]:col-span-2 max-[380px]:justify-self-start ${
-      theme === "dark"
-        ? "bg-white/[0.10] text-white"
-        : theme === "paletteLight"
-          ? "bg-[#7A8864] text-[#FAF7F2]"
-          : "bg-neutral-900 text-white"
+        : "text-neutral-500"
     }`,
   ingredientEditor: (theme: SiteTheme) =>
     `grid gap-3 rounded-md border p-3 ${shadowClasses.subtle} ${surfaceClasses.panel(theme)}`,

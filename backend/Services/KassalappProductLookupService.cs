@@ -295,10 +295,10 @@ public class KassalappProductLookupService(
         var protein = FindNutrient(contents, ["protein"]);
         var salt = FindNutrient(contents, ["salt"]);
         var fiber = FindNutrient(contents, ["fiber", "fibre", "kostfiber"]);
-        var saturatedFat = FindNutrient(contents, ["saturated", "mettede"]);
+        var saturatedFat = FindNutrient(contents, ["saturated", "mettet", "mettede"]);
         var transFat = FindNutrient(contents, ["trans"]);
-        var monounsaturatedFat = FindNutrient(contents, ["monounsaturated", "enumettet"]);
-        var polyunsaturatedFat = FindNutrient(contents, ["polyunsaturated", "flerumettet"]);
+        var monounsaturatedFat = FindNutrient(contents, ["monounsaturated", "monoumettet", "enumettet"]);
+        var polyunsaturatedFat = FindNutrient(contents, ["polyunsaturated", "polyumettet", "flerumettet"]);
         var omega3 = FindNutrient(contents, ["omega-3", "omega 3"]);
         var omega6 = FindNutrient(contents, ["omega-6", "omega 6"]);
         var cholesterol = FindNutrient(contents, ["cholesterol", "kolesterol"]);

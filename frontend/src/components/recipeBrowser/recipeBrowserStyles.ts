@@ -758,7 +758,7 @@ export const recipeBrowserStyles = {
   categoryFilterBody: "min-h-0 overflow-y-auto",
   recipeIngredientThumbnailCompact: "",
   nutritionEditorGroup: (theme: SiteTheme) =>
-    `grid gap-3 rounded-md border p-3 ${
+    `grid gap-2 rounded-md border p-3 ${
       theme === "dark"
         ? "border-white/[0.08] bg-white/[0.035]"
         : theme === "paletteLight"
@@ -766,17 +766,18 @@ export const recipeBrowserStyles = {
           : "border-neutral-200 bg-white"
     }`,
   nutritionEditorGroupButton: (theme: SiteTheme) =>
-    `flex w-full items-center justify-between gap-3 text-left text-sm font-extrabold uppercase tracking-wide ${
+    `flex w-full items-center justify-between gap-3 text-left text-sm font-semibold leading-tight transition-opacity hover:opacity-80 ${
       theme === "dark"
-        ? "text-neutral-100"
+        ? "text-neutral-300"
         : theme === "paletteLight"
-          ? "text-[#3C4A2E]"
-          : "text-neutral-800"
+          ? "text-[#556145]"
+          : "text-neutral-700"
     }`,
   nutritionEditorGroupIcon: (isOpen: boolean) =>
-    `grid h-6 w-6 shrink-0 place-items-center rounded-md text-base leading-none transition-transform ${
-      isOpen ? "rotate-0" : "rotate-180"
+    `flex h-5 w-5 shrink-0 items-center justify-center transition-transform ${
+      isOpen ? "rotate-90" : ""
     }`,
+  nutritionEditorGroupSvg: "h-3.5 w-3.5 fill-current",
   nutritionEditorSection: "grid grid-cols-2 gap-4 max-md:grid-cols-1",
   nutritionSeparator: (theme: SiteTheme) =>
     `h-px w-full ${

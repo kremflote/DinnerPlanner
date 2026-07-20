@@ -1,6 +1,7 @@
 import type { IScannerControls } from "@zxing/browser";
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type FormEvent } from "react";
 import Modal from "../components/Modal";
+import SuccessToast from "../components/SuccessToast";
 import CreatableSelect from "../components/recipeBrowser/CreatableSelect";
 import { useBrands, useIngredientTagCategories, useIngredients, useLanguage, useStores } from "../contexts";
 import type { IngredientTag, INutritionFacts, NutritionDataSource } from "../interfaces/IIngredient";
@@ -130,6 +131,7 @@ function ScannerPage({ theme }: ScannerPageProps) {
   const [ingredientDraft, setIngredientDraft] = useState<IngredientDraft | null>(null);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [editorError, setEditorError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const editorTitleId = useId();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const scannerControlsRef = useRef<IScannerControls | null>(null);
@@ -258,6 +260,7 @@ function ScannerPage({ theme }: ScannerPageProps) {
       setIsEditorOpen(false);
       setEditorError(null);
       setCameraStatus(t.scanner.ingredientSaved(ingredientName));
+      setSuccessMessage(t.common.ingredientAdded(ingredientName));
     } catch (caughtError) {
       setEditorError(caughtError instanceof Error ? caughtError.message : t.scanner.lookupFailed);
     } finally {
@@ -426,7 +429,7 @@ function ScannerPage({ theme }: ScannerPageProps) {
                     onClick={() => selectCandidate(candidate)}
                   >
                     <CandidateImage candidate={candidate} theme={theme} />
-                    <span className="min-w-0">
+                    <span className={scannerStyles.candidateTextStack}>
                       <span className={scannerStyles.candidateName}>{candidate.name}</span>
                       <span className={scannerStyles.candidateMeta(theme)}>
                         {[candidate.brandName, candidate.price === null ? null : t.scanner.price(candidate.price)]
@@ -434,7 +437,6 @@ function ScannerPage({ theme }: ScannerPageProps) {
                           .join(" / ")}
                       </span>
                     </span>
-                    <span className={scannerStyles.candidateSelectLabel(theme)}>{t.scanner.selectCandidate}</span>
                   </button>
                 ))}
               </div>
@@ -489,6 +491,14 @@ function ScannerPage({ theme }: ScannerPageProps) {
             }}
           />
         </Modal>
+      )}
+      {successMessage !== null && (
+        <SuccessToast
+          closeLabel={t.common.close}
+          message={successMessage}
+          theme={theme}
+          onClose={() => setSuccessMessage(null)}
+        />
       )}
     </main>
   );

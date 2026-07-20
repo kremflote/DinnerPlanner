@@ -45,6 +45,7 @@ export type TranslationDictionary = {
     couldNotDeleteOption: string;
     deleteNamed: (name: string) => string;
     edit: string;
+    ingredientAdded: (name: string) => string;
     manageTags: string;
     nameAlreadyExists: string;
     nameRequired: string;
@@ -315,7 +316,6 @@ export type TranslationDictionary = {
     scanCandidatesTitle: string;
     scannerFound: (ean: string) => string;
     scannerReady: string;
-    selectCandidate: string;
     searching: string;
     selectTags: string;
     suggestedIngredient: string;
