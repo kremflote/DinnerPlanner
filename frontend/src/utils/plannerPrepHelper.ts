@@ -68,11 +68,17 @@ export function buildPrepHelperItems(
     .filter((entry) => entry.date >= from && entry.date <= to)
     .flatMap((entry) =>
       entry.recipes.flatMap((mealPlanRecipe) => {
+        if (mealPlanRecipe.recipeId === null) {
+          return [];
+        }
+
         const recipe = recipesById.get(mealPlanRecipe.recipeId);
 
         if (recipe === undefined) {
           return [];
         }
+
+        const portionFactor = getPortionFactor(recipe, mealPlanRecipe.portions);
 
         return buildRecipePrepRows(
           recipe,
@@ -82,6 +88,7 @@ export function buildPrepHelperItems(
           preparationLabels,
           actionLabels,
           new Set<number>(),
+          portionFactor,
         );
       }),
     );
@@ -135,6 +142,7 @@ function buildRecipePrepRows(
   preparationLabels: Record<IRecipe["ingredients"][number]["preparation"], string>,
   actionLabels: Record<string, string>,
   visitedRecipeIds: Set<number>,
+  portionFactor: number,
 ): PrepIngredientRow[] {
   if (visitedRecipeIds.has(recipe.recipeId)) {
     return [];
@@ -147,7 +155,7 @@ function buildRecipePrepRows(
     .map((recipeIngredient): PrepIngredientRow => ({
       ingredientId: recipeIngredient.ingredient.ingredientId,
       ingredientName: recipeIngredient.ingredient.ingredientName,
-      amount: recipeIngredient.amount,
+      amount: recipeIngredient.amount === null ? null : recipeIngredient.amount * portionFactor,
       unit: recipeIngredient.unit,
       actions: recipeIngredient.preparation === "None"
         ? inferPrepActions(recipe.instructions, recipeIngredient.ingredient.ingredientName)
@@ -170,11 +178,18 @@ function buildRecipePrepRows(
       preparationLabels,
       actionLabels,
       visitedRecipeIds,
+      portionFactor,
     );
   });
 
   visitedRecipeIds.delete(recipe.recipeId);
   return [...directRows, ...componentRows];
+}
+
+function getPortionFactor(recipe: IRecipe, selectedPortions: number | null) {
+  const basePortions = recipe.portions > 0 ? recipe.portions : 1;
+  const portions = selectedPortions !== null && selectedPortions > 0 ? selectedPortions : basePortions;
+  return portions / basePortions;
 }
 
 function shouldPrepIngredient(tags: IngredientTag[]) {

@@ -1,3 +1,5 @@
+import type { MeasurementUnit } from "./IIngredient";
+
 export interface IMealPlanEntry {
   mealPlanEntryId: number;
   date: string;
@@ -8,9 +10,13 @@ export interface IMealPlanEntry {
 
 export interface IMealPlanRecipe {
   mealPlanRecipeId: number;
-  recipeId: number;
+  recipeId: number | null;
+  ingredientId: number | null;
   role: MealRecipeRole;
   sortOrder: number;
+  portions: number | null;
+  amount: number | null;
+  unit: MeasurementUnit | null;
 }
 
 export type MealSlot = "Breakfast" | "Lunch" | "Dinner" | "Snack1" | "Snack2";

@@ -133,6 +133,8 @@ export const nb: TranslationDictionary = {
     pickOneOrMore: "Velg 1 eller flere",
     polyunsaturatedFats: "Flerumettet fett",
     polyunsaturatedFatsPer100g: "Flerumettet fett per 100g",
+    portions: "Porsjoner",
+    portionsRequired: "Oppskriftens porsjoner må være et positivt tall.",
     omega3: "Omega-3",
     omega3Per100g: "Omega-3 per 100g",
     omega6: "Omega-6",

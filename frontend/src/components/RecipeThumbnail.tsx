@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { IRecipe } from "../interfaces/IRecipe";
 import { getApiAssetUrl } from "../services/apiClient";
 import { thumbnailStyles, type SiteTheme } from "../styles/appStyles";
@@ -11,6 +12,8 @@ type RecipeThumbnailProps = {
   interactiveEffect?: boolean;
   ariaPressed?: boolean;
   textScale?: "default" | "compact" | "micro";
+  titleBandExtra?: ReactNode;
+  titleBandExpanded?: boolean;
   theme?: SiteTheme;
   onClick?: () => void;
 };
@@ -21,6 +24,8 @@ function RecipeThumbnail({
   interactiveEffect = true,
   ariaPressed,
   textScale = "default",
+  titleBandExtra,
+  titleBandExpanded = false,
   theme = "dark",
   onClick,
 }: RecipeThumbnailProps) {
@@ -39,7 +44,11 @@ function RecipeThumbnail({
         ? thumbnailStyles.recipeSubtitleLayoutCompact
         : thumbnailStyles.recipeSubtitleLayout;
   const titleBandLayoutClassName =
-    textScale === "micro" ? thumbnailStyles.recipeTitleBandLayoutMicro : thumbnailStyles.recipeTitleBandLayout;
+    titleBandExpanded
+      ? thumbnailStyles.recipeTitleBandLayoutExpanded
+      : textScale === "micro"
+        ? thumbnailStyles.recipeTitleBandLayoutMicro
+        : thumbnailStyles.recipeTitleBandLayout;
   const sharedClassName = `${thumbnailStyles.recipeShell} ${className} ${
     onClick ? (interactiveEffect ? thumbnailStyles.recipeShellInteractive : "cursor-pointer") : ""
   }`;
@@ -59,6 +68,11 @@ function RecipeThumbnail({
       <div className={thumbnailStyles.recipeImageOverlay(theme)} aria-hidden="true" />
 
       <div className={`${titleBandLayoutClassName} ${thumbnailStyles.recipeTitleBand(theme)}`}>
+        {titleBandExtra !== undefined && (
+          <div className={thumbnailStyles.recipeTitleBandExtra}>
+            {titleBandExtra}
+          </div>
+        )}
         <h3 className={titleClassName}>{recipe.name}</h3>
         <p className={`${subtitleLayoutClassName} ${thumbnailStyles.recipeSubtitle(theme)}`}>{subtitle}</p>
       </div>

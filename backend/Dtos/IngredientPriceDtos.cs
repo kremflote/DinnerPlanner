@@ -12,7 +12,7 @@ public record IngredientPricePointRequest(
     int IngredientId,
     [Required]
     int StoreId,
-    [Range(typeof(decimal), "0.01", "79228162514264337593543950335")]
+    [Range(typeof(decimal), "0.01", "79228162514264337593543950335", ParseLimitsInInvariantCulture = true)]
     decimal Price,
     DateOnly Date,
     [StringLength(500)]

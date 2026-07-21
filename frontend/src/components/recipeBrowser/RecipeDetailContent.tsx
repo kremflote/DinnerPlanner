@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLanguage } from "../../contexts";
 import type { IIngredient, INutritionFacts, MeasurementUnit } from "../../interfaces/IIngredient";
 import { getApiAssetUrl } from "../../services/apiClient";
@@ -24,8 +24,12 @@ function RecipeDetailContent({
   const { t } = useLanguage();
   const imageUrl = getApiAssetUrl(recipe.imageUrl);
   const nutrition = calculateRecipeNutrition(recipe);
-  const [ingredientMultiplier, setIngredientMultiplier] = useState("1");
-  const amountMultiplier = parseAmountMultiplier(ingredientMultiplier);
+  const [selectedPortions, setSelectedPortions] = useState(formatPortionInputValue(recipe.portions));
+  const amountMultiplier = parsePortionMultiplier(selectedPortions, recipe.portions);
+
+  useEffect(() => {
+    setSelectedPortions(formatPortionInputValue(recipe.portions));
+  }, [recipe.recipeId, recipe.portions]);
 
   return (
     <div className={recipeBrowserStyles.detailShell}>
@@ -61,19 +65,18 @@ function RecipeDetailContent({
           theme={theme}
           headerAction={
             <label className={recipeBrowserStyles.scaleLabel}>
-              <span className={recipeBrowserStyles.helperText(theme)}>{t.cookbook.scale}</span>
-              <span className={`${recipeBrowserStyles.numberField} ${recipeBrowserStyles.scaleField}`}>
+              <span className={recipeBrowserStyles.helperText(theme)}>{t.cookbook.portions}</span>
+              <span className={`${recipeBrowserStyles.scaleField}`}>
                 <input
-                  aria-label={t.cookbook.ingredientAmountMultiplier}
+                  aria-label={t.cookbook.portions}
                   className={`${recipeBrowserStyles.compactTextField(theme)} ${recipeBrowserStyles.scaleInput}`}
                   min="0"
-                  placeholder="1"
+                  placeholder={formatPortionInputValue(recipe.portions)}
                   step="0.25"
                   type="number"
-                  value={ingredientMultiplier}
-                  onChange={(event) => setIngredientMultiplier(event.target.value)}
+                  value={selectedPortions}
+                  onChange={(event) => setSelectedPortions(event.target.value)}
                 />
-                <span className={recipeBrowserStyles.numberFieldSuffix(theme)}>x</span>
               </span>
             </label>
           }
@@ -321,9 +324,14 @@ function toGramAmount(amount: number | null, unit: string) {
   return null;
 }
 
-function parseAmountMultiplier(value: string) {
-  const multiplier = Number(value);
-  return Number.isFinite(multiplier) && multiplier >= 0 ? multiplier : 1;
+function parsePortionMultiplier(value: string, defaultPortions: number) {
+  const selectedPortions = Number(value.replace(",", "."));
+  const basePortions = defaultPortions > 0 ? defaultPortions : 1;
+  return Number.isFinite(selectedPortions) && selectedPortions >= 0 ? selectedPortions / basePortions : 1;
+}
+
+function formatPortionInputValue(value: number) {
+  return Number.isInteger(value) ? value.toString() : value.toString();
 }
 
 function formatRecipeIngredientAmount(

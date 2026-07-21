@@ -8,6 +8,7 @@ export interface IRecipe {
   imageUrl: string | null;
   description: string | null;
   instructions: string | null;
+  portions: number;
   ingredients: IRecipeIngredient[];
   tags: RecipeTag[];
   components: IRecipeComponent[];

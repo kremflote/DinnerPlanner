@@ -1,6 +1,6 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useCuisines, useIngredients, useLanguage } from "../contexts";
-import type { IngredientTag } from "../interfaces/IIngredient";
+import type { IIngredient, IngredientTag, MeasurementUnit } from "../interfaces/IIngredient";
 import type { IMealPlanEntry, MealSlot } from "../interfaces/IMeal";
 import type { IRecipe, RecipeTag } from "../interfaces/IRecipe";
 import type { MealPlanEntryRequest } from "../services/mealPlanService";
@@ -50,6 +50,19 @@ type PlannerRecipePickerModalProps = {
   onSave: (entryId: number | null, request: MealPlanEntryRequest) => Promise<void>;
 };
 
+type SelectedPlannerRecipe = {
+  recipeId: number;
+  portions: number;
+};
+
+type SelectedPlannerIngredient = {
+  ingredientId: number;
+  amount: number;
+  unit: MeasurementUnit;
+};
+
+type PickerBrowserMode = "recipes" | "ingredients";
+
 function PlannerRecipePickerModal({
   date,
   entry,
@@ -63,21 +76,53 @@ function PlannerRecipePickerModal({
   const titleId = useId();
   const { cuisines } = useCuisines();
   const { ingredients } = useIngredients();
-  const initialMainRecipeId = entry?.recipes
+  const initialMainRecipe = entry?.recipes
     .slice()
     .sort((first, second) => first.sortOrder - second.sortOrder)
-    .find((plannedRecipe) => plannedRecipe.role === "Main")?.recipeId ?? null;
-  const initialSupplementaryIds =
+    .find((plannedRecipe) => plannedRecipe.role === "Main" && plannedRecipe.recipeId !== null);
+  const initialMainIngredient = entry?.recipes
+    .slice()
+    .sort((first, second) => first.sortOrder - second.sortOrder)
+    .find((plannedRecipe) => plannedRecipe.role === "Main" && plannedRecipe.ingredientId !== null);
+  const initialSupplementaryRecipes =
     entry?.recipes
       .slice()
       .sort((first, second) => first.sortOrder - second.sortOrder)
-      .filter((plannedRecipe) => plannedRecipe.role !== "Main")
-      .map((plannedRecipe) => plannedRecipe.recipeId) ?? [];
+      .filter((plannedRecipe) => plannedRecipe.role !== "Main" && plannedRecipe.recipeId !== null)
+      .map((plannedRecipe) => ({
+        recipeId: plannedRecipe.recipeId!,
+        portions: plannedRecipe.portions ?? recipeByIdFallback(recipes, plannedRecipe.recipeId)?.portions ?? 1,
+      })) ?? [];
+  const initialSupplementaryIngredients =
+    entry?.recipes
+      .slice()
+      .sort((first, second) => first.sortOrder - second.sortOrder)
+      .filter((plannedRecipe) => plannedRecipe.role !== "Main" && plannedRecipe.ingredientId !== null)
+      .map((plannedRecipe) => ({
+        ingredientId: plannedRecipe.ingredientId!,
+        amount: plannedRecipe.amount ?? 1,
+      unit: plannedRecipe.unit ?? ("Gram" as MeasurementUnit),
+      })) ?? [];
   const [phase, setPhase] = useState<PickerPhase>("main");
+  const [browserMode, setBrowserMode] = useState<PickerBrowserMode>("recipes");
   const [searchTerm, setSearchTerm] = useState("");
-  const [mainRecipeId, setMainRecipeId] = useState<number | null>(initialMainRecipeId);
-  const [highlightedMainRecipeId, setHighlightedMainRecipeId] = useState<number | null>(initialMainRecipeId);
-  const [supplementaryRecipeIds, setSupplementaryRecipeIds] = useState<number[]>(initialSupplementaryIds);
+  const [mainRecipeSelection, setMainRecipeSelection] = useState<SelectedPlannerRecipe | null>(
+    initialMainRecipe === undefined ? null : {
+      recipeId: initialMainRecipe.recipeId!,
+      portions: initialMainRecipe.portions ?? recipeByIdFallback(recipes, initialMainRecipe.recipeId)?.portions ?? 1,
+    },
+  );
+  const [mainIngredientSelection, setMainIngredientSelection] = useState<SelectedPlannerIngredient | null>(
+    initialMainIngredient === undefined ? null : {
+      ingredientId: initialMainIngredient.ingredientId!,
+      amount: initialMainIngredient.amount ?? 1,
+      unit: initialMainIngredient.unit ?? "Gram",
+    },
+  );
+  const [supplementaryRecipeSelections, setSupplementaryRecipeSelections] =
+    useState<SelectedPlannerRecipe[]>(initialSupplementaryRecipes);
+  const [supplementaryIngredientSelections, setSupplementaryIngredientSelections] =
+    useState<SelectedPlannerIngredient[]>(initialSupplementaryIngredients);
   const [selectedSupplementaryFilters, setSelectedSupplementaryFilters] =
     useState<SupplementaryFilter[]>(supplementaryFilters);
   const [selectedMainProteinTags, setSelectedMainProteinTags] = useState<IngredientTag[]>([]);
@@ -98,6 +143,13 @@ function PlannerRecipePickerModal({
     () => new Map(recipes.map((recipe) => [recipe.recipeId, recipe])),
     [recipes],
   );
+  const ingredientById = useMemo(
+    () => new Map(ingredients.map((ingredient) => [ingredient.ingredientId, ingredient])),
+    [ingredients],
+  );
+  const mainRecipeId = mainRecipeSelection?.recipeId ?? null;
+  const supplementaryRecipeIds = supplementaryRecipeSelections.map((selection) => selection.recipeId);
+  const supplementaryIngredientIds = supplementaryIngredientSelections.map((selection) => selection.ingredientId);
 
   const visibleRecipes = useMemo(
     () =>
@@ -125,6 +177,14 @@ function PlannerRecipePickerModal({
       selectedMainRecipeTags,
       selectedSupplementaryFilters,
     ],
+  );
+
+  const visiblePickerIngredients = useMemo(
+    () =>
+      ingredients
+        .filter((ingredient) => matchesIngredientSearch(ingredient, searchTerm))
+        .sort((first, second) => first.ingredientName.localeCompare(second.ingredientName)),
+    [ingredients, searchTerm],
   );
 
   const availableMainProteinTags = useMemo(() => {
@@ -208,9 +268,42 @@ function PlannerRecipePickerModal({
   );
 
   const mainRecipe = mainRecipeId === null ? null : recipeById.get(mainRecipeId) ?? null;
-  const supplementaryRecipes = supplementaryRecipeIds
-    .map((recipeId) => recipeById.get(recipeId))
-    .filter((recipe): recipe is IRecipe => recipe !== undefined);
+  const mainIngredient =
+    mainIngredientSelection === null
+      ? null
+      : ingredientById.get(mainIngredientSelection.ingredientId) ?? null;
+  const mainSelectionLabel =
+    mainRecipe !== null && mainRecipeSelection !== null
+      ? formatRecipeSelectionLabel(mainRecipe.name, mainRecipeSelection.portions)
+      : mainIngredient !== null && mainIngredientSelection !== null
+        ? formatIngredientSelectionLabel(
+            mainIngredient.ingredientName,
+            mainIngredientSelection.amount,
+            mainIngredientSelection.unit,
+            t.enums.measurementUnits,
+          )
+        : null;
+  const supplementarySelectionLabels = [
+    ...supplementaryRecipeSelections
+      .map((selection) => {
+        const recipe = recipeById.get(selection.recipeId);
+        return recipe === undefined ? null : formatRecipeSelectionLabel(recipe.name, selection.portions);
+      })
+      .filter((label): label is string => label !== null),
+    ...supplementaryIngredientSelections
+      .map((selection) => {
+        const ingredient = ingredientById.get(selection.ingredientId);
+        return ingredient === undefined
+          ? null
+          : formatIngredientSelectionLabel(
+              ingredient.ingredientName,
+              selection.amount,
+              selection.unit,
+              t.enums.measurementUnits,
+            );
+      })
+      .filter((label): label is string => label !== null),
+  ];
 
   useEffect(() => {
     const previouslyFocusedElement =
@@ -270,45 +363,59 @@ function PlannerRecipePickerModal({
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isCategoryFilterOpen, onClose]);
 
-  const highlightMainRecipe = (recipe: IRecipe) => {
-    if (mainRecipeId === recipe.recipeId) {
-      setHighlightedMainRecipeId(null);
-      setMainRecipeId(null);
-      setSupplementaryRecipeIds([]);
-      return;
-    }
+  const selectMainRecipe = (recipe: IRecipe, portions: number) => {
+    setMainRecipeSelection({ recipeId: recipe.recipeId, portions });
+    setMainIngredientSelection(null);
+    setSupplementaryRecipeSelections([]);
+    setSupplementaryIngredientSelections([]);
+  };
 
-    setHighlightedMainRecipeId(recipe.recipeId);
-    setMainRecipeId(recipe.recipeId);
-    setSupplementaryRecipeIds([]);
+  const selectMainIngredient = (ingredient: IIngredient, amount: number, unit: MeasurementUnit) => {
+    setMainIngredientSelection({ ingredientId: ingredient.ingredientId, amount, unit });
+    setMainRecipeSelection(null);
+    setSupplementaryRecipeSelections([]);
+    setSupplementaryIngredientSelections([]);
   };
 
   const confirmHighlightedMainRecipe = () => {
-    if (mainRecipeId === null) {
+    if (mainRecipeSelection === null && mainIngredientSelection === null) {
       return;
     }
 
-    setHighlightedMainRecipeId(mainRecipeId);
     setPhase("supplements");
     setSearchTerm("");
   };
 
-  const toggleSupplementaryRecipe = (recipe: IRecipe) => {
-    setSupplementaryRecipeIds((currentIds) => {
-      if (currentIds.includes(recipe.recipeId)) {
-        return currentIds.filter((recipeId) => recipeId !== recipe.recipeId);
+  const toggleSupplementaryRecipe = (recipe: IRecipe, portions = recipe.portions) => {
+    setSupplementaryRecipeSelections((currentSelections) => {
+      if (currentSelections.some((selection) => selection.recipeId === recipe.recipeId)) {
+        return currentSelections.filter((selection) => selection.recipeId !== recipe.recipeId);
       }
 
-      if (currentIds.length >= maxSupplementaryRecipes) {
-        return currentIds;
+      if (currentSelections.length + supplementaryIngredientSelections.length >= maxSupplementaryRecipes) {
+        return currentSelections;
       }
 
-      return [...currentIds, recipe.recipeId];
+      return [...currentSelections, { recipeId: recipe.recipeId, portions }];
+    });
+  };
+
+  const toggleSupplementaryIngredient = (ingredient: IIngredient, amount: number, unit: MeasurementUnit) => {
+    setSupplementaryIngredientSelections((currentSelections) => {
+      if (currentSelections.some((selection) => selection.ingredientId === ingredient.ingredientId)) {
+        return currentSelections.filter((selection) => selection.ingredientId !== ingredient.ingredientId);
+      }
+
+      if (supplementaryRecipeSelections.length + currentSelections.length >= maxSupplementaryRecipes) {
+        return currentSelections;
+      }
+
+      return [...currentSelections, { ingredientId: ingredient.ingredientId, amount, unit }];
     });
   };
 
   const saveMealSlot = async () => {
-    if (mainRecipe === null && entry === undefined) {
+    if (mainRecipe === null && mainIngredient === null && entry === undefined) {
       return;
     }
 
@@ -317,20 +424,51 @@ function PlannerRecipePickerModal({
 
     try {
       const recipesToSave =
-        mainRecipe === null
-          ? []
-          : [
-              {
-                recipeId: mainRecipe.recipeId,
+        [
+          ...(mainRecipeSelection === null
+            ? []
+            : [{
+                recipeId: mainRecipeSelection.recipeId,
+                ingredientId: null,
                 role: "Main" as const,
                 sortOrder: 0,
-              },
-              ...supplementaryRecipes.map((recipe, index) => ({
-                recipeId: recipe.recipeId,
-                role: getSupplementaryRole(recipe),
-                sortOrder: index + 1,
-              })),
-            ];
+                portions: mainRecipeSelection.portions,
+                amount: null,
+                unit: null,
+              }]),
+          ...(mainIngredientSelection === null
+            ? []
+            : [{
+                recipeId: null,
+                ingredientId: mainIngredientSelection.ingredientId,
+                role: "Main" as const,
+                sortOrder: 0,
+                portions: null,
+                amount: mainIngredientSelection.amount,
+                unit: mainIngredientSelection.unit,
+              }]),
+          ...supplementaryRecipeSelections.map((selection, index) => {
+            const recipe = recipeById.get(selection.recipeId);
+            return {
+              recipeId: selection.recipeId,
+              ingredientId: null,
+              role: recipe === undefined ? "Side" as const : getSupplementaryRole(recipe),
+              sortOrder: index + 1,
+              portions: selection.portions,
+              amount: null,
+              unit: null,
+            };
+          }),
+          ...supplementaryIngredientSelections.map((selection, index) => ({
+            recipeId: null,
+            ingredientId: selection.ingredientId,
+            role: "Side" as const,
+            sortOrder: supplementaryRecipeSelections.length + index + 1,
+            portions: null,
+            amount: selection.amount,
+            unit: selection.unit,
+          })),
+        ];
 
       await onSave(entry?.mealPlanEntryId ?? null, {
         date,
@@ -416,18 +554,17 @@ function PlannerRecipePickerModal({
       }
       descriptionClassName={plannerPickerStyles.subtitle(theme)}
       footer={
-        <>
+        <div className={plannerPickerStyles.footerContent}>
           <PlannerRecipePickerSelection
-            mainRecipe={mainRecipe}
-            supplementaryRecipes={supplementaryRecipes}
+            mainLabel={mainSelectionLabel}
+            supplementaryLabels={supplementarySelectionLabels}
             theme={theme}
-            onToggleSupplementaryRecipe={toggleSupplementaryRecipe}
           />
           <div className={plannerPickerStyles.footerActions}>
             {phase === "main" ? (
               <button
                 className={plannerPickerStyles.primaryButton(theme)}
-                disabled={mainRecipeId === null || isSaving}
+                disabled={mainRecipeSelection === null && mainIngredientSelection === null || isSaving}
                 type="button"
                 onClick={confirmHighlightedMainRecipe}
               >
@@ -439,7 +576,6 @@ function PlannerRecipePickerModal({
                 disabled={isSaving}
                 type="button"
                 onClick={() => {
-                  setHighlightedMainRecipeId(mainRecipeId);
                   setPhase("main");
                 }}
               >
@@ -448,14 +584,14 @@ function PlannerRecipePickerModal({
             )}
             <button
               className={plannerPickerStyles.primaryButton(theme)}
-              disabled={(mainRecipe === null && entry === undefined) || isSaving}
+              disabled={(mainRecipe === null && mainIngredient === null && entry === undefined) || isSaving}
               type="button"
               onClick={saveMealSlot}
             >
               {isSaving ? t.common.saving : t.planner.saveMeal}
             </button>
           </div>
-        </>
+        </div>
       }
       footerClassName={plannerPickerStyles.footer}
       headerClassName={plannerPickerStyles.header}
@@ -468,7 +604,7 @@ function PlannerRecipePickerModal({
     >
         <div className={plannerPickerStyles.controls}>
           <input
-            aria-label={t.browser.searchRecipes}
+            aria-label={browserMode === "recipes" ? t.browser.searchRecipes : t.browser.searchIngredients}
             className={plannerPickerStyles.searchInput(theme)}
             placeholder={t.planner.mealPickerSearchPlaceholder}
             ref={searchInputRef}
@@ -506,6 +642,22 @@ function PlannerRecipePickerModal({
           >
             <FilterIcon />
           </button>
+          <div className={plannerPickerStyles.browserModeSwitch(theme)} role="group" aria-label={t.cookbook.cookbookSections}>
+            <button
+              className={plannerPickerStyles.browserModeOption(theme, browserMode === "recipes")}
+              type="button"
+              onClick={() => setBrowserMode("recipes")}
+            >
+              {t.cookbook.recipes}
+            </button>
+            <button
+              className={plannerPickerStyles.browserModeOption(theme, browserMode === "ingredients")}
+              type="button"
+              onClick={() => setBrowserMode("ingredients")}
+            >
+              {t.cookbook.ingredients}
+            </button>
+          </div>
           <IngredientFilterChips
             selectedIngredients={selectedIngredients}
             theme={theme}
@@ -556,13 +708,28 @@ function PlannerRecipePickerModal({
         <div className={plannerPickerStyles.bodyScrollFrame}>
           <div className={plannerPickerStyles.bodyGrid}>
             <PlannerRecipePickerGrid
-              highlightedMainRecipeId={highlightedMainRecipeId}
-              phase={phase}
+              browserMode={browserMode}
+              ingredients={visiblePickerIngredients}
               recipes={visibleRecipes}
-              supplementaryRecipeIds={supplementaryRecipeIds}
+              selectedIngredientIds={[
+                ...(mainIngredientSelection === null ? [] : [mainIngredientSelection.ingredientId]),
+                ...supplementaryIngredientIds,
+              ]}
+              selectedRecipeIds={[
+                ...(mainRecipeSelection === null ? [] : [mainRecipeSelection.recipeId]),
+                ...supplementaryRecipeIds,
+              ]}
               theme={theme}
-              onSelectMainRecipe={highlightMainRecipe}
-              onToggleSupplementaryRecipe={toggleSupplementaryRecipe}
+              onAddIngredient={(ingredient, amount, unit) =>
+                phase === "main"
+                  ? selectMainIngredient(ingredient, amount, unit)
+                  : toggleSupplementaryIngredient(ingredient, amount, unit)
+              }
+              onAddRecipe={(recipe, portions) =>
+                phase === "main"
+                  ? selectMainRecipe(recipe, portions)
+                  : toggleSupplementaryRecipe(recipe, portions)
+              }
             />
           </div>
         </div>
@@ -611,6 +778,27 @@ function trapFocus(event: KeyboardEvent, container: HTMLElement | null) {
     event.preventDefault();
     firstElement.focus();
   }
+}
+
+function formatRecipeSelectionLabel(name: string, portions: number) {
+  return `${name} (${formatNumber(portions)}x)`;
+}
+
+function formatIngredientSelectionLabel(
+  name: string,
+  amount: number,
+  unit: MeasurementUnit,
+  unitLabels: Record<MeasurementUnit, string>,
+) {
+  return `${name} (${formatNumber(amount)} ${unitLabels[unit]})`;
+}
+
+function formatNumber(value: number) {
+  return Number.isInteger(value) ? value.toString() : value.toLocaleString(undefined, { maximumFractionDigits: 2 });
+}
+
+function recipeByIdFallback(recipes: IRecipe[], recipeId: number | null) {
+  return recipeId === null ? undefined : recipes.find((recipe) => recipe.recipeId === recipeId);
 }
 
 function CategoryIcon() {

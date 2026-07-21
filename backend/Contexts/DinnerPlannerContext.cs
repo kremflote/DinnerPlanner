@@ -272,6 +272,9 @@ public class DinnerPlannerContext(DbContextOptions<DinnerPlannerContext> options
         modelBuilder.Entity<MealPlanRecipe>(entity =>
         {
             entity.Property(planRecipe => planRecipe.Role).HasConversion<string>().HasMaxLength(40);
+            entity.Property(planRecipe => planRecipe.Unit).HasConversion<string>().HasMaxLength(40);
+            entity.Property(planRecipe => planRecipe.Portions).HasPrecision(10, 2);
+            entity.Property(planRecipe => planRecipe.Amount).HasPrecision(10, 2);
 
             entity.HasOne(planRecipe => planRecipe.MealPlanEntry)
                 .WithMany(entry => entry.Recipes)
@@ -281,6 +284,11 @@ public class DinnerPlannerContext(DbContextOptions<DinnerPlannerContext> options
             entity.HasOne(planRecipe => planRecipe.Recipe)
                 .WithMany()
                 .HasForeignKey(planRecipe => planRecipe.RecipeId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(planRecipe => planRecipe.Ingredient)
+                .WithMany()
+                .HasForeignKey(planRecipe => planRecipe.IngredientId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasIndex(planRecipe => new
@@ -519,7 +527,8 @@ public class DinnerPlannerContext(DbContextOptions<DinnerPlannerContext> options
             Name = "Garlic yogurt sauce",
             ImageUrl = "/images/recipes/garlic-yogurt-sauce.png",
             Description = "Cold yogurt sauce with grated garlic and lemon. Best with chicken bowls, grilled meat, roasted vegetables, and rice.",
-            Instructions = "Grate the garlic finely. Stir garlic, lemon juice, and a little lemon zest into the yogurt. Season with salt and let it rest for at least 10 minutes before serving."
+            Instructions = "Grate the garlic finely. Stir garlic, lemon juice, and a little lemon zest into the yogurt. Season with salt and let it rest for at least 10 minutes before serving.",
+            Portions = 1m
         });
 
         modelBuilder.Entity<Dish>().HasData(new
@@ -529,6 +538,7 @@ public class DinnerPlannerContext(DbContextOptions<DinnerPlannerContext> options
             ImageUrl = "/images/recipes/chicken-rice-bowl.png",
             Description = "Weeknight bowl with pan-fried chicken, steamed rice, and fresh garlic yogurt sauce. Good as dinner and easy to scale for meal prep.",
             Instructions = "Rinse the rice and cook until tender. Slice the chicken breast, season lightly, and fry in a hot pan until cooked through. Spoon rice into bowls, add chicken, and finish with garlic yogurt sauce.",
+            Portions = 1m,
             CuisineId = (int?)1
         });
 
@@ -595,7 +605,8 @@ public class DinnerPlannerContext(DbContextOptions<DinnerPlannerContext> options
             Name = "Steamed rice",
             ImageUrl = (string?)null,
             Description = "Plain steamed rice for bowls, curries, stir fries, and saucy dishes.",
-            Instructions = "Rinse the rice until the water runs mostly clear. Cook with the correct amount of water, then rest covered for 5 minutes before fluffing."
+            Instructions = "Rinse the rice until the water runs mostly clear. Cook with the correct amount of water, then rest covered for 5 minutes before fluffing.",
+            Portions = 1m
         });
     }
 

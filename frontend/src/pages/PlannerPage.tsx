@@ -5,7 +5,7 @@ import GroceryExportDialog from "../components/GroceryExportDialog";
 import PlannerControls from "../components/PlannerControls";
 import PlannerRecipePickerModal from "../components/PlannerRecipePickerModal";
 import PrepHelperDialog from "../components/PrepHelperDialog";
-import { useLanguage, useMealPlan, useRecipes } from "../contexts";
+import { useIngredients, useLanguage, useMealPlan, useRecipes } from "../contexts";
 import type { IGroceryList } from "../interfaces/IGroceryList";
 import type { MealRecipeRole, MealSlot, PlannerViewMode } from "../interfaces/IMeal";
 import type { IRecipe } from "../interfaces/IRecipe";
@@ -57,6 +57,7 @@ const PlannerPage = ({ theme }: PlannerPageProps) => {
     saveMealPlanEntry,
   } = useMealPlan();
   const { recipes } = useRecipes();
+  const { ingredients } = useIngredients();
 
   const visibleRange = useMemo(
     () => getVisibleRange(anchorDate, viewMode),
@@ -71,6 +72,10 @@ const PlannerPage = ({ theme }: PlannerPageProps) => {
   const recipesById = useMemo(
     () => new Map(recipes.map((recipe) => [recipe.recipeId, recipe])),
     [recipes],
+  );
+  const ingredientsById = useMemo(
+    () => new Map(ingredients.map((ingredient) => [ingredient.ingredientId, ingredient])),
+    [ingredients],
   );
 
   const entriesByDateSlot = useMemo(
@@ -213,16 +218,24 @@ const PlannerPage = ({ theme }: PlannerPageProps) => {
             recipes: [
               {
                 recipeId: mainRecipe.recipeId,
+                ingredientId: null,
                 role: "Main",
                 sortOrder: 0,
+                portions: mainRecipe.portions,
+                amount: null,
+                unit: null,
               },
               ...(sideRecipe === null
                 ? []
                 : [
                     {
                       recipeId: sideRecipe.recipeId,
+                      ingredientId: null,
                       role: getGeneratedSideRole(sideRecipe),
                       sortOrder: 1,
+                      portions: sideRecipe.portions,
+                      amount: null,
+                      unit: null,
                     },
                   ]),
             ],
@@ -272,6 +285,7 @@ const PlannerPage = ({ theme }: PlannerPageProps) => {
           dates={visibleDates}
           getEntryForSlot={getEntryForSlot}
           isLoading={mealPlanIsLoading}
+          ingredientsById={ingredientsById}
           loadError={initError === null ? null : t.planner.couldNotLoadMealPlan}
           mealSlots={visibleMealSlots}
           onSlotClick={(date, slot) => setSelectedSlot({ date, slot })}

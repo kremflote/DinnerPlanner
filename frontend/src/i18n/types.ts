@@ -149,6 +149,8 @@ export type TranslationDictionary = {
     pickOneOrMore: string;
     polyunsaturatedFatsPer100g: string;
     polyunsaturatedFats: string;
+    portions: string;
+    portionsRequired: string;
     omega3Per100g: string;
     omega3: string;
     omega6Per100g: string;

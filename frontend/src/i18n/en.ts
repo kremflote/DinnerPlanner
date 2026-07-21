@@ -134,6 +134,8 @@ export const en: TranslationDictionary = {
     pickOneOrMore: "Pick 1 or more",
     polyunsaturatedFats: "Polyunsaturated fats",
     polyunsaturatedFatsPer100g: "Polyunsaturated fats per 100g",
+    portions: "Portions",
+    portionsRequired: "Recipe portions must be a positive number.",
     omega3: "Omega-3",
     omega3Per100g: "Omega-3 per 100g",
     omega6: "Omega-6",

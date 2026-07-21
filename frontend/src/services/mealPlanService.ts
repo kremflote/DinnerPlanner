@@ -1,10 +1,15 @@
+import type { MeasurementUnit } from "../interfaces/IIngredient";
 import type { IMealPlanEntry, MealRecipeRole, MealSlot } from "../interfaces/IMeal";
 import { apiRequest } from "./apiClient";
 
 export interface MealPlanRecipeRequest {
-  recipeId: number;
+  recipeId: number | null;
+  ingredientId: number | null;
   role: MealRecipeRole;
   sortOrder: number;
+  portions: number | null;
+  amount: number | null;
+  unit: MeasurementUnit | null;
 }
 
 export interface MealPlanEntryRequest {

@@ -23,6 +23,11 @@ public class GroceryListService(DinnerPlannerContext context)
         var entries = await context.MealPlanEntries
             .AsNoTracking()
             .Include(entry => entry.Recipes)
+                .ThenInclude(item => item.Ingredient)
+                    .ThenInclude(ingredient => ingredient!.Tags)
+            .Include(entry => entry.Recipes)
+                .ThenInclude(item => item.Ingredient)
+                    .ThenInclude(ingredient => ingredient!.Brand)
             .Where(entry => entry.Date >= from && entry.Date <= to)
             .ToListAsync(cancellationToken);
 
@@ -35,15 +40,42 @@ public class GroceryListService(DinnerPlannerContext context)
                 .ThenInclude(recipeIngredient => recipeIngredient.Ingredient)
                     .ThenInclude(ingredient => ingredient.Brand)
             .Include(recipe => recipe.Components)
+                .ThenInclude(component => component.ChildRecipe)
+                    .ThenInclude(childRecipe => childRecipe.Ingredients)
+                        .ThenInclude(recipeIngredient => recipeIngredient.Ingredient)
+                            .ThenInclude(ingredient => ingredient.Tags)
+            .Include(recipe => recipe.Components)
+                .ThenInclude(component => component.ChildRecipe)
+                    .ThenInclude(childRecipe => childRecipe.Ingredients)
+                        .ThenInclude(recipeIngredient => recipeIngredient.Ingredient)
+                            .ThenInclude(ingredient => ingredient.Brand)
             .ToListAsync(cancellationToken);
         var recipesById = allRecipes.ToDictionary(recipe => recipe.RecipeId);
 
         var groceryRows = entries
             .SelectMany(entry => entry.Recipes)
             .SelectMany(mealPlanRecipe =>
-                recipesById.TryGetValue(mealPlanRecipe.RecipeId, out var recipe)
-                    ? BuildGroceryRows(recipe, recipesById)
-                    : [])
+            {
+                if (mealPlanRecipe.Ingredient is not null && mealPlanRecipe.Amount is not null && mealPlanRecipe.Unit is not null)
+                {
+                    return
+                    [
+                        new GroceryIngredientRow(
+                            mealPlanRecipe.Ingredient.IngredientId,
+                            mealPlanRecipe.Ingredient.IngredientName,
+                            mealPlanRecipe.Ingredient.Brand?.Name,
+                            mealPlanRecipe.Amount,
+                            mealPlanRecipe.Unit.Value,
+                            "Meal plan",
+                            mealPlanRecipe.Ingredient.Tags.Select(tag => tag.Tag).ToList()
+                        )
+                    ];
+                }
+
+                return mealPlanRecipe.RecipeId is not null && recipesById.TryGetValue(mealPlanRecipe.RecipeId.Value, out var recipe)
+                    ? BuildGroceryRows(recipe, recipesById, mealPlanRecipe.Portions)
+                    : [];
+            })
             .ToList();
 
         var items = groceryRows
@@ -155,11 +187,12 @@ public class GroceryListService(DinnerPlannerContext context)
 
     private static List<GroceryIngredientRow> BuildGroceryRows(
         Recipe recipe,
-        IReadOnlyDictionary<int, Recipe> recipesById
+        IReadOnlyDictionary<int, Recipe> recipesById,
+        decimal? selectedPortions
     )
     {
         var rows = new List<GroceryIngredientRow>();
-        AddRecipeRows(recipe, recipe.Name, recipe.Name, recipesById, rows, []);
+        AddRecipeRows(recipe, recipe.Name, recipe.Name, recipesById, rows, [], GetPortionFactor(recipe, selectedPortions));
         return rows;
     }
 
@@ -169,7 +202,8 @@ public class GroceryListService(DinnerPlannerContext context)
         string sourceRecipeName,
         IReadOnlyDictionary<int, Recipe> recipesById,
         List<GroceryIngredientRow> rows,
-        HashSet<int> visitedRecipeIds
+        HashSet<int> visitedRecipeIds,
+        decimal portionFactor
     )
     {
         if (!visitedRecipeIds.Add(recipe.RecipeId))
@@ -181,7 +215,7 @@ public class GroceryListService(DinnerPlannerContext context)
             recipeIngredient.IngredientId,
             recipeIngredient.Ingredient.IngredientName,
             recipeIngredient.Ingredient.Brand?.Name,
-            recipeIngredient.Amount,
+            recipeIngredient.Amount * portionFactor,
             recipeIngredient.Unit,
             sourceRecipeName,
             recipeIngredient.Ingredient.Tags.Select(tag => tag.Tag).ToList()
@@ -200,11 +234,19 @@ public class GroceryListService(DinnerPlannerContext context)
                 $"{childRecipe.Name} via {rootRecipeName}",
                 recipesById,
                 rows,
-                visitedRecipeIds
+                visitedRecipeIds,
+                portionFactor
             );
         }
 
         visitedRecipeIds.Remove(recipe.RecipeId);
+    }
+
+    private static decimal GetPortionFactor(Recipe recipe, decimal? selectedPortions)
+    {
+        var basePortions = recipe.Portions <= 0m ? 1m : recipe.Portions;
+        var portions = selectedPortions is null or <= 0m ? basePortions : selectedPortions.Value;
+        return portions / basePortions;
     }
 
     private record GroceryIngredientRow(

@@ -262,8 +262,12 @@ export const thumbnailStyles = {
     theme === "paletteLight" ? "bg-[#556145]/95" : "bg-neutral-700/95",
   recipeTitleBandLayout:
     "absolute inset-x-0 bottom-0 flex h-[22%] min-h-12 flex-col justify-center px-3",
+  recipeTitleBandLayoutExpanded:
+    "absolute inset-x-0 bottom-0 flex min-h-[46%] flex-col justify-end px-3 py-2",
   recipeTitleBandLayoutMicro:
     "absolute inset-x-0 bottom-0 flex h-[38%] min-h-0 flex-col justify-center px-1.5",
+  recipeTitleBandExtra:
+    "absolute inset-x-3 top-2",
   recipeTitle: "truncate text-base font-bold leading-tight text-[#FAF7F2]",
   recipeTitleCompact: "truncate text-sm font-bold leading-tight text-[#FAF7F2]",
   recipeTitleMicro:
@@ -276,14 +280,14 @@ export const thumbnailStyles = {
   recipeSubtitleLayoutMicro:
     "mt-0 truncate text-[8px] font-semibold leading-tight",
   ingredientShell: (theme: SiteTheme) =>
-    `grid h-12 w-full grid-cols-[2.25rem_minmax(0,1fr)] items-center gap-2 rounded-md p-1.5 text-left ${shadowClasses.subtle} transition ${
+    `grid min-h-12 w-full grid-cols-[2.25rem_minmax(0,1fr)] items-center gap-2 rounded-md p-1.5 text-left ${shadowClasses.subtle} transition ${
       theme === "dark"
         ? "bg-white/[0.08]"
         : theme === "paletteLight"
           ? "bg-[#E5D5BC]/45"
           : "bg-neutral-100"
     }`,
-  ingredientShellCompact: "h-10 grid-cols-[1.75rem_minmax(0,1fr)] p-1",
+  ingredientShellCompact: "min-h-10 grid-cols-[1.75rem_minmax(0,1fr)] p-1",
   ingredientSelectedOutline: "outline outline-2 outline-current",
   ingredientSelectedColorBorder: "border-2",
   ingredientSelectedMuted: "opacity-45",
@@ -295,6 +299,7 @@ export const thumbnailStyles = {
     "flex h-full w-full items-center justify-center text-xs font-black leading-none",
   ingredientDot: "h-3 w-3 rounded-md",
   ingredientContent: "grid min-w-0 content-center gap-0.5",
+  ingredientFooter: "col-span-full min-w-0",
   ingredientName: "min-w-0 truncate text-sm font-bold leading-tight",
   ingredientNameCompact: "text-xs",
   ingredientBrand:
@@ -1234,7 +1239,7 @@ export const mealCalendarStyles = {
   mealSlotImageFallback: (theme: SiteTheme) =>
     `h-full w-full ${theme === "dark" ? "bg-neutral-800" : theme === "paletteLight" ? "bg-[#E5D5BC]/45" : "bg-neutral-100"}`,
   mealSlotDetails:
-    "grid min-w-0 content-start gap-2 px-3 pb-3 pt-2 max-sm:px-2 max-sm:pb-2 max-sm:pt-1.5",
+    "relative grid min-w-0 content-start gap-2 px-3 pb-3 pt-2 max-sm:px-2 max-sm:pb-2 max-sm:pt-1.5",
   mealSlotTitle: (theme: SiteTheme) =>
     `min-w-0 whitespace-normal break-words text-left text-base font-bold leading-tight max-sm:text-sm ${
       theme === "dark"
@@ -1244,6 +1249,14 @@ export const mealCalendarStyles = {
           : "text-neutral-900"
     }`,
   mealSlotRecipeList: "flex min-w-0 flex-wrap items-start gap-1.5",
+  mealSlotPortions: (theme: SiteTheme) =>
+    `absolute bottom-2 right-3 text-xs font-black max-sm:right-2 max-sm:text-[11px] ${
+      theme === "dark"
+        ? "text-neutral-300"
+        : theme === "paletteLight"
+          ? "text-[#7A8864]"
+          : "text-neutral-600"
+    }`,
   mealSlotRecipe: (theme: SiteTheme) =>
     `max-w-full truncate rounded-md border px-2 py-1 text-xs font-bold leading-none max-sm:text-[11px] ${
       theme === "dark"
@@ -1339,7 +1352,7 @@ export const plannerPickerStyles = {
   bodyFrame: "grid min-h-0 gap-4",
   bodyScrollFrame: "grid min-h-0 overflow-y-auto pr-1",
   controls:
-    "mt-2 grid grid-cols-[13rem_auto_auto_minmax(0,1fr)] items-start gap-3 max-md:grid-cols-[13rem_auto_auto_minmax(0,1fr)] max-sm:grid-cols-[minmax(0,1fr)_auto_auto]",
+    "mt-2 grid grid-cols-[13rem_auto_auto_minmax(0,1fr)_14rem] items-start gap-3 max-md:grid-cols-[13rem_auto_auto_minmax(0,1fr)_14rem] max-sm:grid-cols-[minmax(0,1fr)_auto_auto]",
   searchInput: controlStyles.compactSearchInput,
   categoryButton: (theme: SiteTheme) =>
     `inline-flex h-9 w-auto items-center justify-center rounded-md border px-3 text-xs font-extrabold max-[1100px]:w-9 max-[1100px]:px-0 ${shadowClasses.subtle} transition-colors ${
@@ -1357,27 +1370,21 @@ export const plannerPickerStyles = {
           ? "border-[#7A8864]/35 bg-[#C8C0B5] text-[#556145] hover:bg-[#A9BDD1]/40"
           : "border-neutral-300 bg-neutral-200 text-neutral-900 hover:bg-neutral-300"
     }`,
+  browserModeSwitch: (theme: SiteTheme) =>
+    `${segmentedToggleStyles.shell(theme)} col-start-5 h-9 w-full justify-self-end max-sm:col-span-3 max-sm:col-start-auto`,
+  browserModeOption: (theme: SiteTheme, selected: boolean) =>
+    segmentedToggleStyles.option(theme, selected),
   categoryButtonLabel: "max-[1100px]:sr-only",
   ingredientFilterChips:
-    "flex min-h-9 flex-wrap items-start gap-2 max-sm:col-span-3",
-  emptyIngredientChipSlot: "min-h-9 max-sm:hidden",
-  selectedSection: "max-[1100px]:hidden",
+    "col-span-full flex flex-wrap items-start gap-2 max-sm:col-span-3",
   selectedSummary: (theme: SiteTheme) =>
-    `hidden min-h-9 items-center rounded-md px-3 py-2 text-sm font-bold leading-tight max-[1100px]:flex ${
+    `flex min-h-9 min-w-0 items-center rounded-md px-3 py-2 text-sm font-bold leading-tight ${
       theme === "dark"
         ? "bg-white/[0.06] text-neutral-200"
         : theme === "paletteLight"
           ? "bg-[#E5D5BC]/45 text-[#556145]"
           : "bg-neutral-100 text-neutral-800"
     }`,
-  selectedSectionBorder: (_theme: SiteTheme) => "",
-  selectedStrip: "grid grid-cols-2 content-start gap-2 max-sm:grid-cols-1",
-  selectedMainGrid:
-    "grid grid-cols-[9rem_minmax(12rem,22rem)] items-start gap-3 min-[641px]:max-[1100px]:grid-cols-[minmax(0,1fr)_minmax(0,3fr)] max-sm:grid-cols-1",
-  selectedMainThumbnail:
-    "h-36 w-36 min-[641px]:max-[1100px]:h-auto min-[641px]:max-[1100px]:w-full",
-  selectedItem: (theme: SiteTheme) =>
-    `inline-flex h-8 items-center gap-2 rounded-md border px-3 text-xs font-bold ${siteColorClasses[theme].plannerControl}`,
   bodyGrid: `mt-4 grid ${sizeClasses.plannerPickerBrowserHeight} overflow-y-auto pr-1`,
   filterRail: (theme: SiteTheme) =>
     `max-h-[52vh] overflow-y-auto rounded-md p-3 max-sm:max-h-[44vh] ${shadowClasses.subtle} ${
@@ -1388,6 +1395,8 @@ export const plannerPickerStyles = {
           : "bg-neutral-100"
     }`,
   recipeGrid: "grid grid-cols-4 gap-3 max-sm:grid-cols-2",
+  ingredientGrid: "grid auto-rows-max grid-cols-2 content-start items-start gap-2 max-sm:grid-cols-1",
+  pickerCardShell: "relative h-fit min-w-0",
   recipeCard: (theme: SiteTheme, selected: boolean) =>
     `${shadowClasses.subtle} ${
       selected
@@ -1402,8 +1411,36 @@ export const plannerPickerStyles = {
             ? "ring-1 ring-[#7A8864]/20"
             : "ring-1 ring-neutral-200"
     }`,
-  footer: "grid gap-3 border-t pt-4",
-  footerActions: "flex flex-wrap items-center justify-end gap-3",
+  pickerInlineControls: "mt-1 flex min-w-0 items-center gap-1.5",
+  pickerInlineLabel: "min-w-0 flex-1",
+  pickerOverlayInput: (theme: SiteTheme) =>
+    `h-7 w-full min-w-0 rounded-md border px-2 text-xs font-bold outline-none ${
+      theme === "dark"
+        ? "border-white/[0.14] bg-neutral-900 text-white"
+        : theme === "paletteLight"
+          ? "border-[#C8C0B5] bg-[#FAF7F2] text-[#556145]"
+          : "border-neutral-300 bg-white text-neutral-900"
+    }`,
+  pickerOverlayUnitSelect: (theme: SiteTheme) =>
+    `h-7 min-w-[5.75rem] shrink-0 rounded-md border px-2 text-xs font-bold outline-none ${
+      theme === "dark"
+        ? "border-white/[0.14] bg-neutral-900 text-white"
+        : theme === "paletteLight"
+          ? "border-[#C8C0B5] bg-[#FAF7F2] text-[#556145]"
+          : "border-neutral-300 bg-white text-neutral-900"
+    }`,
+  pickerOverlayAddButton: (theme: SiteTheme) =>
+    `inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md border text-lg font-black ${
+      theme === "dark"
+        ? "border-white/[0.14] bg-white/[0.12] text-white"
+        : theme === "paletteLight"
+          ? "border-[#7A8864]/35 bg-[#7A8864] text-[#FAF7F2]"
+          : "border-neutral-900 bg-neutral-900 text-white"
+    }`,
+  footer: "border-t pt-4",
+  footerContent: "flex items-center justify-between gap-3 max-sm:grid max-sm:grid-cols-1",
+  footerActions:
+    "flex shrink-0 flex-wrap items-center justify-end gap-3 max-sm:flex-nowrap max-sm:[&>button]:min-w-0 max-sm:[&>button]:flex-1 max-sm:[&>button]:px-3 max-sm:[&>button]:text-sm",
   secondaryButton: controlStyles.secondaryButton,
   primaryButton: controlStyles.primaryButton,
   removeButton: controlStyles.removeButton,

@@ -12,7 +12,7 @@ public record IngredientRequest(
     int? BrandId,
     [StringLength(500)]
     string? ImageUrl,
-    [Range(typeof(decimal), "0", "79228162514264337593543950335")]
+    [Range(typeof(decimal), "0", "79228162514264337593543950335", ParseLimitsInInvariantCulture = true)]
     decimal? Price,
     IReadOnlyCollection<string> Tags,
     NutritionFacts? NutritionPer100,
@@ -23,7 +23,7 @@ public record IngredientRequest(
     string? MatvaretabellenFoodId,
     [StringLength(160)]
     string? NutritionMatchedName,
-    [Range(typeof(decimal), "0", "1")]
+    [Range(typeof(decimal), "0", "1", ParseLimitsInInvariantCulture = true)]
     decimal? NutritionMatchConfidence,
     [StringLength(40)]
     string? Color

@@ -24,6 +24,7 @@ public class MealPlansController(DinnerPlannerContext context) : ControllerBase
         var entries = await context.MealPlanEntries
             .AsNoTracking()
             .Include(entry => entry.Recipes)
+                .ThenInclude(item => item.Ingredient)
             .Where(entry => entry.Date >= from && entry.Date <= to)
             .OrderBy(entry => entry.Date)
             .ThenBy(entry => entry.Slot)
@@ -38,6 +39,7 @@ public class MealPlansController(DinnerPlannerContext context) : ControllerBase
         var entry = await context.MealPlanEntries
             .AsNoTracking()
             .Include(mealPlanEntry => mealPlanEntry.Recipes)
+                .ThenInclude(item => item.Ingredient)
             .FirstOrDefaultAsync(mealPlanEntry => mealPlanEntry.MealPlanEntryId == id);
 
         return entry is null ? NotFound() : Ok(ToDto(entry));
@@ -65,6 +67,18 @@ public class MealPlansController(DinnerPlannerContext context) : ControllerBase
         if (missingRecipeIds.Count > 0)
         {
             return BadRequest($"No recipes found for IDs: {string.Join(", ", missingRecipeIds)}.");
+        }
+
+        var missingIngredientIds = await GetMissingIngredientIds(request.Recipes);
+        if (missingIngredientIds.Count > 0)
+        {
+            return BadRequest($"No ingredients found for IDs: {string.Join(", ", missingIngredientIds)}.");
+        }
+
+        var validationError = ValidateMealPlanItems(request.Recipes);
+        if (validationError is not null)
+        {
+            return BadRequest(validationError);
         }
 
         var entry = new MealPlanEntry
@@ -115,6 +129,18 @@ public class MealPlansController(DinnerPlannerContext context) : ControllerBase
             return BadRequest($"No recipes found for IDs: {string.Join(", ", missingRecipeIds)}.");
         }
 
+        var missingIngredientIds = await GetMissingIngredientIds(request.Recipes);
+        if (missingIngredientIds.Count > 0)
+        {
+            return BadRequest($"No ingredients found for IDs: {string.Join(", ", missingIngredientIds)}.");
+        }
+
+        var validationError = ValidateMealPlanItems(request.Recipes);
+        if (validationError is not null)
+        {
+            return BadRequest(validationError);
+        }
+
         entry.Date = request.Date;
         entry.Slot = request.Slot;
         entry.Notes = request.Notes;
@@ -143,6 +169,7 @@ public class MealPlansController(DinnerPlannerContext context) : ControllerBase
     private Task<MealPlanEntry?> LoadEntry(int id) => context.MealPlanEntries
         .AsNoTracking()
         .Include(entry => entry.Recipes)
+            .ThenInclude(item => item.Ingredient)
         .FirstOrDefaultAsync(entry => entry.MealPlanEntryId == id);
 
     private Task<bool> EntryExists(DateOnly date, MealSlot slot, int? ignoredEntryId = null) =>
@@ -153,7 +180,11 @@ public class MealPlansController(DinnerPlannerContext context) : ControllerBase
 
     private async Task<List<int>> GetMissingRecipeIds(IReadOnlyCollection<MealPlanRecipeRequest> recipeRequests)
     {
-        var requestedIds = recipeRequests.Select(recipe => recipe.RecipeId).Distinct().ToList();
+        var requestedIds = recipeRequests
+            .Where(recipe => recipe.RecipeId is not null)
+            .Select(recipe => recipe.RecipeId!.Value)
+            .Distinct()
+            .ToList();
         var existingIds = await context.Recipes
             .Where(recipe => requestedIds.Contains(recipe.RecipeId))
             .Select(recipe => recipe.RecipeId)
@@ -162,8 +193,49 @@ public class MealPlansController(DinnerPlannerContext context) : ControllerBase
         return requestedIds.Except(existingIds).ToList();
     }
 
+    private async Task<List<int>> GetMissingIngredientIds(IReadOnlyCollection<MealPlanRecipeRequest> recipeRequests)
+    {
+        var requestedIds = recipeRequests
+            .Where(recipe => recipe.IngredientId is not null)
+            .Select(recipe => recipe.IngredientId!.Value)
+            .Distinct()
+            .ToList();
+
+        var existingIds = await context.Ingredients
+            .Where(ingredient => requestedIds.Contains(ingredient.IngredientId))
+            .Select(ingredient => ingredient.IngredientId)
+            .ToListAsync();
+
+        return requestedIds.Except(existingIds).ToList();
+    }
+
     private static bool ContainsUnsupportedRecipeRole(IEnumerable<MealPlanRecipeRequest> recipes) =>
         recipes.Any(recipe => !Enum.IsDefined(recipe.Role));
+
+    private static string? ValidateMealPlanItems(IEnumerable<MealPlanRecipeRequest> recipes)
+    {
+        foreach (var recipe in recipes)
+        {
+            var hasRecipe = recipe.RecipeId is not null;
+            var hasIngredient = recipe.IngredientId is not null;
+            if (hasRecipe == hasIngredient)
+            {
+                return "Each meal plan item must include either a recipe or an ingredient.";
+            }
+
+            if (hasRecipe && (recipe.Portions is null || recipe.Portions <= 0m))
+            {
+                return "Recipe meal plan items need a positive portion count.";
+            }
+
+            if (hasIngredient && (recipe.Amount is null || recipe.Amount <= 0m || recipe.Unit is null || !Enum.IsDefined(recipe.Unit.Value)))
+            {
+                return "Ingredient meal plan items need a positive amount and supported unit.";
+            }
+        }
+
+        return null;
+    }
 
     private static List<MealPlanRecipe> ToModels(IEnumerable<MealPlanRecipeRequest> recipes) =>
         recipes
@@ -171,8 +243,12 @@ public class MealPlansController(DinnerPlannerContext context) : ControllerBase
             .Select((recipe, index) => new MealPlanRecipe
             {
                 RecipeId = recipe.RecipeId,
+                IngredientId = recipe.IngredientId,
                 Role = recipe.Role,
-                SortOrder = recipe.SortOrder < 0 ? index : recipe.SortOrder
+                SortOrder = recipe.SortOrder < 0 ? index : recipe.SortOrder,
+                Portions = recipe.RecipeId is null ? null : recipe.Portions,
+                Amount = recipe.IngredientId is null ? null : recipe.Amount,
+                Unit = recipe.IngredientId is null ? null : recipe.Unit
             })
             .ToList();
 
@@ -190,7 +266,11 @@ public class MealPlansController(DinnerPlannerContext context) : ControllerBase
     private static MealPlanRecipeDto ToDto(MealPlanRecipe recipe) => new(
         recipe.MealPlanRecipeId,
         recipe.RecipeId,
+        recipe.IngredientId,
         recipe.Role,
-        recipe.SortOrder
+        recipe.SortOrder,
+        recipe.Portions,
+        recipe.Amount,
+        recipe.Unit
     );
 }

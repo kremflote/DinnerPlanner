@@ -4,9 +4,13 @@ using DinnerPlanner.Api.Models;
 namespace DinnerPlanner.Api.Dtos;
 
 public record MealPlanRecipeRequest(
-    int RecipeId,
+    int? RecipeId,
+    int? IngredientId,
     MealRecipeRole Role,
-    int SortOrder
+    int SortOrder,
+    decimal? Portions,
+    decimal? Amount,
+    MeasurementUnit? Unit
 );
 
 public record MealPlanEntryRequest(
@@ -20,9 +24,13 @@ public record MealPlanEntryRequest(
 
 public record MealPlanRecipeDto(
     int MealPlanRecipeId,
-    int RecipeId,
+    int? RecipeId,
+    int? IngredientId,
     MealRecipeRole Role,
-    int SortOrder
+    int SortOrder,
+    decimal? Portions,
+    decimal? Amount,
+    MeasurementUnit? Unit
 );
 
 public record MealPlanEntryDto(

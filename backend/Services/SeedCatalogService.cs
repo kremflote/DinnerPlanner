@@ -417,6 +417,7 @@ public class SeedCatalogService(
         recipe.ImageUrl = NullIfWhiteSpace(seedRecipe.ImageUrl);
         recipe.Description = NullIfWhiteSpace(seedRecipe.Description);
         recipe.Instructions = NullIfWhiteSpace(seedRecipe.Instructions);
+        recipe.Portions = seedRecipe.Portions is > 0m ? seedRecipe.Portions.Value : 1m;
         return recipe;
     }
 
@@ -426,6 +427,7 @@ public class SeedCatalogService(
         recipe.ImageUrl,
         recipe.Description,
         recipe.Instructions,
+        recipe.Portions,
         recipe.Ingredients
             .OrderBy(recipeIngredient => recipeIngredient.Ingredient.IngredientName)
             .Select(recipeIngredient => new SeedRecipeIngredientDto(

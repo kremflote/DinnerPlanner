@@ -19,12 +19,14 @@ public class NutritionSummaryService(DinnerPlannerContext context)
         var entries = await context.MealPlanEntries
             .AsNoTracking()
             .Include(entry => entry.Recipes)
+                .ThenInclude(item => item.Ingredient)
             .Where(entry => entry.Date >= from && entry.Date <= to)
             .ToListAsync();
 
         var recipeIds = entries
             .SelectMany(entry => entry.Recipes)
-            .Select(recipe => recipe.RecipeId)
+            .Where(recipe => recipe.RecipeId is not null)
+            .Select(recipe => recipe.RecipeId!.Value)
             .Distinct()
             .ToList();
 
@@ -46,16 +48,24 @@ public class NutritionSummaryService(DinnerPlannerContext context)
 
         foreach (var entryRecipe in entries.SelectMany(entry => entry.Recipes))
         {
-            if (!recipes.TryGetValue(entryRecipe.RecipeId, out var recipe))
+            if (entryRecipe.Ingredient is not null)
+            {
+                AddIngredientNutrition(total, entryRecipe.Ingredient, entryRecipe.Amount, entryRecipe.Unit);
+                AddMissingNutrition(missingNutrition, entryRecipe.Ingredient, "Meal plan");
+                continue;
+            }
+
+            if (entryRecipe.RecipeId is null || !recipes.TryGetValue(entryRecipe.RecipeId.Value, out var recipe))
             {
                 continue;
             }
 
-            AddRecipeNutrition(total, recipe);
+            var portionFactor = GetPortionFactor(recipe, entryRecipe.Portions);
+            AddRecipeNutrition(total, recipe, portionFactor);
             AddMissingNutrition(missingNutrition, recipe);
             foreach (var component in recipe.Components)
             {
-                AddRecipeNutrition(total, component.ChildRecipe);
+                AddRecipeNutrition(total, component.ChildRecipe, portionFactor);
                 AddMissingNutrition(missingNutrition, component.ChildRecipe);
             }
         }
@@ -79,15 +89,35 @@ public class NutritionSummaryService(DinnerPlannerContext context)
         );
     }
 
-    private static void AddRecipeNutrition(NutritionTotals total, Recipe recipe)
+    private static void AddRecipeNutrition(NutritionTotals total, Recipe recipe, decimal portionFactor = 1m)
     {
         foreach (var recipeIngredient in recipe.Ingredients)
         {
-            var nutrition = recipeIngredient.Ingredient.NutritionPer100;
             var grams = ToGramAmount(recipeIngredient.Amount, recipeIngredient.Unit);
+            AddNutrition(total, recipeIngredient.Ingredient.NutritionPer100, grams * portionFactor);
+        }
+    }
+
+    private static void AddIngredientNutrition(
+        NutritionTotals total,
+        Ingredient ingredient,
+        decimal? amount,
+        MeasurementUnit? unit
+    )
+    {
+        if (unit is null)
+        {
+            return;
+        }
+
+        AddNutrition(total, ingredient.NutritionPer100, ToGramAmount(amount, unit.Value));
+    }
+
+    private static void AddNutrition(NutritionTotals total, NutritionFacts? nutrition, decimal? grams)
+    {
             if (nutrition is null || grams is null)
             {
-                continue;
+                return;
             }
 
             var factor = grams.Value / 100m;
@@ -111,7 +141,6 @@ public class NutritionSummaryService(DinnerPlannerContext context)
             total.VitaminEMilligrams = AddScaled(total.VitaminEMilligrams, nutrition.VitaminEMilligrams, factor);
             total.VitaminKMicrograms = AddScaled(total.VitaminKMicrograms, nutrition.VitaminKMicrograms, factor);
             total.CholineMilligrams = AddScaled(total.CholineMilligrams, nutrition.CholineMilligrams, factor);
-        }
     }
 
     private static void AddMissingNutrition(Dictionary<int, MissingNutritionAccumulator> missingNutrition, Recipe recipe)
@@ -135,6 +164,37 @@ public class NutritionSummaryService(DinnerPlannerContext context)
 
             missingIngredient.SourceRecipes.Add(recipe.Name);
         }
+    }
+
+    private static void AddMissingNutrition(
+        Dictionary<int, MissingNutritionAccumulator> missingNutrition,
+        Ingredient ingredient,
+        string sourceRecipe
+    )
+    {
+        if (ingredient.NutritionPer100 is not null)
+        {
+            return;
+        }
+
+        if (!missingNutrition.TryGetValue(ingredient.IngredientId, out var missingIngredient))
+        {
+            missingIngredient = new MissingNutritionAccumulator(
+                ingredient.IngredientId,
+                ingredient.IngredientName,
+                ingredient.Brand?.Name
+            );
+            missingNutrition[ingredient.IngredientId] = missingIngredient;
+        }
+
+        missingIngredient.SourceRecipes.Add(sourceRecipe);
+    }
+
+    private static decimal GetPortionFactor(Recipe recipe, decimal? selectedPortions)
+    {
+        var basePortions = recipe.Portions <= 0m ? 1m : recipe.Portions;
+        var portions = selectedPortions is null or <= 0m ? basePortions : selectedPortions.Value;
+        return portions / basePortions;
     }
 
     private static IReadOnlyCollection<NutritionSummaryItemDto> BuildItems(

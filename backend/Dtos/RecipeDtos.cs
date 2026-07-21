@@ -22,6 +22,8 @@ public record RecipeRequest(
     [StringLength(600)]
     string? Description,
     string? Instructions,
+    [Range(typeof(decimal), "0.01", "79228162514264337593543950335", ParseLimitsInInvariantCulture = true)]
+    decimal Portions,
     [Required]
     IReadOnlyCollection<RecipeIngredientRequest> Ingredients,
     [Required]
@@ -33,7 +35,7 @@ public record RecipeRequest(
 
 public record RecipeIngredientRequest(
     int IngredientId,
-    [Range(typeof(decimal), "0", "79228162514264337593543950335")]
+    [Range(typeof(decimal), "0", "79228162514264337593543950335", ParseLimitsInInvariantCulture = true)]
     decimal? Amount,
     MeasurementUnit Unit,
     IngredientPreparation Preparation
@@ -51,6 +53,7 @@ public record RecipeDto(
     string? ImageUrl,
     string? Description,
     string? Instructions,
+    decimal Portions,
     IReadOnlyCollection<RecipeIngredientDto> Ingredients,
     IReadOnlyCollection<RecipeTag> Tags,
     IReadOnlyCollection<RecipeComponentDto> Components,

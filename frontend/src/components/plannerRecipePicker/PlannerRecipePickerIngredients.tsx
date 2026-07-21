@@ -22,7 +22,7 @@ export function IngredientFilterChips({
   const { t } = useLanguage();
 
   if (selectedIngredients.length === 0) {
-    return <span className={plannerPickerStyles.emptyIngredientChipSlot} aria-hidden="true" />;
+    return null;
   }
 
   return (

@@ -1,4 +1,5 @@
 import { useLanguage } from "../contexts";
+import type { IIngredient } from "../interfaces/IIngredient";
 import type { IMealPlanEntry } from "../interfaces/IMeal";
 import type { IRecipe } from "../interfaces/IRecipe";
 import { mealCalendarStyles, type SiteTheme } from "../styles/appStyles";
@@ -6,23 +7,27 @@ import { getApiAssetUrl } from "../services/apiClient";
 
 type MealSlotProps = {
   entry?: IMealPlanEntry;
+  ingredientsById: Map<number, IIngredient>;
   onClick: () => void;
   recipesById: Map<number, IRecipe>;
   theme?: SiteTheme;
 };
 
-function MealSlot({ entry, onClick, recipesById, theme = "dark" }: MealSlotProps) {
+function MealSlot({ entry, ingredientsById, onClick, recipesById, theme = "dark" }: MealSlotProps) {
   const { t } = useLanguage();
-  const plannedRecipes =
+  const plannedItems =
     entry?.recipes
       .slice()
       .sort((firstRecipe, secondRecipe) => firstRecipe.sortOrder - secondRecipe.sortOrder)
       .map((plannedRecipe) => ({
         ...plannedRecipe,
-        recipe: recipesById.get(plannedRecipe.recipeId),
+        recipe: plannedRecipe.recipeId === null ? undefined : recipesById.get(plannedRecipe.recipeId),
+        ingredient: plannedRecipe.ingredientId === null ? undefined : ingredientsById.get(plannedRecipe.ingredientId),
       })) ?? [];
-  const mainRecipe = plannedRecipes.find((plannedRecipe) => plannedRecipe.role === "Main") ?? plannedRecipes[0];
-  const supplementaryRecipes = plannedRecipes.filter((plannedRecipe) => plannedRecipe !== mainRecipe);
+  const mainItem = plannedItems.find((plannedRecipe) => plannedRecipe.role === "Main") ?? plannedItems[0];
+  const supplementaryItems = plannedItems.filter((plannedRecipe) => plannedRecipe !== mainItem);
+  const mainName = mainItem?.recipe?.name ?? mainItem?.ingredient?.ingredientName;
+  const mainImageUrl = mainItem?.recipe?.imageUrl ?? mainItem?.ingredient?.imageUrl ?? null;
 
   return (
     <button
@@ -31,16 +36,16 @@ function MealSlot({ entry, onClick, recipesById, theme = "dark" }: MealSlotProps
       type="button"
       onClick={onClick}
     >
-      {plannedRecipes.length > 0 ? (
+      {plannedItems.length > 0 ? (
         <div className={mealCalendarStyles.mealSlotContent}>
-          {mainRecipe?.recipe ? (
+          {mainName !== undefined ? (
             <>
               <div className={mealCalendarStyles.mealSlotImageFrame(theme)}>
-                {getApiAssetUrl(mainRecipe.recipe.imageUrl) ? (
+                {getApiAssetUrl(mainImageUrl) ? (
                   <img
                     alt=""
                     className={mealCalendarStyles.mealSlotImage}
-                    src={getApiAssetUrl(mainRecipe.recipe.imageUrl) ?? undefined}
+                    src={getApiAssetUrl(mainImageUrl) ?? undefined}
                   />
                 ) : (
                   <div className={mealCalendarStyles.mealSlotImageFallback(theme)} aria-hidden="true" />
@@ -48,18 +53,27 @@ function MealSlot({ entry, onClick, recipesById, theme = "dark" }: MealSlotProps
               </div>
               <div className={mealCalendarStyles.mealSlotDetails}>
                 <h3 className={mealCalendarStyles.mealSlotTitle(theme)}>
-                  {mainRecipe.recipe.name}
+                  {mainName}
                 </h3>
+                {mainItem?.portions !== null && mainItem?.portions !== undefined && (
+                  <span className={mealCalendarStyles.mealSlotPortions(theme)}>
+                    {mainItem.portions}x
+                  </span>
+                )}
                 <div className={mealCalendarStyles.mealSlotRecipeList}>
-                  {supplementaryRecipes.map((plannedRecipe) => (
+                  {supplementaryItems.map((plannedRecipe) => {
+                    const name = plannedRecipe.recipe?.name ?? plannedRecipe.ingredient?.ingredientName ?? t.planner.recipeFallback(plannedRecipe.recipeId ?? plannedRecipe.ingredientId ?? 0);
+
+                    return (
                     <div
                       className={mealCalendarStyles.mealSlotRecipe(theme)}
-                      key={`${plannedRecipe.mealPlanRecipeId}-${plannedRecipe.recipeId}`}
-                      title={plannedRecipe.recipe?.name ?? t.planner.recipeFallback(plannedRecipe.recipeId)}
+                      key={`${plannedRecipe.mealPlanRecipeId}-${plannedRecipe.recipeId ?? plannedRecipe.ingredientId}`}
+                      title={name}
                     >
-                      {plannedRecipe.recipe?.name ?? t.planner.recipeFallback(plannedRecipe.recipeId)}
+                      {name}
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </>

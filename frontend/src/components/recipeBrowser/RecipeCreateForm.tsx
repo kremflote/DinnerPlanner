@@ -54,6 +54,7 @@ function RecipeCreateForm({
   const { recipes, refreshRecipes } = useRecipes();
   const [recipeType, setRecipeType] = useState<RecipeType>(initialRecipe?.recipeType ?? "Dish");
   const [name, setName] = useState(initialRecipe?.name ?? "");
+  const [portions, setPortions] = useState((initialRecipe?.portions ?? 1).toString());
   const [description, setDescription] = useState(initialRecipe?.description ?? "");
   const [instructions, setInstructions] = useState(initialRecipe?.instructions ?? "");
   const [selectedIngredients, setSelectedIngredients] = useState<SelectedRecipeIngredient[]>(
@@ -184,6 +185,12 @@ function RecipeCreateForm({
       return;
     }
 
+    const parsedPortions = nullableNumber(portions);
+    if (parsedPortions === null || parsedPortions <= 0) {
+      setError(t.cookbook.portionsRequired);
+      return;
+    }
+
     setIsSaving(true);
     setError(null);
 
@@ -198,6 +205,7 @@ function RecipeCreateForm({
         imageUrl: upload?.url ?? initialRecipe?.imageUrl ?? null,
         description: nullableText(description),
         instructions: nullableText(instructions),
+        portions: parsedPortions,
         ingredients: selectedIngredients.map((ingredient) => ({
           ingredientId: ingredient.ingredientId,
           amount: nullableNumber(ingredient.amount),
@@ -270,6 +278,21 @@ function RecipeCreateForm({
                   type="text"
                   value={name}
                   onChange={(event) => setName(event.target.value)}
+                />
+              </label>
+
+              <label className={recipeBrowserStyles.field}>
+                <span className={recipeBrowserStyles.label(theme)}>
+                  {t.cookbook.portions}<span className={recipeBrowserStyles.requiredMark(theme)}> *</span>
+                </span>
+                <input
+                  className={recipeBrowserStyles.textField(theme)}
+                  min="0"
+                  required
+                  step="0.25"
+                  type="number"
+                  value={portions}
+                  onChange={(event) => setPortions(event.target.value)}
                 />
               </label>
 

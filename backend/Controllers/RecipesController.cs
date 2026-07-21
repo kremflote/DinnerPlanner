@@ -117,6 +117,7 @@ public class RecipesController(DinnerPlannerContext context) : ControllerBase
         recipe.ImageUrl = request.ImageUrl;
         recipe.Description = request.Description;
         recipe.Instructions = request.Instructions;
+        recipe.Portions = NormalizePortions(request.Portions);
         context.RecipeIngredients.RemoveRange(recipe.Ingredients);
         recipe.Ingredients = ToRecipeIngredients(request.Ingredients, recipe.RecipeId);
         ApplySpecialRecipeFields(recipe, request);
@@ -252,6 +253,7 @@ public class RecipesController(DinnerPlannerContext context) : ControllerBase
         recipe.ImageUrl = request.ImageUrl;
         recipe.Description = request.Description;
         recipe.Instructions = request.Instructions;
+        recipe.Portions = NormalizePortions(request.Portions);
         ApplySpecialRecipeFields(recipe, request);
         return recipe;
     }
@@ -277,6 +279,7 @@ public class RecipesController(DinnerPlannerContext context) : ControllerBase
         recipe.ImageUrl,
         recipe.Description,
         recipe.Instructions,
+        recipe.Portions,
         recipe.Ingredients.Select(ToDto).ToList(),
         recipe.Tags.Select(recipeTag => recipeTag.Tag).OrderBy(tag => tag).ToList(),
         recipe.Components
@@ -300,6 +303,8 @@ public class RecipesController(DinnerPlannerContext context) : ControllerBase
         SpiceMix => RecipeType.SpiceMix,
         _ => throw new ArgumentOutOfRangeException(nameof(recipe), "Unsupported recipe type.")
     };
+
+    private static decimal NormalizePortions(decimal portions) => portions <= 0m ? 1m : portions;
 
     private static List<RecipeTag> NormalizeTags(IReadOnlyCollection<RecipeTag>? tags) =>
         tags is null

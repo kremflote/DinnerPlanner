@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLanguage } from "../contexts";
+import type { IIngredient } from "../interfaces/IIngredient";
 import { mealCalendarStyles, type SiteTheme } from "../styles/appStyles";
 import type { IMealPlanEntry, MealSlot as MealSlotId, PlannerViewMode } from "../interfaces/IMeal";
 import type { IRecipe } from "../interfaces/IRecipe";
@@ -11,6 +12,7 @@ type MealCalendarProps = {
   dates: Date[];
   getEntryForSlot: (date: string, slot: MealSlotId) => IMealPlanEntry | undefined;
   isLoading: boolean;
+  ingredientsById: Map<number, IIngredient>;
   loadError: string | null;
   mealSlots: MealSlotId[];
   onSlotClick: (date: string, slot: MealSlotId) => void;
@@ -24,6 +26,7 @@ function MealCalendar({
   dates,
   getEntryForSlot,
   isLoading,
+  ingredientsById,
   loadError,
   mealSlots,
   onSlotClick,
@@ -84,6 +87,7 @@ function MealCalendar({
                   {mealSlots.map((slot) => (
                     <MonthMealSummary
                       entry={getEntryForSlot(dateKey, slot)}
+                      ingredientsById={ingredientsById}
                       key={`${dateKey}-${slot}`}
                       onClick={() => onSlotClick(dateKey, slot)}
                       recipesById={recipesById}
@@ -153,6 +157,7 @@ function MealCalendar({
                     {mealSlots.map((meal) => (
                       <DayMealPreview
                         entry={getEntryForSlot(dateKey, meal)}
+                        ingredientsById={ingredientsById}
                         key={`${dateKey}-${meal}-preview`}
                         recipesById={recipesById}
                         theme={theme}
@@ -172,6 +177,7 @@ function MealCalendar({
                 {mealSlots.map((meal) => (
                   <MealSlot
                     entry={getEntryForSlot(dateKey, meal)}
+                    ingredientsById={ingredientsById}
                     key={`${dateKey}-${meal}`}
                     onClick={() => onSlotClick(dateKey, meal)}
                     recipesById={recipesById}
@@ -200,18 +206,20 @@ function ChevronIcon() {
 
 type DayMealPreviewProps = {
   entry?: IMealPlanEntry;
+  ingredientsById: Map<number, IIngredient>;
   recipesById: Map<number, IRecipe>;
   theme: SiteTheme;
 };
 
-function DayMealPreview({ entry, recipesById, theme }: DayMealPreviewProps) {
+function DayMealPreview({ entry, ingredientsById, recipesById, theme }: DayMealPreviewProps) {
   const plannedRecipes = entry?.recipes.slice().sort((first, second) => first.sortOrder - second.sortOrder) ?? [];
   const mainRecipe =
     plannedRecipes.find((plannedRecipe) => plannedRecipe.role === "Main") ?? plannedRecipes[0];
-  const recipe = mainRecipe ? recipesById.get(mainRecipe.recipeId) : undefined;
-  const imageUrl = getApiAssetUrl(recipe?.imageUrl ?? null);
+  const recipe = mainRecipe?.recipeId === null || mainRecipe === undefined ? undefined : recipesById.get(mainRecipe.recipeId);
+  const ingredient = mainRecipe?.ingredientId === null || mainRecipe === undefined ? undefined : ingredientsById.get(mainRecipe.ingredientId);
+  const imageUrl = getApiAssetUrl(recipe?.imageUrl ?? ingredient?.imageUrl ?? null);
 
-  if (recipe === undefined) {
+  if (recipe === undefined && ingredient === undefined) {
     return <span className={mealCalendarStyles.dayPreviewEmpty(theme)} />;
   }
 
@@ -232,6 +240,7 @@ function DayMealPreview({ entry, recipesById, theme }: DayMealPreviewProps) {
 
 type MonthMealSummaryProps = {
   entry?: IMealPlanEntry;
+  ingredientsById: Map<number, IIngredient>;
   onClick: () => void;
   recipesById: Map<number, IRecipe>;
   slot: MealSlotId;
@@ -239,16 +248,17 @@ type MonthMealSummaryProps = {
   t: ReturnType<typeof useLanguage>["t"];
 };
 
-function MonthMealSummary({ entry, onClick, recipesById, slot, theme, t }: MonthMealSummaryProps) {
+function MonthMealSummary({ entry, ingredientsById, onClick, recipesById, slot, theme, t }: MonthMealSummaryProps) {
   const plannedRecipes = entry?.recipes ?? [];
   const firstRecipe = plannedRecipes
     .slice()
     .sort((first, second) => first.sortOrder - second.sortOrder)[0];
-  const recipe = firstRecipe ? recipesById.get(firstRecipe.recipeId) : undefined;
+  const recipe = firstRecipe?.recipeId === null || firstRecipe === undefined ? undefined : recipesById.get(firstRecipe.recipeId);
+  const ingredient = firstRecipe?.ingredientId === null || firstRecipe === undefined ? undefined : ingredientsById.get(firstRecipe.ingredientId);
   const extraCount = Math.max(plannedRecipes.length - 1, 0);
   const empty = entry === undefined;
   const slotLabel = t.enums.mealSlots[slot];
-  const label = recipe?.name ?? (firstRecipe ? t.planner.recipeFallback(firstRecipe.recipeId) : t.planner.addMealLower(slotLabel));
+  const label = recipe?.name ?? ingredient?.ingredientName ?? (firstRecipe ? t.planner.recipeFallback(firstRecipe.recipeId ?? firstRecipe.ingredientId ?? 0) : t.planner.addMealLower(slotLabel));
   const title = entry === undefined ? t.planner.addMeal(slotLabel) : t.planner.editMeal(slotLabel, label);
   const buttonLabel = empty ? t.planner.addMealLower(slotLabel) : label;
 

@@ -8,6 +8,7 @@ export interface RecipeRequest {
   imageUrl: string | null;
   description: string | null;
   instructions: string | null;
+  portions: number;
   ingredients: RecipeIngredientRequest[];
   tags: RecipeTag[];
   components: RecipeComponentRequest[];

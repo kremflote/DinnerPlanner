@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { IIngredient } from "../interfaces/IIngredient";
 import { getApiAssetUrl } from "../services/apiClient";
 import { colorPalette, siteColorClasses, thumbnailStyles, type SiteTheme } from "../styles/appStyles";
@@ -10,6 +11,8 @@ type IngredientThumbnailProps = {
   mode?: "default" | "compact";
   disabled?: boolean;
   className?: string;
+  contentExtra?: ReactNode;
+  footerExtra?: ReactNode;
   onClick?: () => void;
 };
 
@@ -26,6 +29,8 @@ function IngredientThumbnail({
   mode = "default",
   disabled = false,
   className = "",
+  contentExtra,
+  footerExtra,
   onClick,
 }: IngredientThumbnailProps) {
   const brandName = ingredient.brand?.name ?? "";
@@ -74,7 +79,13 @@ function IngredientThumbnail({
         }`}>
           {brandName}
         </span>
+        {contentExtra}
       </span>
+      {footerExtra !== undefined && (
+        <span className={thumbnailStyles.ingredientFooter}>
+          {footerExtra}
+        </span>
+      )}
     </>
   );
 

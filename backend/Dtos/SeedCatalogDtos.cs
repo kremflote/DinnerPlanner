@@ -35,6 +35,7 @@ public record SeedRecipeDto(
     string? ImageUrl,
     string? Description,
     string? Instructions,
+    decimal? Portions,
     IReadOnlyCollection<SeedRecipeIngredientDto>? Ingredients,
     IReadOnlyCollection<RecipeTag>? Tags,
     IReadOnlyCollection<SeedRecipeComponentDto>? Components,
