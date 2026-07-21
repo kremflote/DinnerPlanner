@@ -177,19 +177,17 @@ function BrowserDetailModal({ detail, theme, onClose }: BrowserDetailModalProps)
         </span>
       </span>
     ) : (
-      activeDetail.ingredient.ingredientName
+      <span className={recipeBrowserStyles.detailHeaderTitleRow}>
+        <span>{activeDetail.ingredient.ingredientName}</span>
+        <span className={recipeBrowserStyles.detailHeaderTagList}>
+          {activeDetail.ingredient.tags.map((tag) => (
+            <span className={recipeBrowserStyles.filterChip(theme)} key={tag}>
+              {t.enums.ingredientTags[tag] ?? tag}
+            </span>
+          ))}
+        </span>
+      </span>
     );
-
-  const detailTags =
-    activeDetail.kind === "ingredient" ? (
-      <div className={recipeBrowserStyles.detailHeaderTagList}>
-        {activeDetail.ingredient.tags.map((tag) => (
-          <span className={recipeBrowserStyles.filterChip(theme)} key={tag}>
-            {t.enums.ingredientTags[tag]}
-          </span>
-        ))}
-      </div>
-    ) : undefined;
 
   return (
     <Modal
@@ -197,8 +195,6 @@ function BrowserDetailModal({ detail, theme, onClose }: BrowserDetailModalProps)
       bodyClassName={recipeBrowserStyles.detailBodyScrollArea}
       closeButtonClassName={recipeBrowserStyles.detailCloseButton(theme)}
       closeLabel={t.common.close}
-      description={detailTags}
-      descriptionClassName={recipeBrowserStyles.detailHeaderDescription}
       footer={
         <>
           {detailHistory.length > 0 && (

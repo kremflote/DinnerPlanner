@@ -127,7 +127,7 @@ export function NutritionGrid({ nutrition, theme, variant = "default" }: Nutriti
           nutrition.transFatGrams,
           nutrition.monounsaturatedFatGrams,
           nutrition.polyunsaturatedFatGrams,
-        ]))],
+        ]), 1)],
       ]
       : [
         [t.cookbook.calories, nutrition.calories === null ? null : `${nutrition.calories} kcal`],
@@ -194,8 +194,17 @@ export function NutritionGrid({ nutrition, theme, variant = "default" }: Nutriti
   );
 }
 
-function formatGrams(value: number | null) {
-  return value === null ? null : `${value} g`;
+function formatGrams(value: number | null, maximumFractionDigits?: number) {
+  if (value === null) {
+    return null;
+  }
+
+  const formattedValue =
+    maximumFractionDigits === undefined
+      ? value.toString()
+      : value.toLocaleString(undefined, { maximumFractionDigits });
+
+  return `${formattedValue} g`;
 }
 
 function sumNutritionValues(values: Array<number | null>) {
