@@ -861,6 +861,7 @@ export const scannerStyles = {
           ? "text-[#556145]"
           : "text-neutral-600"
     }`,
+  matvareSearchForm: "grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto]",
   matvareCandidateButton: (theme: SiteTheme) =>
     `grid gap-1 rounded-md border p-3 text-left transition-colors ${focusBase} ${siteColorClasses[theme].focus} ${
       theme === "dark"

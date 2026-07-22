@@ -8,7 +8,8 @@ namespace DinnerPlanner.Api.Controllers;
 [ApiController]
 [Route("api/product-lookup")]
 public partial class ProductLookupController(
-    KassalappProductLookupService kassalappProductLookup
+    KassalappProductLookupService kassalappProductLookup,
+    MatvaretabellenNutritionLookupService matvaretabellenNutritionLookup
 ) : ControllerBase
 {
     [HttpGet("ean/{ean}")]
@@ -38,6 +39,52 @@ public partial class ProductLookupController(
         {
             return StatusCode(StatusCodes.Status502BadGateway, exception.Message);
         }
+    }
+
+    [HttpGet("matvaretabellen")]
+    public async Task<ActionResult<IReadOnlyCollection<MatvaretabellenCandidateDto>>> SearchMatvaretabellen(
+        [FromQuery] string query,
+        CancellationToken cancellationToken
+    )
+    {
+        var trimmedQuery = query.Trim();
+        if (string.IsNullOrWhiteSpace(trimmedQuery))
+        {
+            return BadRequest("Search query is required.");
+        }
+
+        if (trimmedQuery.Length > 120)
+        {
+            return BadRequest("Search query can be at most 120 characters.");
+        }
+
+        try
+        {
+            var result = await matvaretabellenNutritionLookup.FindMatchesAsync(
+                trimmedQuery,
+                brand: null,
+                ingredients: null,
+                productNutrition: null,
+                cancellationToken
+            );
+
+            return Ok(result.Candidates.Select(ToCandidateDto).ToList());
+        }
+        catch (HttpRequestException exception)
+        {
+            return StatusCode(StatusCodes.Status502BadGateway, exception.Message);
+        }
+    }
+
+    private static MatvaretabellenCandidateDto ToCandidateDto(MatvaretabellenNutritionMatch candidate)
+    {
+        return new MatvaretabellenCandidateDto(
+            candidate.FoodId,
+            candidate.FoodName,
+            candidate.Url,
+            candidate.Confidence,
+            candidate.Nutrition
+        );
     }
 
     [GeneratedRegex("^(\\d{8}|\\d{13})$")]

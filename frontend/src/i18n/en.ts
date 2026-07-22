@@ -350,6 +350,11 @@ export const en: TranslationDictionary = {
     matvaretabellenNoMatchFound: "No match found in Matvaretabellen.",
     matvaretabellenSupplementFailed:
       "Failed to supplement missing data from Matvaretabellen.",
+    searchMatvaretabellen: "Search...",
+    searchMatvaretabellenEmpty: "No Matvaretabellen entries found.",
+    searchMatvaretabellenError: "Could not search Matvaretabellen.",
+    searchMatvaretabellenPlaceholder: "Search food name...",
+    searchMatvaretabellenTitle: "Search Matvaretabellen",
     mobileOnly: "Open page in phone or tablet to enable scan function.",
     nameLabel: "Name",
     noCandidateSelected: "Choose a suggested ingredient first.",

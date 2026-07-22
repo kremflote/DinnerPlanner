@@ -419,6 +419,11 @@ export const nb: TranslationDictionary = {
     matvaretabellenNoMatchFound: "Ingen treff funnet i Matvaretabellen.",
     matvaretabellenSupplementFailed:
       "Kunne ikke supplere manglende data fra Matvaretabellen.",
+    searchMatvaretabellen: "Søk...",
+    searchMatvaretabellenEmpty: "Ingen treff i Matvaretabellen.",
+    searchMatvaretabellenError: "Kunne ikke søke i Matvaretabellen.",
+    searchMatvaretabellenPlaceholder: "Søk etter matvare...",
+    searchMatvaretabellenTitle: "Søk i Matvaretabellen",
     mobileOnly:
       "Kameraskanning er tilgjengelig på telefon- og nettbrettstørrelser.",
     nameLabel: "Navn",

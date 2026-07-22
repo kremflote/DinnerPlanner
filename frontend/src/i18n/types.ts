@@ -299,6 +299,11 @@ export type TranslationDictionary = {
     matvaretabellenScore: (score: number) => string;
     matvaretabellenNoMatchFound: string;
     matvaretabellenSupplementFailed: string;
+    searchMatvaretabellen: string;
+    searchMatvaretabellenEmpty: string;
+    searchMatvaretabellenError: string;
+    searchMatvaretabellenPlaceholder: string;
+    searchMatvaretabellenTitle: string;
     mobileOnly: string;
     nameLabel: string;
     noCandidateSelected: string;
