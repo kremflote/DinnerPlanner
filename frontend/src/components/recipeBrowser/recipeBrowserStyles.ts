@@ -91,7 +91,7 @@ export const recipeBrowserStyles = {
   addButtonLabel: "max-[1100px]:sr-only",
   modalBackdrop: `fixed inset-0 z-[60] flex items-center justify-center bg-black/45 p-4 ${responsiveClasses.mobileModalBackdrop}`,
   modalPanel: (theme: SiteTheme) =>
-    `${sizeClasses.modalOuterMaxHeight} w-full max-w-3xl overflow-y-auto rounded-md border p-6 ${responsiveClasses.mobileModalPanel} ${shadowClasses.overlay} ${surfaceClasses.modal(theme)}`,
+    `grid ${sizeClasses.modalOuterMaxHeight} w-full max-w-3xl grid-rows-[auto_minmax(0,1fr)] gap-4 overflow-hidden rounded-md border p-6 ${responsiveClasses.mobileModalPanel} ${shadowClasses.overlay} ${surfaceClasses.modal(theme)}`,
   modalCloseButton: controlStyles.modalCloseButton,
   modalModeSwitch: (theme: SiteTheme) =>
     `flex h-9 w-full overflow-hidden rounded-md border p-1 ${
@@ -121,7 +121,7 @@ export const recipeBrowserStyles = {
   modalTitle: "text-2xl font-bold leading-tight max-sm:text-xl",
   modalCloseAligned: (theme: SiteTheme) =>
     `${recipeBrowserStyles.modalCloseButton(theme)} ml-auto`,
-  form: "mt-6 grid gap-4",
+  form: "grid min-h-0 grid-rows-[minmax(0,1fr)_auto] gap-4",
   formBodyScrollArea: `${sizeClasses.modalFormBodyMaxHeight} ${sizeClasses.modalFormBodyMobileMaxHeight} grid gap-4 overflow-y-auto pr-1`,
   formGrid: "grid grid-cols-2 gap-4 max-md:grid-cols-1",
   fieldHeaderRow:
@@ -457,21 +457,9 @@ export const recipeBrowserStyles = {
   nestedIngredientModalBody: `${sizeClasses.modalFormBodyMaxHeight} ${sizeClasses.modalFormBodyMobileMaxHeight} grid min-h-0 gap-3 overflow-y-auto pr-1`,
   primaryButton: controlStyles.primaryButton,
   detailHeaderEditButton: (theme: SiteTheme) =>
-    `inline-flex h-9 min-w-20 items-center justify-center rounded-md border px-3 text-xs font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-55 max-sm:h-10 max-sm:min-w-0 max-sm:flex-1 max-sm:text-sm ${
-      theme === "dark"
-        ? "border-white/[0.12] bg-white/[0.14] text-white hover:bg-white/[0.2]"
-        : theme === "paletteLight"
-          ? "border-[#7A8864]/35 bg-[#7A8864] text-[#FAF7F2] hover:bg-[#6A7658]"
-          : "border-neutral-900 bg-neutral-900 text-white hover:bg-neutral-700"
-    }`,
+    `${controlStyles.primaryButton(theme)} ${recipeBrowserStyles.formActionButton}`,
   detailHeaderRemoveButton: (theme: SiteTheme) =>
-    `inline-flex h-9 min-w-20 items-center justify-center rounded-md border px-3 text-xs font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-55 max-sm:h-10 max-sm:min-w-0 max-sm:flex-1 max-sm:text-sm ${
-      theme === "dark"
-        ? "border-red-950 bg-red-950 text-white hover:bg-red-900"
-        : theme === "paletteLight"
-          ? "border-red-950 bg-red-950 text-[#FAF7F2] hover:bg-red-900"
-          : "border-red-900 bg-red-900 text-white hover:bg-red-800"
-    }`,
+    `${controlStyles.removeButton(theme)} ${recipeBrowserStyles.formActionButton}`,
   detailModalPanel: (theme: SiteTheme) =>
     `relative grid ${sizeClasses.modalOuterMaxHeight} w-full max-w-3xl grid-rows-[auto_minmax(0,1fr)_auto] gap-4 overflow-hidden rounded-md border p-6 ${responsiveClasses.mobileModalPanel} ${shadowClasses.overlay} ${surfaceClasses.modal(theme)}`,
   detailCloseButton: (theme: SiteTheme) =>
@@ -482,17 +470,11 @@ export const recipeBrowserStyles = {
   detailHeaderShell: "grid gap-2 max-sm:pr-12",
   detailHeaderTitleRow: "flex flex-wrap items-center gap-2",
   detailHeaderActionRow:
-    "flex flex-wrap items-center justify-end gap-2 pt-2 max-sm:border-t max-sm:pt-4",
+    "flex flex-wrap items-center justify-end gap-3 pt-2 max-sm:flex-nowrap",
   detailHeaderTagList: "flex min-w-0 flex-wrap items-center gap-2",
   detailHeaderTitle: "min-w-0 text-2xl font-bold leading-tight",
   detailHeaderBackButton: (theme: SiteTheme) =>
-    `inline-flex h-9 min-w-20 items-center justify-center rounded-md border px-3 text-xs font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-55 max-sm:h-10 max-sm:min-w-0 max-sm:flex-1 max-sm:text-sm ${
-      theme === "dark"
-        ? "border-white/[0.10] bg-white/[0.06] text-neutral-200 hover:bg-white/[0.12]"
-        : theme === "paletteLight"
-          ? "border-[#C8C0B5] bg-[#E5D5BC]/45 text-[#556145] hover:bg-[#C8C0B5]/70"
-          : "border-neutral-300 bg-neutral-100 text-neutral-800 hover:bg-neutral-200"
-    }`,
+    `${controlStyles.secondaryButton(theme)} ${recipeBrowserStyles.formActionButton}`,
   secondaryButton: controlStyles.secondaryButton,
   statusError: (theme: SiteTheme) =>
     `rounded-md border px-3 py-2 text-sm font-semibold ${
