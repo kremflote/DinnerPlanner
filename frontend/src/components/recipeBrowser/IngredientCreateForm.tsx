@@ -43,7 +43,7 @@ function IngredientCreateForm({
   const [brandId, setBrandId] = useState<number | null>(initialIngredient?.brandId ?? null);
   const [croppedImageFile, setCroppedImageFile] = useState<File | null>(null);
   const [selectedTags, setSelectedTags] = useState<IngredientTag[]>(
-    initialIngredient && initialIngredient.tags.length > 0 ? [...initialIngredient.tags] : ["Vegetable"],
+    initialIngredient ? [...initialIngredient.tags] : [],
   );
   const [isTagCreateOpen, setIsTagCreateOpen] = useState(false);
   const [calories, setCalories] = useState(numberToInputValue(initialIngredient?.nutritionPer100?.calories));
@@ -148,11 +148,6 @@ function IngredientCreateForm({
 
     if (trimmedName.length > INGREDIENT_NAME_MAX_LENGTH) {
       setError(t.cookbook.ingredientNameTooLong(INGREDIENT_NAME_MAX_LENGTH));
-      return;
-    }
-
-    if (selectedTags.length === 0) {
-      setError(t.cookbook.chooseAtLeastOneIngredientTag);
       return;
     }
 
@@ -473,8 +468,7 @@ function IngredientCreateForm({
 
           <section className={recipeBrowserStyles.field}>
             <span className={recipeBrowserStyles.label(theme)}>
-              {t.cookbook.tags}<span className={recipeBrowserStyles.requiredMark(theme)}> *</span>
-              <span className={recipeBrowserStyles.inlineHint(theme)}>{t.cookbook.pickOneOrMore}</span>
+              {t.cookbook.tags}
             </span>
             <GroupedCheckboxPanel
               addActionLabel={t.common.manageTags}
